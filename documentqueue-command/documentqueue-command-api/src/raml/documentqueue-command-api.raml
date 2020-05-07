@@ -1,0 +1,20 @@
+#%RAML 0.8
+title: Document Queue Command API
+baseUri: http://localhost:8080/documentqueue-command-api/command/api/rest/documentqueue
+protocols: [ HTTP ]
+
+/documents/{documentId}:
+  post:
+    description: |
+      Update queue document.
+      ...
+      (mapping):
+          requestType: application/vnd.documentqueue.update-document-status+json
+          name: documentqueue.update-document-status
+      ...
+    body:
+      application/vnd.documentqueue.update-document-status+json:
+        example:
+          !include json/documentqueue.update-document-status.json
+        schema:
+          !include json/schema/documentqueue.update-document-status.json

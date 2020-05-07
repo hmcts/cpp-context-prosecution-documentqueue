@@ -1,0 +1,101 @@
+package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database;
+
+import static java.lang.String.format;
+
+import uk.gov.justice.services.test.utils.persistence.DatabaseCleaner;
+import uk.gov.justice.services.test.utils.persistence.TestJdbcConnectionProvider;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTableList;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+
+import com.jayway.awaitility.Awaitility;
+import com.jayway.awaitility.Duration;
+
+public class DBUtil {
+
+    private static final TestJdbcConnectionProvider CONNECTION_PROVIDER = new TestJdbcConnectionProvider();
+    private static final DatabaseCleaner DATABASE_CLEANER = new DatabaseCleaner();
+
+    private static final String CONTEXT_NAME = "documentqueue";
+    private static final String COUNT_QRY = "SELECT count(1) FROM %s WHERE %s";
+    private static final String COUNT_QRY_WITHOUT_CRITERIA = "SELECT count(1) FROM %s";
+    private static final int EMPTY_COUNT = 0;
+
+    public static int getCount(String table, String criteria) {
+
+        try (Connection documentQueueViewStoreConnection = CONNECTION_PROVIDER.getViewStoreConnection(CONTEXT_NAME);
+             Statement statement = documentQueueViewStoreConnection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(format(COUNT_QRY, table, criteria));
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException(format("SQLException while getting count from table %s with condition %s", table, criteria), exception);
+
+        }
+
+        return 0;
+    }
+
+    public static int getCount(String table) {
+
+        try (Connection documentQueueViewStoreConnection = CONNECTION_PROVIDER.getViewStoreConnection(CONTEXT_NAME);
+             Statement statement = documentQueueViewStoreConnection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery(format(COUNT_QRY_WITHOUT_CRITERIA, table));
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException(format("SQLException while getting count from table %s", table), exception);
+        }
+
+        return 0;
+    }
+
+    public static int checkIfTableIsEmpty(String tableName) {
+        try (Connection documentQueueViewStoreConnection = CONNECTION_PROVIDER.getViewStoreConnection(CONTEXT_NAME);
+             Statement statement = documentQueueViewStoreConnection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM " + tableName);
+
+            while (resultSet.next()) {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException exception) {
+            throw new RuntimeException(format("SQLException while getting count from table ", tableName), exception);
+        }
+
+        return 0;
+    }
+
+    public static void waitUntilDataDeleted(String table, int count) {
+        Awaitility.await()
+                .pollDelay(Duration.ZERO)
+                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .until(() -> checkIfTableIsEmpty(table) == count);
+    }
+
+    public static void waitUntilDataPersist(String table, String criteria, int count) {
+        Awaitility.await()
+                .pollDelay(Duration.ZERO)
+                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .until(() -> getCount(table, criteria) == count);
+    }
+
+    public static void waitUntilDataPersist(String table, int count) {
+        Awaitility.await()
+                .pollDelay(Duration.ZERO)
+                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .until(() -> getCount(table) == count);
+    }
+
+    public static void cleanDatabase() {
+        for (DocumentQueueTableList documentQueueTableList : DocumentQueueTableList.values()) {
+            DATABASE_CLEANER.cleanViewStoreTables(CONTEXT_NAME, documentQueueTableList.name());
+            waitUntilDataDeleted(documentQueueTableList.name(), EMPTY_COUNT);
+        }
+    }
+
+}

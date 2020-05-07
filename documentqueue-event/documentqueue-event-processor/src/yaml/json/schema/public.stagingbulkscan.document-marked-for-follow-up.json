@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/stagingbulkscan/follow-up-document.json",
+  "type": "object",
+  "properties": {
+    "document": {
+        "$ref": "http://justice.gov.uk/json/schemas/stagingbulkscan/scan-envelope-document.json"
+    }
+  },
+  "required": [
+    "document"
+  ],
+  "additionalProperties": false
+}

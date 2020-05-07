@@ -1,0 +1,52 @@
+{
+  "scanEnvelope": {
+    "associatedScanDocuments": [
+      {
+        "asn": "dummyasn",
+        "caseUrn": "TVL6794003OMW",
+        "documentControlNumber": "54856456",
+        "documentName": "SJPMC100",
+        "fileName": "financial_means_with_ocr_data.pdf",
+        "manualIntervention": "No",
+        "mc100s": {
+          "averageIncome": "52000",
+          "claimBenefits": true,
+          "employed": true,
+          "employerAddressCity": "CROYDON",
+          "employerAddressLine1": "125 WELSLEY ROAD",
+          "employerAddressLine2": "CROYDON",
+          "employerAddressLine3": "LONDON",
+          "employerAddressPostCode": "EC1A 1BB",
+          "frequencyFortnightly": false,
+          "frequencyMonthly": false,
+          "frequencyWeekly": false,
+          "frequencyYearly": true,
+          "nameOfOrganization": "TOY COMPANY INC",
+          "niNumber": "PA555555D",
+          "noIncome": false,
+          "otherEmploymentStatus": false,
+          "payrollNumber": "ABC1234569",
+          "selfEmployed": false,
+          "unemployed": false
+        },
+        "nextAction": "shredding",
+        "notes": "These are file notes for testing",
+        "prosecutorAuthorityCode": "TVL",
+        "prosecutorAuthorityId": "GAEAA01",
+        "scanDocumentId": "${documentId}",
+        "status": "${status}",
+        "vendorReceivedDate": "2020-02-12T20:11:32.013Z",
+        "scanningDate": "2020-02-12T20:51:32.013Z"
+      }
+    ],
+    "envelopeClassification": "supplementary_evidence",
+    "extractedDate": "2020-02-17T21:08:39.966Z",
+    "jurisdiction": "Crime",
+    "notes": "notes to test",
+    "scanEnvelopeId": "285256e4-23df-475c-87ac-c0dc031349bf",
+    "vendorOpeningDate": "2020-02-14T20:11:32.013Z",
+    "vendorPOBox": "1986",
+    "zipFileCreatedDate": "2020-02-16T20:11:32.014Z",
+    "zipFileName": "bae5ffba-80e6-4baa-9a10-8a88460e941f.zip"
+  }
+}

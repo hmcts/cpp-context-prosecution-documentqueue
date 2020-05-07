@@ -1,0 +1,25 @@
+subscriptions_descriptor:
+  spec_version: 1.0.0
+  service: documentqueue
+  service_component: EVENT_PROCESSOR
+  subscriptions:
+    - name: event processor subscriptions
+      event_source_name: public
+      events:
+        - name: public.stagingbulkscan.scan-envelope-registered
+          schema_uri: http://justice.gov.uk/json/schemas/stagingbulkscan/events/scan-envelope-registered.json
+        - name: public.prosecutioncasefile.document-review-required
+          schema_uri: http://moj.gov.uk/cps/prosecutioncasefile/domain/event/public.prosecutioncasefile.document-review-required.json
+        - name: public.stagingbulkscan.document-marked-for-follow-up
+          schema_uri: http://justice.gov.uk/json/schemas/stagingbulkscan/follow-up-document.json
+        - name: public.progression.document-review-required
+          schema_uri: http://moj.gov.uk/cps/progression/domain/event/public.progression.document-review-required
+    - name: event processor documentqueue subscription
+      event_source_name: documentqueue
+      events:
+        - name: documentqueue.event.document-status-updated
+          schema_uri: http://moj.gov.uk/cpp/documentqueue.event.document-status-updated.json
+        - name: documentqueue.event.document-status-update-failed
+          schema_uri: http://moj.gov.uk/cpp/documentqueue.event.document-status-update-failed.json
+        - name: documentqueue.event.document-marked-completed
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-marked-completed.json

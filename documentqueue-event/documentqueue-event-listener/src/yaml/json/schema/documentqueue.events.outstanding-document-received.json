@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/domains/documentqueue/event/outstanding-document-received.json",
+  "type": "object",
+  "properties": {
+    "outstandingDocument": {
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/document.json"
+    }
+  },
+  "required": [
+    "outstandingDocument"
+  ]
+}
+

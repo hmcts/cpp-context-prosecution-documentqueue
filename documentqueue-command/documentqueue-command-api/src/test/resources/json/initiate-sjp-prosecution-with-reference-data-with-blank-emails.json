@@ -1,0 +1,71 @@
+{
+  "prosecution": {
+    "caseDetails": {
+      "caseId": "51cac7fb-387c-4d19-9c80-8963fa8cf222",
+      "prosecutorCaseReference": "DVAL12345",
+      "appliedProsecutorCosts": 200,
+      "prosecutor": {
+        "prosecutingAuthority": "GAAAA01",
+        "informant": "Adam"
+      }
+    },
+    "defendants": [
+      {
+        "id": "%s",
+        "documentationLanguage": "W",
+        "hearingLanguage": "W",
+        "individual": {
+          "personalInformation": {
+            "title": "Baron",
+            "firstName": "John",
+            "lastName": "Smith",
+            "address": {
+              "address1": "armagaddon house",
+              "postcode": "M60 1NW"
+            },
+            "contactDetails": {
+              "work": "020111222",
+              "home": "020111223",
+              "mobile": "07572222943"
+            }
+          },
+          "selfDefinedInformation": {
+            "ethnicity": "white",
+            "gender": "MALE"
+          }
+        },
+        "offences": [
+          {
+            "offenceId": "%s",
+            "offenceCode": "OFCODE12",
+            "offenceSequenceNumber": 1,
+            "offenceCommittedDate": "2018-09-10",
+            "offenceDateCode": 1,
+            "offenceWording": "Duty not paid",
+            "chargeDate": "2015-04-04",
+            "appliedCompensation": 200,
+            "backDuty": 340.30,
+            "backDutyDateFrom": "2018-04-30",
+            "backDutyDateTo": "2018-05-30",
+            "vehicleMake": "Ford",
+            "vehicleRegistrationMark": "AB11 ABC"
+          }
+        ],
+        "postingDate": "2018-09-10"
+      }
+    ]
+  },
+  "offenceCodeReferenceData": [
+    {
+      "cjsOffenceCode": "OFCODE12",
+      "offenceId": "462204a9-a728-4161-8e53-22241fadf0a0"
+    }
+  ],
+  "nationalityReferenceData": [
+    {
+      "cjsCode": "1",
+      "isoCode": "GBR"
+    }
+  ],
+  "additionalProperties": {}
+}

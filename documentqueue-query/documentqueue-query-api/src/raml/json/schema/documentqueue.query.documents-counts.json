@@ -1,0 +1,6 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/query/api/documents-counts.json",
+  "type": "object",
+  "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/model/documents-count.json"
+}

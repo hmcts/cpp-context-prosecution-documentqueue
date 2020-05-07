@@ -1,0 +1,21 @@
+{
+  "outstandingDocument": {
+    "scanDocumentId": "c78cb222-58d0-42ac-9cc8-d1b2710171bf",
+    "caseUrn": "TVL6794003OMW",
+    "prosecutorAuthorityId": "GAEAA01",
+    "prosecutorAuthorityCode": "TVL",
+    "documentControlNumber": "54856456",
+    "documentName": "SJPMC100",
+    "fileName": "financial_means_with_ocr_data.pdf",
+    "manualIntervention": "No",
+    "vendorReceivedDate": "2020-02-12T20:11:32.013Z",
+    "scanningDate": "2020-02-12T20:51:32.013Z",
+    "notes": "These are file notes for testing",
+    "envelopeId": "285256e4-23df-475c-87ac-c0dc031349bf",
+    "zipFileName": "bae5ffba-80e6-4baa-9a10-8a88460e941f.zip",
+    "source": "BULKSCAN",
+    "status": "OUTSTANDING",
+    "type": "APPLICATION",
+    "statusUpdatedDate": "2020-02-12T20:51:32.013Z"
+  }
+}

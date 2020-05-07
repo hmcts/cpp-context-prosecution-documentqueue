@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.3.xsd">
+
+    <changeSet id="001" author="manan.gupta" logicalFilePath="001-create-document-table.xml">
+        <createTable tableName="document">
+            <column name="id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="case_urn" type="VARCHAR(50)"/>
+            <column name="case_pti_urn" type="VARCHAR(50)"/>
+            <column name="prosecutor_authority_id" type="VARCHAR(50)"/>
+            <column name="prosecutor_authority_code" type="VARCHAR(50)"/>
+            <column name="document_control_number" type="VARCHAR(50)"/>
+            <column name="document_name" type="VARCHAR(255)"/>
+            <column name="scanning_date_ts" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="manual_intervention" type="VARCHAR(50)"/>
+            <column name="envelope_id" type="UUID"/>
+            <column name="source" type="VARCHAR(50)"/>
+            <column name="file_name" type="VARCHAR(255)"/>
+            <column name="zip_file_name" type="VARCHAR(255)"/>
+            <column name="notes" type="TEXT"/>
+            <column name="vendor_received_date_ts" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="status" type="VARCHAR(50)"/>
+            <column name="type" type="VARCHAR(50)"/>
+            <column name="status_updated_date_ts" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="user_id" type="UUID"/>
+            <column name="actioned_by" type="UUID"/>
+            <column name="material_id" type="UUID"/>
+            <column name="deleted" type="BOOLEAN"/>
+            <column name="deleted_date_ts" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="last_modified_ts" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="file_service_id" type="UUID"/>
+            <column name="external_document_id" type="VARCHAR(255)"/>
+            <column name="received_date_time" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+    </changeSet>
+
+</databaseChangeLog>

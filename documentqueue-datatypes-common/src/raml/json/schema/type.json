@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/type.json",
+  "type": "object",
+  "enum": [
+    "PLEA",
+    "APPLICATION",
+    "CORRESPONDENCE",
+    "PET",
+    "OTHER"
+  ]
+}

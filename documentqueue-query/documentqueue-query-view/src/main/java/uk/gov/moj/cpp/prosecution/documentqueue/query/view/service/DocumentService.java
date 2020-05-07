@@ -1,0 +1,184 @@
+package uk.gov.moj.cpp.prosecution.documentqueue.query.view.service;
+
+import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static uk.gov.justice.services.messaging.JsonObjects.getString;
+
+import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Applications;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Completed;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Correspondence;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
+import uk.gov.justice.prosecution.documentqueue.domain.model.InProgress;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Other;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Outstanding;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Pleas;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
+import uk.gov.justice.prosecution.documentqueue.domain.model.Total;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
+import uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping;
+import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
+import javax.inject.Inject;
+import javax.json.JsonObject;
+
+import org.slf4j.Logger;
+
+public class DocumentService {
+
+    @Inject
+    private DocumentConverter documentConverter;
+
+    @Inject
+    private DocumentRepository documentRepository;
+
+    @SuppressWarnings("squid:S1312")
+    @Inject
+    private Logger logger;
+
+    public List<ScanDocument> getDocuments(final JsonEnvelope envelope) {
+
+        final JsonObject payload = envelope.payloadAsJsonObject();
+        final Optional<Source> source = getString(payload, "source").map(Source::valueOf);
+        final Optional<Status> status = getString(payload, "status").map(Status::valueOf);
+
+        if (source.isPresent() && status.isPresent()) {
+            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusOrderByVendorReceivedDateAsc(source.get(), status.get()));
+        } else if (source.isPresent()) {
+            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(source.get(), Status.DELETED));
+        } else if (status.isPresent()) {
+            return documentConverter.convertToScanDocuments(documentRepository.findByStatusOrderByVendorReceivedDateAsc(status.get()));
+        } else {
+            return documentConverter.convertToScanDocuments(documentRepository.findByStatusNotEqualOrderByVendorReceivedDateAsc(Status.DELETED));
+        }
+    }
+
+    @SuppressWarnings("squid:S2629")
+    public Optional<DocumentContentView> getDocument(final UUID documentId) {
+
+        final Document document = documentRepository.findBy(documentId);
+
+        if (document != null) {
+            return of(documentConverter.convertToDocumentContentView(document));
+        }
+
+        logger.info(format("No document found in document table with id '%s'", documentId));
+
+        return empty();
+    }
+
+    public ScanDocument getDocumentById(final UUID documentId){
+        return documentConverter.convertToScanDocument(documentRepository.findBy(documentId));
+    }
+
+    public DocumentsCount getDocumentsCount() {
+        final List<DocumentCountMapping> documentCountMapping = documentRepository.getDocumentCount();
+        final DocumentsCount.Builder builder = new DocumentsCount.Builder();
+
+        withCompletedCounts(documentCountMapping, builder);
+
+        withInProgressCounts(documentCountMapping, builder);
+
+        withOutstandingCounts(documentCountMapping, builder);
+
+        return builder.build();
+    }
+
+    private void withOutstandingCounts(final List<DocumentCountMapping> documentCountMapping, final DocumentsCount.Builder builder) {
+        final List<DocumentCountMapping> outstandingDocuments = documentCountMapping.stream().filter(statusFilter(Status.OUTSTANDING)).collect(Collectors.toList());
+        builder.withOutstanding(new Outstanding.Builder()
+                .withTotalCount(outstandingDocuments.stream().mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withPleas(getPleasCount(outstandingDocuments))
+                .withApplications(getApplicationsCount(outstandingDocuments))
+                .withCorrespondence(getCorrespondenceCount(outstandingDocuments))
+                .withOther(getOthersCount(outstandingDocuments))
+                .withTotal(getTotalCount(outstandingDocuments))
+                .build()
+        );
+    }
+
+    private void withInProgressCounts(final List<DocumentCountMapping> documentCountMapping, final DocumentsCount.Builder builder) {
+        final List<DocumentCountMapping> inProgressDocuments = documentCountMapping.stream().filter(statusFilter(Status.IN_PROGRESS)).collect(Collectors.toList());
+        builder.withInProgress(new InProgress.Builder()
+                .withTotalCount(inProgressDocuments.stream().mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withPleas(getPleasCount(inProgressDocuments))
+                .withApplications(getApplicationsCount(inProgressDocuments))
+                .withCorrespondence(getCorrespondenceCount(inProgressDocuments))
+                .withOther(getOthersCount(inProgressDocuments))
+                .withTotal(getTotalCount(inProgressDocuments))
+                .build()
+        );
+    }
+
+    private void withCompletedCounts(final List<DocumentCountMapping> documentCountMapping, final DocumentsCount.Builder builder) {
+        final List<DocumentCountMapping> completedDocuments = documentCountMapping.stream().filter(statusFilter(Status.COMPLETED)).collect(Collectors.toList());
+        builder.withCompleted(new Completed.Builder()
+                .withTotalCount(completedDocuments.stream().mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withPleas(getPleasCount(completedDocuments))
+                .withApplications(getApplicationsCount(completedDocuments))
+                .withCorrespondence(getCorrespondenceCount(completedDocuments))
+                .withOther(getOthersCount(completedDocuments))
+                .withTotal(getTotalCount(completedDocuments))
+                .build()
+        );
+    }
+
+    private Predicate<DocumentCountMapping> statusFilter(Status status) {
+        return documentCountMapping -> status == documentCountMapping.getStatus();
+    }
+
+    private Predicate<DocumentCountMapping> typeFilter(Type type) {
+        return documentCountMapping -> type == documentCountMapping.getType();
+    }
+
+    private Predicate<DocumentCountMapping> sourceFilter(Source source) {
+        return documentCountMapping -> source == documentCountMapping.getSource();
+    }
+
+    private Pleas getPleasCount(final List<DocumentCountMapping> documents) {
+        return new Pleas.Builder()
+                .withVolume(documents.stream().filter(typeFilter(Type.PLEA)).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withBulkScan(documents.stream().filter(typeFilter(Type.PLEA).and(sourceFilter(Source.BULKSCAN))).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .build();
+    }
+
+    private Applications getApplicationsCount(final List<DocumentCountMapping> documents) {
+        return new Applications.Builder()
+                .withVolume(documents.stream().filter(typeFilter(Type.APPLICATION)).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withBulkScan(documents.stream().filter(typeFilter(Type.APPLICATION).and(sourceFilter(Source.BULKSCAN))).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .build();
+    }
+
+    private Correspondence getCorrespondenceCount(final List<DocumentCountMapping> documents) {
+        return new Correspondence.Builder()
+                .withVolume(documents.stream().filter(typeFilter(Type.CORRESPONDENCE)).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withBulkScan(documents.stream().filter(typeFilter(Type.CORRESPONDENCE).and(sourceFilter(Source.BULKSCAN))).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .build();
+    }
+
+    private Other getOthersCount(final List<DocumentCountMapping> documents) {
+        return new Other.Builder()
+                .withVolume(documents.stream().filter(typeFilter(Type.OTHER)).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withBulkScan(documents.stream().filter(typeFilter(Type.OTHER).and(sourceFilter(Source.BULKSCAN))).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .build();
+    }
+
+    private Total getTotalCount(final List<DocumentCountMapping> documents) {
+        return new Total.Builder()
+                .withVolume(documents.stream().mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .withBulkScan(documents.stream().filter(sourceFilter(Source.BULKSCAN)).mapToLong(DocumentCountMapping::getCount).mapToInt(Math::toIntExact).sum())
+                .build();
+    }
+}
