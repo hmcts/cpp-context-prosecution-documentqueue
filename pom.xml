@@ -9,7 +9,7 @@
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
     <artifactId>documentqueue-parent</artifactId>
-    <version>6.4.1-SNAPSHOT</version>
+    <version>6.4.0</version>
     <packaging>pom</packaging>
 
     <name>Prosecution document queue Microservice - Parent</name>
