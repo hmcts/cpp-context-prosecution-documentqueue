@@ -111,8 +111,7 @@
                             <includes>
                                 <include>**/documentqueue.query.document-content-view.json</include>
                             </includes>
-                            <generatorProperties
-                                    implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
+                            <generatorProperties implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
                                 <plugins>
                                     <plugin>
                                         uk.gov.justice.generation.pojo.plugin.typemodifying.ReferenceCustomReturnTypePlugin
