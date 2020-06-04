@@ -2,6 +2,11 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest;
 
 public enum RestEndpoint {
 
+    GET_DOCUMENT(
+            "/documentqueue-query-api/query/api/rest/documentqueue/documents/%s",
+            "application/vnd.documentqueue.query.get-document+json"
+    ),
+
     GET_DOCUMENTS(
             "/documentqueue-query-api/query/api/rest/documentqueue/documents",
             "application/vnd.documentqueue.query.documents+json"),
@@ -13,6 +18,11 @@ public enum RestEndpoint {
     UPDATE_DOCUMENT_STATUS(
             "/documentqueue-command-api/command/api/rest/documentqueue/documents/%s",
             "application/vnd.documentqueue.update-document-status+json"
+    ),
+
+    ATTACH_DOCUMENT(
+            "/documentqueue-command-api/command/api/rest/documentqueue/documents/%s",
+            "application/vnd.documentqueue.attach-document+json"
     );
 
 

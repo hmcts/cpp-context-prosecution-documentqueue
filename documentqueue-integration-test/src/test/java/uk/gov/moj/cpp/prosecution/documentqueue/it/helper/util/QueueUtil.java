@@ -5,18 +5,15 @@ import uk.gov.justice.services.test.utils.core.messaging.MessageConsumerClient;
 import java.util.Optional;
 
 import javax.jms.Connection;
-import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageProducer;
-import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
 
 import com.jayway.restassured.path.json.JsonPath;
 import org.apache.activemq.artemis.jms.client.ActiveMQConnectionFactory;
-import org.apache.activemq.artemis.jms.client.ActiveMQQueue;
 import org.apache.activemq.artemis.jms.client.ActiveMQTopic;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,26 +31,20 @@ public class QueueUtil {
 
     private final Session session;
 
-    private Queue queue;
     private Topic topic;
-    private String topicName;
 
-    public static final QueueUtil publicEvents = new QueueUtil("public.event", true);
+    public static final QueueUtil privateEvents = new QueueUtil("documentqueue.event");
 
-    private QueueUtil(final String name, final boolean isTopic) {
+    public static final QueueUtil publicEvents = new QueueUtil("public.event");
+
+    private QueueUtil(final String name) {
         try {
             LOGGER.info("Artemis URI: {}", QUEUE_URI);
             final ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(QUEUE_URI);
             final Connection connection = factory.createConnection();
             connection.start();
             session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            if (isTopic) {
-                topic = new ActiveMQTopic(name);
-                this.topicName = name;
-            } else {
-                queue = new ActiveMQQueue(name);
-            }
-            this.topicName = name;
+            topic = new ActiveMQTopic(name);
         } catch (final JMSException e) {
             LOGGER.error("Fatal error initialising Artemis", e);
             throw new RuntimeException(e);
@@ -62,7 +53,7 @@ public class QueueUtil {
 
     public MessageConsumer createConsumer(final String eventSelector) {
         try {
-            return session.createConsumer(queue, String.format(EVENT_SELECTOR_TEMPLATE, eventSelector));
+            return session.createConsumer(topic, String.format(EVENT_SELECTOR_TEMPLATE, eventSelector));
         } catch (final JMSException e) {
             throw new RuntimeException(e);
         }
@@ -70,7 +61,7 @@ public class QueueUtil {
 
     public MessageProducer createProducer() {
         try {
-            return session.createProducer(queue);
+            return session.createProducer(topic);
         } catch (final JMSException e) {
             throw new RuntimeException(e);
         }
@@ -93,34 +84,18 @@ public class QueueUtil {
         }
     }
 
-    public MessageConsumerClient startConsumer(final String eventName){
+    public MessageConsumerClient startConsumer(final String eventName) {
         MessageConsumerClient messageConsumerClient = new MessageConsumerClient();
         messageConsumerClient.startConsumer(eventName, "stagingbulkscan.event");
         return messageConsumerClient;
     }
 
-    public Optional<String> retrieveMessage(final MessageConsumerClient messageConsumerClient){
+    public Optional<String> retrieveMessage(final MessageConsumerClient messageConsumerClient) {
         try {
             return messageConsumerClient.retrieveMessage(100000L);
-        }finally{
+        } finally {
             messageConsumerClient.close();
             return Optional.empty();
-        }
-    }
-
-    private Destination destination() {
-        try {
-            return session.createTopic(topicName);
-        } catch (JMSException e) {
-            throw new RuntimeException("JMSException occurred creating Destination for topic [" + topicName + "]", e);
-        }
-    }
-
-    public MessageConsumer createTopicConsumer(final String eventSelector) {
-        try {
-            return session.createConsumer(topic, String.format(EVENT_SELECTOR_TEMPLATE, eventSelector));
-        } catch (final JMSException e) {
-            throw new RuntimeException(e);
         }
     }
 }

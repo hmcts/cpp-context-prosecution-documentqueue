@@ -16,16 +16,16 @@
       "type": "string"
     },
     "vendorOpeningDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "zipFileCreatedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "zipFileName": {
       "type": "string"
     },
     "extractedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "notes": {
       "type": "string"

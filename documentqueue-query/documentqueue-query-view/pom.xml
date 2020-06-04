@@ -78,9 +78,6 @@
                                 uk.gov.justice.generation.io.files.parser.SchemaDefinitionParserFactory
                             </parserName>
                             <sourceDirectory>src/raml/json/schema</sourceDirectory>
-                            <includes>
-                                <include>**/documentqueue.query.document-content-view.json</include>
-                            </includes>
                             <generatorProperties implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
                                 <plugins>
                                     <plugin>

@@ -9,7 +9,7 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Source.BULKS
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Type.APPLICATION;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 

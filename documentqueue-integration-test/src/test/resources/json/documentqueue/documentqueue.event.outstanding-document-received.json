@@ -18,6 +18,7 @@
     "type": "${type}",
     "statusUpdatedDate": "2020-02-12T20:51:32.013Z",
     "materialId": "${materialId}",
-    "fileServiceId": "${fileServiceId}"
+    "fileServiceId": "${fileServiceId}",
+    "receivedDateTime": "${receivedDateTime}"
   }
 }

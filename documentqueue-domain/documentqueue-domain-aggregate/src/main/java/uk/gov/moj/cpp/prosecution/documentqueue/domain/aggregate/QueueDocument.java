@@ -11,8 +11,13 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTST
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.prosecution.documentqueue.domain.Document;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
+import uk.gov.justice.prosecution.documentqueue.domain.model.CourtDocument;
 import uk.gov.moj.cpp.DocumentStatusUpdated;
+import uk.gov.moj.cpp.documentqueue.event.AttachDocumentRequested;
+import uk.gov.moj.cpp.documentqueue.event.DocumentAlreadyAttached;
+import uk.gov.moj.cpp.documentqueue.event.DocumentAttached;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedDeleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress;
@@ -28,6 +33,10 @@ public class QueueDocument implements Aggregate {
     private Status documentStatus;
 
     private UUID documentId;
+
+    private Source source;
+
+    private boolean documentAttached;
 
     private static final String DOCUMENT_STATUS_ALREADY_UPDATED = "DOC_ALREADY_UPDATED";
 
@@ -70,6 +79,23 @@ public class QueueDocument implements Aggregate {
         return apply(streamBuilder.build());
     }
 
+    public Stream<Object> receiveAttachDocument(final CourtDocument courtDocument) {
+        final Stream.Builder<Object> streamBuilder = Stream.builder();
+        if (documentAttached) {
+            streamBuilder.add(DocumentAlreadyAttached.documentAlreadyAttached().withDocumentId(documentId).build());
+        } else if(Source.CPS.equals(source) && !COMPLETED.equals(documentStatus)) {
+            streamBuilder.add(AttachDocumentRequested.attachDocumentRequested().withDocumentId(documentId).withCourtDocument(courtDocument).build());
+        }
+        return apply(streamBuilder.build());
+    }
+
+    public Stream<Object> attachDocument(final UUID documentId) {
+        final Stream.Builder<Object> streamBuilder = Stream.builder();
+            streamBuilder.add(DocumentAttached.documentAttached().withDocumentId(documentId).build());
+        return apply(streamBuilder.build());
+    }
+
+
     private Stream<Object> markDocumentAsCompleted() {
         final Stream.Builder<Object> streamBuilder = Stream.builder();
         if (documentStatus.equals(Status.IN_PROGRESS)) {
@@ -89,6 +115,7 @@ public class QueueDocument implements Aggregate {
                 when(OutstandingDocumentReceived.class).apply(e -> {
                     this.documentStatus = OUTSTANDING;
                     this.documentId = e.getOutstandingDocument().getScanDocumentId();
+                    this.source= e.getOutstandingDocument().getSource();
                 }),
                 when(DocumentMarkedCompleted.class).apply(e ->
                     this.documentStatus = COMPLETED
@@ -105,7 +132,17 @@ public class QueueDocument implements Aggregate {
                 when(DocumentMarkedDeleted.class).apply(e ->
                     this.documentStatus = DELETED
                 ),
-                when(DocumentStatusUpdateFailed.class).apply( e -> doNothing()
+                when(DocumentStatusUpdateFailed.class).apply(e ->
+                    doNothing()
+                ),
+                when(AttachDocumentRequested.class).apply(e ->
+                    doNothing()
+                ),
+                when(DocumentAttached.class).apply(e ->
+                    this.documentAttached = true
+                ),
+                when(DocumentAlreadyAttached.class).apply(e ->
+                        doNothing()
                 ));
     }
 

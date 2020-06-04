@@ -18,9 +18,9 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PR
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -199,6 +199,34 @@ public class DocumentServiceTest {
         when(documentRepository.findBy(documentId)).thenReturn(null);
 
         final Optional<DocumentContentView> documentServiceDocument = documentService.getDocument(documentId);
+
+        assertThat(documentServiceDocument.isPresent(), is(false));
+
+        verify(logger).info("No document found in document table with id '25bb9886-c97c-4aa6-a254-75211b50536c'");
+    }
+
+    @Test
+    public void shouldReturnDocumentForDocumentId() {
+        final UUID documentId = randomUUID();
+        final Document document = new Document.DocumentBuilder().withId(documentId).build();
+        final ScanDocument scanDocument = mock(ScanDocument.class);
+
+        when(documentRepository.findBy(documentId)).thenReturn(document);
+        when(documentConverter.convertToScanDocument(document)).thenReturn(scanDocument);
+
+        final Optional<ScanDocument> documentServiceDocument = documentService.getDocumentById(documentId);
+
+        assertThat(documentServiceDocument.isPresent(), is(true));
+        assertThat(documentServiceDocument.get(), is(scanDocument));
+    }
+
+    @Test
+    public void shouldReturnOptionalEmptyDocumentIfDocumentNotFound() {
+        final UUID documentId = fromString("25bb9886-c97c-4aa6-a254-75211b50536c");
+
+        when(documentRepository.findBy(documentId)).thenReturn(null);
+
+        final Optional<ScanDocument> documentServiceDocument = documentService.getDocumentById(documentId);
 
         assertThat(documentServiceDocument.isPresent(), is(false));
 

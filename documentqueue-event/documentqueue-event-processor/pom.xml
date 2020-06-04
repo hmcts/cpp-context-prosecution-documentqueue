@@ -63,6 +63,11 @@
             <groupId>uk.gov.moj.cpp.system.id-mapper</groupId>
             <artifactId>id-mapper-client</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -204,6 +209,30 @@
                         <groupId>uk.gov.moj.cpp.stagingbulkscan</groupId>
                         <artifactId>stagingbulkscan-command-handler</artifactId>
                         <version>${bulkscan.version}</version>
+                        <classifier>raml</classifier>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>*</groupId>
+                                <artifactId>*</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>uk.gov.moj.cpp.material</groupId>
+                        <artifactId>material-command-handler</artifactId>
+                        <version>${material.version}</version>
+                        <classifier>raml</classifier>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>*</groupId>
+                                <artifactId>*</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>uk.gov.moj.cpp.progression</groupId>
+                        <artifactId>progression-command-handler</artifactId>
+                        <version>${progression.version}</version>
                         <classifier>raml</classifier>
                         <exclusions>
                             <exclusion>

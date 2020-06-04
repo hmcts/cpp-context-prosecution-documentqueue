@@ -54,6 +54,9 @@ baseUri: http://localhost:8080/documentqueue-query-api/query/api/rest/documentqu
       (mapping):
           responseType: application/vnd.documentqueue.query.document-content+json
           name: documentqueue.query.document-content
+      (mapping):
+          responseType: application/vnd.documentqueue.query.get-document+json
+          name: documentqueue.query.get-document
       ...
     responses:
       200:
@@ -61,3 +64,6 @@ baseUri: http://localhost:8080/documentqueue-query-api/query/api/rest/documentqu
           application/vnd.documentqueue.query.document-content+json:
             example:  !include json/documentqueue.query.document-content.json
             schema:  !include json/schema/documentqueue.query.document-content.json
+          application/vnd.documentqueue.query.get-document+json:
+            example:  !include json/documentqueue.query.get-document.json
+            schema:  !include json/schema/documentqueue.query.get-document.json

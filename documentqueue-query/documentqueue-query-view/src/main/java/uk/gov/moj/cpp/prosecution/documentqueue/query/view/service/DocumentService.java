@@ -5,13 +5,13 @@ import static java.util.Optional.empty;
 import static java.util.Optional.of;
 import static uk.gov.justice.services.messaging.JsonObjects.getString;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Applications;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Completed;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Correspondence;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.InProgress;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Other;
@@ -67,7 +67,6 @@ public class DocumentService {
 
     @SuppressWarnings("squid:S2629")
     public Optional<DocumentContentView> getDocument(final UUID documentId) {
-
         final Document document = documentRepository.findBy(documentId);
 
         if (document != null) {
@@ -79,8 +78,16 @@ public class DocumentService {
         return empty();
     }
 
-    public ScanDocument getDocumentById(final UUID documentId){
-        return documentConverter.convertToScanDocument(documentRepository.findBy(documentId));
+    @SuppressWarnings("squid:S2629")
+    public Optional<ScanDocument> getDocumentById(final UUID documentId){
+        final Document document = documentRepository.findBy(documentId);
+
+        if (document != null) {
+            return of(documentConverter.convertToScanDocument(document));
+        }
+
+        logger.info(format("No document found in document table with id '%s'", documentId));
+        return empty();
     }
 
     public DocumentsCount getDocumentsCount() {

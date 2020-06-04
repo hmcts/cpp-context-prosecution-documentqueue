@@ -1,7 +1,7 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 

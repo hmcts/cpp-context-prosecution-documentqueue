@@ -17,20 +17,21 @@
 
     <properties>
         <authorisation.service.version>0.1.102</authorisation.service.version>
-        <coredomain.version>1.0.73</coredomain.version>
+        <coredomain.version>1.0.82</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <criminal-court-public-model.version>1.0.66</criminal-court-public-model.version>
         <material.version>6.4.3</material.version>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
-        <progression.version>6.4.16</progression.version>
-        <referencedata.version>6.4.15</referencedata.version>
+        <progression.version>6.4.49</progression.version>
+        <referencedata.version>6.4.22</referencedata.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>6.4.1</system.id-mapper.version>
         <bulkscan.version>6.4.0</bulkscan.version>
+        <gson.version>2.3.1</gson.version>
     </properties>
 
     <dependencyManagement>

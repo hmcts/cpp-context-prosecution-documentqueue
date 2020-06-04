@@ -16,7 +16,7 @@
       "type": "boolean"
     },
     "deletedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "documentFileName": {
       "type": "string"
@@ -25,7 +25,7 @@
       "type": "string"
     },
     "extractedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "id": {
       "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
@@ -49,10 +49,10 @@
       "type": "string"
     },
     "statusUpdatedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "vendorReceivedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "zipFileName": {
       "type": "string"

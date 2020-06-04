@@ -10,6 +10,13 @@ subscriptions_descriptor:
 
         - name: public.documentqueue.event.document-status-update-failed
           schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-status-update-failed.json
+
+        - name: public.documentqueue.document-attached
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-attached.json
+
+        - name: public.documentqueue.document-already-attached
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-already-attached.json
+
       event_source_name: public
 
 

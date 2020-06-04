@@ -103,6 +103,7 @@ public class DocumentFactory {
         valueMap.put("status", status);
         valueMap.put("materialId", materialId.toString());
         valueMap.put("fileServiceId", fileServiceId.toString());
+        valueMap.put("receivedDateTime", "2020-05-21T20:11:32.013Z");
         return valueMap;
     }
 

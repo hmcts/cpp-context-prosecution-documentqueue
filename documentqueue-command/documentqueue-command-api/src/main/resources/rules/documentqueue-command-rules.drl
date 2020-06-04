@@ -15,3 +15,12 @@ rule "Update Document Status"
   then
     $outcome.setSuccess(true);
 end
+
+rule "Attach Document"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.attach-document");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end

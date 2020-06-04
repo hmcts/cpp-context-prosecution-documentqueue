@@ -23,3 +23,5 @@ subscriptions_descriptor:
           schema_uri: http://moj.gov.uk/cpp/documentqueue.event.document-status-update-failed.json
         - name: documentqueue.event.document-marked-completed
           schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-marked-completed.json
+        - name: documentqueue.event.attach-document-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/attach-document-requested.json

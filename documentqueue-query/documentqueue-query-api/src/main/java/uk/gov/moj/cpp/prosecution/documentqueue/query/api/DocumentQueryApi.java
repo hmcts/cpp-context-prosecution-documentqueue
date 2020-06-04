@@ -3,7 +3,8 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.api;
 import static uk.gov.justice.services.core.annotation.Component.QUERY_API;
 import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.core.requester.Requester;
@@ -11,6 +12,7 @@ import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContent;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContentService;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.GetDocument;
 
 import javax.inject.Inject;
 
@@ -50,6 +52,24 @@ public class DocumentQueryApi {
 
         return envelop((DocumentContent) null)
                 .withName("documentqueue.query.document-content")
+                .withMetadataFrom(query);
+    }
+
+    @Handles("documentqueue.query.get-document")
+    public Envelope<GetDocument> getDocument(final JsonEnvelope query) {
+        final Envelope<ScanDocument> documentEnvelope = requester.request(query, ScanDocument.class);
+        final ScanDocument payload = documentEnvelope.payload();
+
+        if (payload != null) {
+            final GetDocument getDocument = documentContentService.getDocument(payload);
+
+            return envelop(getDocument)
+                    .withName("documentqueue.query.get-document")
+                    .withMetadataFrom(query);
+        }
+
+        return envelop((GetDocument) null)
+                .withName("documentqueue.query.get-document")
                 .withMetadataFrom(query);
     }
 }

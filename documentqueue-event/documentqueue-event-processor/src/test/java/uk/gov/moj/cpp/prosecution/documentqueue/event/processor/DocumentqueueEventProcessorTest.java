@@ -14,6 +14,7 @@ import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopePayloadMatcher.payloadIsJson;
 
+import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -43,6 +44,9 @@ public class DocumentqueueEventProcessorTest {
 
     @Captor
     private ArgumentCaptor<JsonEnvelope> envelopeCaptor;
+
+    @Mock
+    private ObjectToJsonObjectConverter objectToJsonObjectConverter;
 
     @Test
     public void shouldSendPublicDocumentStatusUpdated() {

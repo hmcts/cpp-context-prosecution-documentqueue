@@ -7,9 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.retrieval.RetrievalServiceProvider;
 
+import java.time.ZonedDateTime;
 import java.util.UUID;
 
 import org.junit.Test;
@@ -49,5 +51,24 @@ public class DocumentContentServiceTest {
         assertThat(documentContent.getFileName(), is(filename));
         assertThat(documentContent.getStatus(), is(IN_PROGRESS));
         assertThat(documentContent.getContent(), is(base64EncodedContent));
+    }
+
+    @Test
+    public void shoulReturnGetPdfDocument(){
+        final String fileName = "My Test File.pdf";
+        final ZonedDateTime time = ZonedDateTime.now();
+        final ScanDocument scanDocument = ScanDocument
+                .scanDocument()
+                .withDocumentId(UUID.randomUUID())
+                .withFileName(fileName)
+                .withReceivedDate(time)
+                .build();
+
+        final GetDocument document = documentContentService.getDocument(scanDocument);
+
+        assertThat(document.getDocumentId(), is(scanDocument.getDocumentId()));
+        assertThat(document.getFileName(), is(scanDocument.getFileName()));
+        assertThat(document.getReceivedDateTime(), is(scanDocument.getReceivedDate()));
+        assertThat(document.getMimeType(), is("application/pdf"));
     }
 }

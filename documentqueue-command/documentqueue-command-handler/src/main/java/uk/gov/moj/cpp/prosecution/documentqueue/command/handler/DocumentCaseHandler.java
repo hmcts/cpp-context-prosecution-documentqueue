@@ -49,4 +49,20 @@ public class DocumentCaseHandler {
         eventStream.append(newEvents.map(toEnvelopeWithMetadataFrom(updateDocumentStatusEnvelope)));
     }
 
+    @Handles("documentqueue.command.attach-document")
+    public void attachDocument(final Envelope<AttachDocument> attachDocumentEnvelope) throws  EventStreamException {
+        final EventStream eventStream = eventSource.getStreamById(attachDocumentEnvelope.payload().getDocumentId());
+        final QueueDocument queueDocument = aggregateService.get(eventStream, QueueDocument.class);
+        final Stream<Object> newEvents = queueDocument.receiveAttachDocument(attachDocumentEnvelope.payload().getCourtDocument());
+        eventStream.append(newEvents.map(toEnvelopeWithMetadataFrom(attachDocumentEnvelope)));
+    }
+
+    @Handles("documentqueue.command.record-document-attached")
+    public void recordDocumentAttached(final Envelope<RecordDocumentAttached> recordDocumentAttachedEnvelope) throws EventStreamException {
+        final EventStream eventStream = eventSource.getStreamById(recordDocumentAttachedEnvelope.payload().getDocumentId());
+        final QueueDocument queueDocument = aggregateService.get(eventStream, QueueDocument.class);
+        final Stream<Object> newEvents = queueDocument.attachDocument(recordDocumentAttachedEnvelope.payload().getDocumentId());
+        eventStream.append(newEvents.map(toEnvelopeWithMetadataFrom(recordDocumentAttachedEnvelope)));
+    }
+
 }

@@ -3,6 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.command.handler;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.allOf;
+import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -25,12 +26,16 @@ import static uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted.documen
 import static uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress.documentMarkedInprogress;
 import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument.receiveOutstandingDocument;
 
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
+import uk.gov.justice.prosecution.documentqueue.domain.model.CourtDocument;
 import uk.gov.justice.services.core.aggregate.AggregateService;
 import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.moj.cpp.DocumentStatusUpdated;
 import uk.gov.moj.cpp.documentqueue.command.handler.UpdateDocumentStatus;
+import uk.gov.moj.cpp.documentqueue.event.AttachDocumentRequested;
+import uk.gov.moj.cpp.documentqueue.event.DocumentAttached;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedDeleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress;
@@ -39,10 +44,12 @@ import uk.gov.moj.cpp.documentqueue.event.DocumentStatusUpdateFailed;
 import uk.gov.moj.cpp.documentqueue.event.OutstandingDocumentReceived;
 import uk.gov.moj.cpp.prosecution.documentqueue.domain.aggregate.QueueDocument;
 
+import java.util.Queue;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -70,7 +77,8 @@ public class DocumentCaseHandlerTest {
                 DocumentMarkedCompleted.class,
                 DocumentMarkedDeleted.class,
                 DocumentStatusUpdated.class,
-                DocumentStatusUpdateFailed.class);
+                DocumentStatusUpdateFailed.class,
+                AttachDocumentRequested.class);
     }
 
     @Test
@@ -117,6 +125,48 @@ public class DocumentCaseHandlerTest {
     }
 
     @Test
+    public void shouldraiseDocumentAttachRequestedEvent() throws Exception {
+        final UUID documentId = randomUUID();
+        final UUID commandId = randomUUID();
+        final UUID courtDocumentId = randomUUID();
+        final AttachDocument attachDocumentRequested = AttachDocument.attachDocument()
+                .withDocumentId(documentId)
+                .withCourtDocument(CourtDocument.courtDocument().withCourtDocumentId(courtDocumentId).build()).build();
+
+
+        final OutstandingDocumentReceived outstandingDocumentReceived = OutstandingDocumentReceived.outstandingDocumentReceived()
+                .withOutstandingDocument(document()
+                        .withScanDocumentId(documentId)
+                        .withSource(Source.CPS)
+                        .withStatus(OUTSTANDING)
+                        .build())
+                .build();
+
+        final QueueDocument queueDocument = new QueueDocument();
+        queueDocument.apply(outstandingDocumentReceived);
+        queueDocument.apply(new DocumentMarkedInprogress(documentId));
+
+        final EventStream eventStream = mock(EventStream.class);
+        when(eventSource.getStreamById(documentId)).thenReturn(eventStream);
+        when(aggregateService.get(eventStream, QueueDocument.class)).thenReturn(queueDocument);
+        final Envelope<AttachDocument> attachDocumentRequestedEnvelope = envelopeFrom(metadataBuilder().withId(commandId).withName("documentqueue.command.attach-document"), attachDocumentRequested);
+
+        documentCaseHandler.attachDocument(attachDocumentRequestedEnvelope);
+        assertThat(verifyAppendAndGetArgumentFrom(eventStream), streamContaining(
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName("documentqueue.event.attach-document-requested"),
+                        payloadIsJson(
+                                withJsonPath("$.documentId", equalTo(documentId.toString()))
+                        ))
+                )
+        );
+
+
+    }
+
+    @Test
     public void shouldUpdateDocumentStatusToInProgress() throws Exception {
 
         final UUID commandId = randomUUID();
@@ -131,6 +181,7 @@ public class DocumentCaseHandlerTest {
                 .build();
 
         final QueueDocument queueDocument = new QueueDocument();
+
         queueDocument.apply(outstandingDocumentReceived);
 
         final UpdateDocumentStatus updateDocumentStatus = updateDocumentStatus().withDocumentId(documentId).withStatus(IN_PROGRESS).build();

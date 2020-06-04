@@ -33,3 +33,12 @@ rule "Get Document Content"
   then
     $outcome.setSuccess(true);
 end
+
+rule "Query Get Document"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.query.get-document");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end

@@ -15,13 +15,15 @@ import static uk.gov.justice.services.test.utils.core.matchers.HandlerClassMatch
 import static uk.gov.justice.services.test.utils.core.matchers.HandlerMethodMatcher.method;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.core.annotation.Component;
 import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContent;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContentService;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.GetDocument;
 
 import java.util.UUID;
 
@@ -61,6 +63,50 @@ public class DocumentQueryApiTest {
 
     @Test
     @SuppressWarnings("unchecked")
+    public void shouldHandGetDocument() {
+        final UUID documentId = randomUUID();
+        final JsonEnvelope queryEnvelope = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("documentqueue.query.get-document"),
+                createObjectBuilder().add("documentId", documentId.toString()));
+
+        final Envelope<ScanDocument> queryViewResponse = mock(Envelope.class);
+        final ScanDocument documentView = mock(ScanDocument.class);
+        final GetDocument getDocument = mock(GetDocument.class);
+
+        when(requester.request(queryEnvelope, ScanDocument.class)).thenReturn(queryViewResponse);
+        when(queryViewResponse.payload()).thenReturn(documentView);
+        when(documentContentService.getDocument(documentView)).thenReturn(getDocument);
+
+        final Envelope<GetDocument> getDocumentEnvelope = documentQueryApi.getDocument(queryEnvelope);
+
+        assertThat(getDocumentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope));
+        assertThat(getDocumentEnvelope.payload(), is(getDocument));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    public void shouldReturnNullGetDocumentForDocumentIdIfTheDocumentIsNotReturnedByTheQueryView() {
+
+        final UUID documentId = randomUUID();
+        final JsonEnvelope queryEnvelope = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("documentqueue.query.get-document"),
+                createObjectBuilder().add("documentId", documentId.toString()));
+
+        final Envelope<ScanDocument> queryViewResponse = mock(Envelope.class);
+
+        when(requester.request(queryEnvelope, ScanDocument.class)).thenReturn(queryViewResponse);
+        when(queryViewResponse.payload()).thenReturn(null);
+
+        final Envelope<GetDocument> getDocumentEnvelope = documentQueryApi.getDocument(queryEnvelope);
+
+        assertThat(getDocumentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope));
+        assertThat(getDocumentEnvelope.payload(), is(nullValue()));
+
+        verifyZeroInteractions(documentContentService);
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
     public void shouldReturnDocumentContentForDocumentId() {
 
         final UUID documentId = randomUUID();
@@ -81,6 +127,7 @@ public class DocumentQueryApiTest {
         assertThat(documentContentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope));
         assertThat(documentContentEnvelope.payload(), is(documentContent));
     }
+
     @Test
     @SuppressWarnings("unchecked")
     public void shouldReturnNullDocumentContentForDocumentIdIfTheDocumentIsNotReturnedByTheQueryView() {

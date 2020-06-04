@@ -26,7 +26,7 @@
       "type": "string"
     },
     "scanningDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "manualIntervention": {
       "type": "string"
@@ -35,7 +35,7 @@
       "type": "string"
     },
     "nextActionDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "fileName": {
       "type": "string"
@@ -44,13 +44,13 @@
       "type": "string"
     },
     "vendorReceivedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "status": {
       "$ref": "http://justice.gov.uk/stagingbulkscan/domain/document-status.json"
     },
     "statusUpdatedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "actionedBy": {
       "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
@@ -59,7 +59,7 @@
       "type": "boolean"
     },
     "deletedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
 
     "asn": {

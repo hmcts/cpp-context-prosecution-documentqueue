@@ -26,7 +26,7 @@
       "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/type.json"
     },
     "receivedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "source": {
       "type": "string",
@@ -37,10 +37,10 @@
       "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
     },
     "hearingDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "statusUpdatedDate": {
-      "$ref": "http://cpp.moj.gov.uk/core/domain/json/schema/data-types.json#/definitions/date-time"
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
     },
     "documentName": {
       "type": "string"

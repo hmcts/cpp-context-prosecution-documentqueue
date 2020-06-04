@@ -4,7 +4,7 @@ import static javax.json.Json.createObjectBuilder;
 import static uk.gov.justice.services.core.annotation.Component.QUERY_VIEW;
 import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.common.converter.ListToJsonArrayConverter;
@@ -69,10 +69,15 @@ public class DocumentQueryView {
     @Handles("documentqueue.query.get-document")
     public Envelope<ScanDocument> getDocument(final JsonEnvelope query) {
         final UUID documentId = UUID.fromString(query.payloadAsJsonObject().getString("documentId"));
-        final ScanDocument scanDocument = documentService.getDocumentById(documentId);
-        return envelop(scanDocument)
-                .withName("documentqueue.query.get-document")
-                .withMetadataFrom(query);
+        final Optional<ScanDocument> optionalScanDocument = documentService.getDocumentById(documentId);
+
+        return optionalScanDocument.map(scanDocument ->
+                envelop(scanDocument)
+                        .withName("documentqueue.query.get-document")
+                        .withMetadataFrom(query))
+                .orElse(envelop((ScanDocument) null)
+                        .withName("documentqueue.query.get-document")
+                        .withMetadataFrom(query));
     }
 
 

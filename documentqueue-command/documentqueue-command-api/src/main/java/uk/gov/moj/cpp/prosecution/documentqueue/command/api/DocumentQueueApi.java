@@ -23,4 +23,11 @@ public class DocumentQueueApi {
                 .withName("documentqueue.command.update-document-status")
                 .withMetadataFrom(envelope));
     }
+
+    @Handles("documentqueue.attach-document")
+    public void attachDocument(final JsonEnvelope envelope) {
+        sender.send(envelop(envelope.payload())
+                .withName("documentqueue.command.attach-document")
+                .withMetadataFrom(envelope));
+    }
 }

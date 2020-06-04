@@ -56,6 +56,11 @@
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>file-service-persistence</artifactId>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
+            <artifactId>documentqueue-domain-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
@@ -108,9 +113,6 @@
                             <parserName>
                                 uk.gov.justice.generation.io.files.parser.SchemaDefinitionParserFactory
                             </parserName>
-                            <includes>
-                                <include>**/documentqueue.query.document-content-view.json</include>
-                            </includes>
                             <generatorProperties implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
                                 <plugins>
                                     <plugin>

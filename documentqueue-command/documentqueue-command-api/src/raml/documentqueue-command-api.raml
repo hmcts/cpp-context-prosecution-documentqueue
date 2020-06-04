@@ -11,6 +11,9 @@ protocols: [ HTTP ]
       (mapping):
           requestType: application/vnd.documentqueue.update-document-status+json
           name: documentqueue.update-document-status
+      (mapping):
+          requestType: application/vnd.documentqueue.attach-document+json
+          name: documentqueue.attach-document
       ...
     body:
       application/vnd.documentqueue.update-document-status+json:
@@ -18,3 +21,8 @@ protocols: [ HTTP ]
           !include json/documentqueue.update-document-status.json
         schema:
           !include json/schema/documentqueue.update-document-status.json
+      application/vnd.documentqueue.attach-document+json:
+        example:
+          !include json/documentqueue.attach-document.json
+        schema:
+          !include json/schema/documentqueue.attach-document.json

@@ -96,7 +96,7 @@ public class UpdateDocumentStatusCommandIT extends BaseIT {
     }
 
     private static MessageConsumer postDocumentStatusUpdate(final Status status, final UUID documentId,final String eventSelector) {
-        MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createTopicConsumer(eventSelector);
+        MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createConsumer(eventSelector);
         postRequest(format(UPDATE_DOCUMENT_STATUS.getUri(), documentId.toString()),
                 UPDATE_DOCUMENT_STATUS.getMediaType(),
                 createObjectBuilder().add("status", status.toString()).build().toString(),

@@ -13,7 +13,7 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 
-import uk.gov.justice.prosecution.documentqueue.domain.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.common.converter.ListToJsonArrayConverter;
@@ -30,7 +30,6 @@ import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-import org.apache.activemq.artemis.utils.Env;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -134,7 +133,7 @@ public class DocumentQueryViewTest {
         final ScanDocument expectedScanDocument = mock(ScanDocument.class);
 
 
-        when(documentService.getDocumentById(UUID.fromString(queryEnvelope.payloadAsJsonObject().getString("documentId")))).thenReturn(expectedScanDocument);
+        when(documentService.getDocumentById(UUID.fromString(queryEnvelope.payloadAsJsonObject().getString("documentId")))).thenReturn(Optional.of(expectedScanDocument));
 
         final Envelope<ScanDocument> scanDocumentEnvelope = documentQueryView.getDocument(queryEnvelope);
 
