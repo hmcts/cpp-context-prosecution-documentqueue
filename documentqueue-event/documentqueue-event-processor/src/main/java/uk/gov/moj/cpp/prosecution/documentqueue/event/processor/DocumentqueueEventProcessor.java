@@ -44,7 +44,7 @@ public class DocumentqueueEventProcessor {
     private static final String STAGING_BULKSCAN_MARK_DOCUMENT = "stagingbulkscan.command.mark-as-action";
     private static final String DOCUMENT_QUEUE_QUERY_DOCUMENT_CONTENT = "documentqueue.query.document-content";
     private static final String MATERIAL_UPLOAD_FILE = "material.command.upload-file";
-    private static final String PROGRESSION_ADD_COURT_DOCUMENT = "progression.command.add-court-document";
+    private static final String PROGRESSION_ADD_COURT_DOCUMENT = "progression.add-court-document";
     private static final String PUBLIC_DOCUMENT_QUEUE_DOC_ATTACHED = "public.documentqueue.document-attached";
     private static final String RECORD_DOCUMENT_ATTACHED = "documentqueue.command.record-document-attached";
     private static final String PUBLIC_DOCUMENT_QUEUE_DOCUMENT_ALREADY_ATTACHED ="public.documentqueue.document-already-attached";
@@ -125,7 +125,7 @@ public class DocumentqueueEventProcessor {
         final Optional<UUID> fileServiceId = ofNullable(documentView.payload().getFileServiceId());
         final UUID materialId = ofNullable(documentView.payload().getMaterialId()).orElse(randomUUID());
 
-            sender.send(envelopeFrom(metadataFrom(event.metadata()).withName(MATERIAL_UPLOAD_FILE).build(),
+            sender.sendAsAdmin(envelopeFrom(metadataFrom(event.metadata()).withName(MATERIAL_UPLOAD_FILE).build(),
                     createObjectBuilder()
                             .add("materialId", materialId.toString())
                             .add("fileServiceId", fileServiceId.get().toString())
