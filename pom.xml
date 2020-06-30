@@ -4,12 +4,12 @@
     <parent>
         <groupId>uk.gov.moj.cpp.common</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>9.4.27</version>
+        <version>10.0.2</version>
     </parent>
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
     <artifactId>documentqueue-parent</artifactId>
-    <version>6.4.3-SNAPSHOT</version>
+    <version>7.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Prosecution document queue Microservice - Parent</name>
@@ -24,13 +24,13 @@
         <material.version>6.4.3</material.version>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
         <progression.version>6.4.49</progression.version>
-        <referencedata.version>6.4.22</referencedata.version>
+        <referencedata.version>6.4.25</referencedata.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>6.4.1</system.id-mapper.version>
-        <bulkscan.version>6.4.0</bulkscan.version>
+        <bulkscan.version>6.4.10</bulkscan.version>
         <gson.version>2.3.1</gson.version>
     </properties>
 

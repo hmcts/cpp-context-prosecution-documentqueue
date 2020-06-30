@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-command</artifactId>
-        <version>6.4.3-SNAPSHOT</version>
+        <version>7.0.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -41,21 +41,7 @@
         <dependency>
             <groupId>uk.gov.moj.cpp.access-control</groupId>
             <artifactId>access-control-assignment-providers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.moj.cpp.access-control</groupId>
-            <artifactId>access-control-structure-providers</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.moj.cpp.access-control</groupId>
-            <artifactId>access-control-charging-providers</artifactId>
-            <version>${cpp.access-control.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>uk.gov.moj.cpp.charging</groupId>
-                    <artifactId>charging-domain-event</artifactId>
-                </exclusion>
-            </exclusions>
+            <version>${platform-libraries.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>

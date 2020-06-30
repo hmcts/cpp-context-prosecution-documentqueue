@@ -17,11 +17,11 @@
 #
 ##################################################################################################
 
-FRAMEWORK_JMX_COMMAND_CLIENT_VERSION=2.4.1
+FRAMEWORK_VERSION=7.0.6
 CONTEXT_NAME="ducumentqueue"
 USER_NAME="admin"
 PASSWORD="admin"
-JAR=target/framework-jmx-command-client-${FRAMEWORK_JMX_COMMAND_CLIENT_VERSION}.jar
+JAR=target/framework-jmx-command-client-${FRAMEWORK_VERSION}.jar
 
 #fail script on error
 set -e
