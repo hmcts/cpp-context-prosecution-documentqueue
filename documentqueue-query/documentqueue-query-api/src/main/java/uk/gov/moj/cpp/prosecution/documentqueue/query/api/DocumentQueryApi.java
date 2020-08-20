@@ -4,6 +4,7 @@ import static uk.gov.justice.services.core.annotation.Component.QUERY_API;
 import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
 
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
@@ -13,32 +14,34 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContent;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContentService;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.GetDocument;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
 import javax.inject.Inject;
+import javax.json.JsonObject;
 
 @ServiceComponent(QUERY_API)
 public class DocumentQueryApi {
 
     @Inject
-    private Requester requester;
+    private DocumentQueryView documentQueryView;
 
     @Inject
     private DocumentContentService documentContentService;
 
     @Handles("documentqueue.query.documents")
-    public JsonEnvelope queryDocuments(final JsonEnvelope query) {
-        return requester.request(query);
+    public Envelope<JsonObject> queryDocuments(final JsonEnvelope query) {
+        return documentQueryView.getDocuments(query);
     }
 
     @Handles("documentqueue.query.documents-counts")
-    public JsonEnvelope queryDocumentCounts(final JsonEnvelope query) {
-        return requester.request(query);
+    public Envelope<DocumentsCount> queryDocumentCounts(final JsonEnvelope query) {
+        return documentQueryView.getDocumentsCount(query);
     }
 
     @Handles("documentqueue.query.document-content")
     public Envelope<DocumentContent> getDocumentContent(final JsonEnvelope query) {
 
-        final Envelope<DocumentContentView> documentContentEnvelope = requester.request(query, DocumentContentView.class);
+        final Envelope<DocumentContentView> documentContentEnvelope = documentQueryView.getDocumentContent(query);
 
         final DocumentContentView payload = documentContentEnvelope.payload();
 
@@ -57,7 +60,7 @@ public class DocumentQueryApi {
 
     @Handles("documentqueue.query.get-document")
     public Envelope<GetDocument> getDocument(final JsonEnvelope query) {
-        final Envelope<ScanDocument> documentEnvelope = requester.request(query, ScanDocument.class);
+        final Envelope<ScanDocument> documentEnvelope = documentQueryView.getDocument(query);
         final ScanDocument payload = documentEnvelope.payload();
 
         if (payload != null) {

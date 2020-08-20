@@ -78,28 +78,16 @@
             <artifactId>tika-core</artifactId>
             <version>1.24</version>
         </dependency>
+        <dependency>
+            <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
+            <artifactId>documentqueue-query-view</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>uk.gov.justice.framework-generators</groupId>
-                <artifactId>rest-client-generator-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
-                        <artifactId>documentqueue-query-view</artifactId>
-                        <version>${project.version}</version>
-                        <classifier>raml</classifier>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>*</groupId>
-                                <artifactId>*</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
-            </plugin>
+
 
             <plugin>
                 <groupId>uk.gov.justice.generators</groupId>
@@ -154,20 +142,7 @@
                         <phase>generate-sources</phase>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
-                        <artifactId>documentqueue-query-view</artifactId>
-                        <version>${project.version}</version>
-                        <classifier>raml</classifier>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>*</groupId>
-                                <artifactId>*</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                </dependencies>
+
             </plugin>
         </plugins>
     </build>

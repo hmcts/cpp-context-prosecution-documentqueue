@@ -47,7 +47,6 @@
             <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
             <artifactId>documentqueue-query-view</artifactId>
             <version>${project.version}</version>
-            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
