@@ -6,7 +6,7 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
-import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
 
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
@@ -18,6 +18,7 @@ import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
@@ -70,6 +71,9 @@ public class DeletingCompletedDocumentsScheduler {
     @Inject
     @ServiceComponent(EVENT_PROCESSOR)
     private Requester requester;
+
+    @Inject
+    private DocumentQueryView documentQueryView;
 
     @Inject
     private JsonObjectToObjectConverter jsonObjectToObjectConverter;
@@ -127,11 +131,11 @@ public class DeletingCompletedDocumentsScheduler {
 
     private List<ScanDocument> getAllCompletedDocuments() {
 
-        final Envelope<JsonObject> requestEnvelope = envelopeFrom(metadataBuilder().withId(randomUUID()).withName(DOCUMENT_QUEUE_QUERY_GET_DOCUMENTS_BY_STATUS).build(),
+        final JsonEnvelope requestEnvelope = envelopeFrom(metadataBuilder().withId(randomUUID()).withName(DOCUMENT_QUEUE_QUERY_GET_DOCUMENTS_BY_STATUS).build(),
                 createObjectBuilder().add("status", COMPLETED.toString()).build());
 
-        final JsonEnvelope actionedDocuments = requester.request(requestEnvelope);
-        return convertToList(actionedDocuments.payloadAsJsonObject().getJsonArray("documents"), ScanDocument.class);
+        final Envelope<JsonObject> actionedDocuments = documentQueryView.getDocuments(requestEnvelope);
+        return convertToList(actionedDocuments.payload().getJsonArray("documents"), ScanDocument.class);
     }
 
     private <T> List<T> convertToList(final JsonArray jsonArray, final Class<T> clazz) {

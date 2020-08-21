@@ -45,6 +45,11 @@
             <artifactId>file-service-persistence</artifactId>
         </dependency>
         <dependency>
+            <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
+            <artifactId>documentqueue-query-view</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -227,18 +232,6 @@
                         <groupId>uk.gov.moj.cpp.material</groupId>
                         <artifactId>material-query-api</artifactId>
                         <version>${material.version}</version>
-                        <classifier>raml</classifier>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>*</groupId>
-                                <artifactId>*</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
-                    <dependency>
-                        <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
-                        <artifactId>documentqueue-query-view</artifactId>
-                        <version>${project.version}</version>
                         <classifier>raml</classifier>
                         <exclusions>
                             <exclusion>

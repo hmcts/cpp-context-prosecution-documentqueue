@@ -1,6 +1,0 @@
-{
-  "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/documentqueue.query.document-content-view.json",
-  "type": "object",
-  "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/model/document-content-view.json"
-}
