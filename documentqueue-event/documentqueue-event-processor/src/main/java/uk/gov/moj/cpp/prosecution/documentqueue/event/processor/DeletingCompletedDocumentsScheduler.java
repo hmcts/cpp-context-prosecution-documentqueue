@@ -6,15 +6,14 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
-import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
+import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.common.configuration.Value;
 import uk.gov.justice.services.common.converter.JsonObjectToObjectConverter;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
-import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
@@ -67,10 +66,6 @@ public class DeletingCompletedDocumentsScheduler {
     @Inject
     @ServiceComponent(EVENT_PROCESSOR)
     private Sender sender;
-
-    @Inject
-    @ServiceComponent(EVENT_PROCESSOR)
-    private Requester requester;
 
     @Inject
     private DocumentQueryView documentQueryView;

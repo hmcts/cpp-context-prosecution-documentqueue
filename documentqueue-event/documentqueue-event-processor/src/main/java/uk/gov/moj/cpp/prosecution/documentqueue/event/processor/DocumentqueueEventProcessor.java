@@ -13,14 +13,15 @@ import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
 
 import uk.gov.justice.prosecution.documentqueue.domain.model.CourtDocument;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
-import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.AttachDocument;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -58,13 +59,13 @@ public class DocumentqueueEventProcessor {
     private Logger logger;
 
     @Inject
-    private Requester requester;
-
-    @Inject
     private ObjectMapper objectMapper;
 
     @Inject
     private ObjectToJsonObjectConverter objectToJsonObjectConverter;
+
+    @Inject
+    private DocumentQueryView documentQueryView;
 
 
     @Handles("documentqueue.event.document-status-updated")
@@ -91,11 +92,11 @@ public class DocumentqueueEventProcessor {
     }
 
     private Optional<String> getEnvelopeIdByDocumentId(final UUID documentId) {
-        final Envelope<JsonObject> requestEnvelope = envelopeFrom(metadataBuilder().withId(randomUUID()).withName(DOCUMENT_QUEUE_QUERY_GET_DOCUMENT).build(),
+        final JsonEnvelope requestEnvelope = JsonEnvelope.envelopeFrom(metadataBuilder().withId(randomUUID()).withName(DOCUMENT_QUEUE_QUERY_GET_DOCUMENT).build(),
                 createObjectBuilder().add(DOCUMENT_ID, documentId.toString()).build());
 
-        final JsonEnvelope scanDocumentEnvelope = requester.request(requestEnvelope);
-        return ofNullable(scanDocumentEnvelope.payloadAsJsonObject().getString("envelopeId", null));
+        final Envelope<ScanDocument> scanDocumentEnvelope = documentQueryView.getDocument(requestEnvelope);
+        return ofNullable(scanDocumentEnvelope.payload().getEnvelopeId()).map(UUID::toString);
     }
 
     @Handles("documentqueue.event.document-status-update-failed")
@@ -117,10 +118,11 @@ public class DocumentqueueEventProcessor {
 
         final JsonObject courtDocumentJson = objectToJsonObjectConverter.convert(courtDocument);
 
-        final Envelope<DocumentContentView> documentView = requester.request(envelopeFrom(metadataFrom(event.metadata()).withName(DOCUMENT_QUEUE_QUERY_DOCUMENT_CONTENT).build(),
+        final JsonEnvelope requestEnvelope = JsonEnvelope.envelopeFrom(metadataFrom(event.metadata()).withName(DOCUMENT_QUEUE_QUERY_DOCUMENT_CONTENT),
                 createObjectBuilder()
-                        .add(DOCUMENT_ID, documentId.toString())
-                        .build()), DocumentContentView.class);
+                        .add(DOCUMENT_ID, documentId.toString()));
+
+        final Envelope<DocumentContentView> documentView = documentQueryView.getDocumentContent(requestEnvelope);
 
         final Optional<UUID> fileServiceId = ofNullable(documentView.payload().getFileServiceId());
         final UUID materialId = ofNullable(documentView.payload().getMaterialId()).orElse(randomUUID());
