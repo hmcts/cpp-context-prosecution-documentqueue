@@ -5,11 +5,17 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
+import static uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument.scanDocument;
+import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
+import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopePayloadMatcher.payloadIsJson;
@@ -18,7 +24,11 @@ import uk.gov.justice.services.common.converter.ObjectToJsonObjectConverter;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
+import java.util.UUID;
+
+import javax.json.JsonObject;
 import javax.json.JsonValue;
 
 import org.junit.Test;
@@ -45,8 +55,14 @@ public class DocumentqueueEventProcessorTest {
     @Captor
     private ArgumentCaptor<JsonEnvelope> envelopeCaptor;
 
+    @Captor
+    private ArgumentCaptor<Envelope> payloadCaptor;
+
     @Mock
     private ObjectToJsonObjectConverter objectToJsonObjectConverter;
+
+    @Mock
+    private DocumentQueryView documentQueryView;
 
     @Test
     public void shouldSendPublicDocumentStatusUpdated() {
@@ -73,6 +89,30 @@ public class DocumentqueueEventProcessorTest {
                 withJsonPath("$.documentId", equalTo(documentId)),
                 withJsonPath("$.status", equalTo(IN_PROGRESS.toString()))
         )));
+    }
+
+    @Test
+    public void shouldMarkDocumentCompleted() {
+
+        final String documentId = randomUUID().toString();
+        final JsonEnvelope eventEnvelope = createEnvelope("documentqueue.event.document-marked-completed",
+                createObjectBuilder()
+                        .add("documentId", documentId)
+                        .build());
+
+        final UUID envelopeId = randomUUID();
+
+        when(documentQueryView.getDocument(any())).thenReturn(envelopeFrom(metadataFrom(eventEnvelope.metadata()), scanDocument().withEnvelopeId(envelopeId).build()));
+        documentqueueEventProcessor.processDocumentMarkedCompleted(eventEnvelope);
+
+        verify(documentQueryView, times(1)).getDocument(any());
+        verify(sender, times(1)).sendAsAdmin(payloadCaptor.capture());
+        verifyNoMoreInteractions(sender);
+
+        final Envelope<JsonObject> jsonObjectEnvelope = payloadCaptor.getValue();
+
+        assertThat(jsonObjectEnvelope.payload().getString("scanDocumentId"), is(documentId));
+        assertThat(jsonObjectEnvelope.payload().getString("scanEnvelopeId"), is(envelopeId.toString()));
     }
 
     @Test
