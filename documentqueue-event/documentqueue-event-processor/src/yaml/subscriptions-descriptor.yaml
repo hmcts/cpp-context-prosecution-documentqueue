@@ -14,6 +14,8 @@ subscriptions_descriptor:
           schema_uri: http://justice.gov.uk/json/schemas/stagingbulkscan/follow-up-document.json
         - name: public.progression.document-review-required
           schema_uri: http://moj.gov.uk/cps/progression/domain/event/public.progression.document-review-required
+        - name: public.progression.events.case-or-application-ejected
+          schema_uri: http://justice.gov.uk/progression/courts/case-or-application-ejected
     - name: event processor documentqueue subscription
       event_source_name: documentqueue
       events:
@@ -25,3 +27,5 @@ subscriptions_descriptor:
           schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-marked-completed.json
         - name: documentqueue.event.attach-document-requested
           schema_uri: http://moj.gov.uk/cpp/documentqueue/event/attach-document-requested.json
+        - name: documentqueue.event.document-linked-to-case
+          schema_uri: http://moj.gov.uk/cpp/documentqueue.document-linked-to-case.json

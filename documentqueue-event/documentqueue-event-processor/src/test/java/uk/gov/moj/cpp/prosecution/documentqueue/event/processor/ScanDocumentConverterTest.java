@@ -9,13 +9,14 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTST
 import static uk.gov.justice.stagingbulkscan.domain.DocumentStatus.FOLLOW_UP;
 import static uk.gov.justice.stagingbulkscan.domain.ScanDocument.scanDocument;
 
+import org.mockito.Mock;
 import uk.gov.justice.prosecution.documentqueue.domain.Document;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.justice.stagingbulkscan.domain.DocumentStatus;
 import uk.gov.justice.stagingbulkscan.domain.ScanDocument;
-import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.ScanDocumentConverter;
 
 import java.time.ZonedDateTime;
@@ -25,12 +26,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.moj.cpp.prosecution.documentqueue.service.SystemIdMapperService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ScanDocumentConverterTest {
 
     @InjectMocks
     private ScanDocumentConverter scanDocumentConverter;
+
+    @Mock
+    private SystemIdMapperService systemIdMapperService;
 
     @Test
     public void shouldConvertToOutstandingDocument() throws Exception {
@@ -75,8 +80,8 @@ public class ScanDocumentConverterTest {
                 .withEnvelopeId(envelopeId)
                 .build();
 
-        final ReceiveOutstandingDocument receiveOutstandingDocument = scanDocumentConverter.asOutstandingDocument(scanDocument, fromString(envelopeId));
-        final Document outstandingDocument = receiveOutstandingDocument.getOutstandingDocument();
+        final LinkDocumentToCase receiveOutstandingDocument = scanDocumentConverter.asLinkDocumentToCase(scanDocument, fromString(envelopeId));
+        final Document outstandingDocument = receiveOutstandingDocument.getDocument();
 
         assertThat(outstandingDocument.getActionedBy(), is(actionedBy));
         assertThat(outstandingDocument.getCasePTIUrn(), is(casePtiUrn));

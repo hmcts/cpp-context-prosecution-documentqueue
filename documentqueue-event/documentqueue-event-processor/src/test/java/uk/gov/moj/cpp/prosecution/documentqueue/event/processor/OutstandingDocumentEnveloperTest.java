@@ -12,8 +12,8 @@ import uk.gov.justice.json.schemas.stagingbulkscan.ScanEnvelopeRegistered;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.stagingbulkscan.domain.ScanDocument;
 import uk.gov.justice.stagingbulkscan.domain.ScanEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
-import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.OutstandingDocumentEnveloper;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.ScanDocumentConverter;
 
 import java.util.UUID;
@@ -31,7 +31,7 @@ public class OutstandingDocumentEnveloperTest {
     private ScanDocumentConverter scanDocumentConverter;
 
     @InjectMocks
-    private OutstandingDocumentEnveloper outstandingDocumentEnveloper;
+    private LinkDocumentToCaseEnveloper outstandingDocumentEnveloper;
 
     @Test
     public void shouldRecreateTheEnvelopeWithTheItsNewName() {
@@ -42,18 +42,18 @@ public class OutstandingDocumentEnveloperTest {
 
 
         final ScanDocument scanDocument = mock(ScanDocument.class);
-        final ReceiveOutstandingDocument receiveOutstandingDocument = mock(ReceiveOutstandingDocument.class);
+        final LinkDocumentToCase linkDocumentToCase = mock(LinkDocumentToCase.class);
         final Envelope<ScanEnvelopeRegistered> registeredScanEnvelope = envelopeFrom(
                 metadataBuilder().withId(randomUUID())
                         .withName("old.name").build(),
                 payload);
         when(payload.getScanEnvelope()).thenReturn(scanEnvelope);
         when(scanEnvelope.getScanEnvelopeId()).thenReturn(scanEnvelopeId);
-        when(scanDocumentConverter.asOutstandingDocument(scanDocument, scanEnvelopeId)).thenReturn(receiveOutstandingDocument);
+        when(scanDocumentConverter.asLinkDocumentToCase(scanDocument, scanEnvelopeId)).thenReturn(linkDocumentToCase);
 
-        final Envelope<ReceiveOutstandingDocument> receiveOutstandingDocumentEnvelope = outstandingDocumentEnveloper.toEnvelope(registeredScanEnvelope, scanDocument);
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope = outstandingDocumentEnveloper.toEnvelope(registeredScanEnvelope, scanDocument);
 
-        assertThat(receiveOutstandingDocumentEnvelope.metadata().name(), is("documentqueue.command.receive-outstanding-document"));
-        assertThat(receiveOutstandingDocumentEnvelope.payload(), is(receiveOutstandingDocument));
+        assertThat(linkDocumentToCaseEnvelope.metadata().name(), is("documentqueue.command.link-document-to-case"));
+        assertThat(linkDocumentToCaseEnvelope.payload(), is(linkDocumentToCase));
     }
 }

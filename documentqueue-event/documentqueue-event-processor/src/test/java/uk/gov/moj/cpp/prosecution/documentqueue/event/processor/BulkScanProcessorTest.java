@@ -14,8 +14,8 @@ import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.stagingbulkscan.domain.ScanDocument;
 import uk.gov.justice.stagingbulkscan.domain.ScanEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
-import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.OutstandingDocumentEnveloper;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,7 +30,7 @@ public class BulkScanProcessorTest {
     private Sender sender;
 
     @Mock
-    private OutstandingDocumentEnveloper outstandingDocumentEnveloper;
+    private LinkDocumentToCaseEnveloper outstandingDocumentEnveloper;
 
     @InjectMocks
     private BulkScanProcessor bulkScanProcessor;
@@ -46,21 +46,21 @@ public class BulkScanProcessorTest {
         final ScanDocument scanDocument_1 = mock(ScanDocument.class);
         final ScanDocument scanDocument_2 = mock(ScanDocument.class);
 
-        final Envelope<ReceiveOutstandingDocument> outstandingDocumentEnvelope_1 = mock(Envelope.class);
-        final Envelope<ReceiveOutstandingDocument> outstandingDocumentEnvelope_2 = mock(Envelope.class);
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope_1 = mock(Envelope.class);
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope_2 = mock(Envelope.class);
 
         when(inputEnvelope.payload()).thenReturn(scanEnvelopeRegistered);
         when(scanEnvelopeRegistered.getScanEnvelope()).thenReturn(scanEnvelope);
         when(scanEnvelope.getAssociatedScanDocuments()).thenReturn(asList(scanDocument_1, scanDocument_2));
         when(scanDocument_1.getStatus()).thenReturn(FOLLOW_UP);
         when(scanDocument_2.getStatus()).thenReturn(FOLLOW_UP);
-        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_1)).thenReturn(outstandingDocumentEnvelope_1);
-        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_2)).thenReturn(outstandingDocumentEnvelope_2);
+        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_1)).thenReturn(linkDocumentToCaseEnvelope_1);
+        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_2)).thenReturn(linkDocumentToCaseEnvelope_2);
 
         bulkScanProcessor.processRegisteredScanEnvelope(inputEnvelope);
 
-        verify(sender).send(outstandingDocumentEnvelope_1);
-        verify(sender).send(outstandingDocumentEnvelope_2);
+        verify(sender).send(linkDocumentToCaseEnvelope_1);
+        verify(sender).send(linkDocumentToCaseEnvelope_2);
     }
 
     @SuppressWarnings("unchecked")
@@ -76,7 +76,7 @@ public class BulkScanProcessorTest {
         final ScanDocument scanDocument_3 = mock(ScanDocument.class);
         final ScanDocument scanDocument_4 = mock(ScanDocument.class);
 
-        final Envelope<ReceiveOutstandingDocument> outstandingDocumentEnvelope_2 = mock(Envelope.class);
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope_2 = mock(Envelope.class);
 
         when(inputEnvelope.payload()).thenReturn(scanEnvelopeRegistered);
         when(scanEnvelopeRegistered.getScanEnvelope()).thenReturn(scanEnvelope);
@@ -90,10 +90,10 @@ public class BulkScanProcessorTest {
         when(scanDocument_2.getStatus()).thenReturn(FOLLOW_UP);
         when(scanDocument_3.getStatus()).thenReturn(MANUALLY_ACTIONED);
         when(scanDocument_4.getStatus()).thenReturn(AUTO_ACTIONED);
-        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_2)).thenReturn(outstandingDocumentEnvelope_2);
+        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, scanDocument_2)).thenReturn(linkDocumentToCaseEnvelope_2);
 
         bulkScanProcessor.processRegisteredScanEnvelope(inputEnvelope);
 
-        verify(sender).send(outstandingDocumentEnvelope_2);
+        verify(sender).send(linkDocumentToCaseEnvelope_2);
     }
 }

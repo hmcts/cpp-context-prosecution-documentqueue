@@ -6,10 +6,10 @@ import static org.mockito.Mockito.when;
 
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.fileservice.client.FileService;
-import uk.gov.justice.services.fileservice.domain.FileReference;
 import uk.gov.justice.services.messaging.Envelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
-import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.OutstandingDocumentEnveloper;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.material.MaterialService;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.material.pojo.MaterialMetadata;
 import uk.gov.moj.cps.prosecutioncasefile.domain.event.DocumentReviewRequired;
@@ -32,7 +32,7 @@ public class CpsDocumentProcessorTest {
     private Sender sender;
 
     @Mock
-    private OutstandingDocumentEnveloper outstandingDocumentEnveloper;
+    private LinkDocumentToCaseEnveloper outstandingDocumentEnveloper;
 
     @Mock
     private FileService fileService;
@@ -51,16 +51,16 @@ public class CpsDocumentProcessorTest {
         final UUID fileStoreId = UUID.randomUUID();
         final String fileName_1 = "XVBN22.pdf";
         final JsonObject fileMetadata = mock(JsonObject.class);
-        final Envelope<ReceiveOutstandingDocument> outstandingDocumentEnvelope_1 = mock(Envelope.class);
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope = mock(Envelope.class);
 
         when(inputEnvelope.payload()).thenReturn(documentReviewRequired);
         when(documentReviewRequired.getFileStoreId()).thenReturn(fileStoreId);
         when(fileService.retrieveMetadata(fileStoreId)).thenReturn(Optional.of(fileMetadata));
         when(fileMetadata.getString("fileName")).thenReturn(fileName_1);
-        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, fileName_1)).thenReturn(outstandingDocumentEnvelope_1);
+        when(outstandingDocumentEnveloper.toEnvelope(inputEnvelope, fileName_1)).thenReturn(linkDocumentToCaseEnvelope);
 
         cpsDocumentProcessor.processDocumentReviewRequiredEnvelope(inputEnvelope);
-        verify(sender).send(outstandingDocumentEnvelope_1);
+        verify(sender).send(linkDocumentToCaseEnvelope);
     }
 
     @Test
@@ -70,7 +70,7 @@ public class CpsDocumentProcessorTest {
         final ReceiveOutstandingDocument receiveOutstandingDocument = mock(ReceiveOutstandingDocument.class);
         final Envelope<uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired> documentReviewRequiredEnvelope = mock(Envelope.class);
         final uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired documentReviewRequired = mock(uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired.class);
-        final Envelope<ReceiveOutstandingDocument> outstandingDocumentEnvelope = mock(Envelope.class);
+        final Envelope<LinkDocumentToCase> outstandingDocumentEnvelope = mock(Envelope.class);
         final MaterialMetadata metadata = mock(MaterialMetadata.class);
 
         when(documentReviewRequiredEnvelope.payload()).thenReturn(documentReviewRequired);

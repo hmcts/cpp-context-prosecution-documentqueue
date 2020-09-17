@@ -2,13 +2,13 @@ package uk.gov.moj.cpp.prosecution.documentqueue.event.converter;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static uk.gov.justice.prosecution.documentqueue.domain.Document.document;
-import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument.receiveOutstandingDocument;
+import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase.*;
 
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.services.core.dispatcher.SystemUserProvider;
-import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.referencedata.ReferenceDataService;
 import uk.gov.moj.cpp.systemidmapper.client.SystemIdMapperClient;
 import uk.gov.moj.cpp.systemidmapper.client.SystemIdMapping;
@@ -31,9 +31,9 @@ public class ReviewDocumentConverter {
     @Inject
     private SystemUserProvider systemUserProvider;
 
-    public ReceiveOutstandingDocument asOutstandingDocument(final DocumentReviewRequired documentReviewRequired,final String fileName) {
+    public LinkDocumentToCase asLinkDocumentToCase(final DocumentReviewRequired documentReviewRequired, final String fileName) {
 
-        return receiveOutstandingDocument().withOutstandingDocument(
+        return linkDocumentToCase().withDocument(
                 document()
                         .withSource(Source.valueOf(documentReviewRequired.getSource()))
                         .withNotes(documentReviewRequired.getErrorCodes().stream().collect(Collectors.joining(",")))
@@ -52,8 +52,9 @@ public class ReviewDocumentConverter {
                         .build()).build();
     }
 
-    public ReceiveOutstandingDocument asOutstandingDocument(final uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired documentReviewRequired, final String fileName) {
-        return receiveOutstandingDocument().withOutstandingDocument(
+    public LinkDocumentToCase asLinkDocumentToCase(final uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired documentReviewRequired,
+                                                   final String fileName) {
+        return linkDocumentToCase().withDocument(
                 document()
                         .withNotes(documentReviewRequired.getCode().get(0))
                         .withScanDocumentId(documentReviewRequired.getDocumentId())

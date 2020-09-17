@@ -1,4 +1,4 @@
-package uk.gov.moj.cpp.prosecution.documentqueue.it.test.command;
+package uk.gov.moj.cpp.prosecution.documentqueue.it.test.event;
 
 import static java.lang.String.format;
 import static java.util.UUID.fromString;
@@ -6,16 +6,17 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
-import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTableList.DOCUMENT;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database.DBUtil.waitUntilDataPersist;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentValues;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newScanEnvelopeRegistered;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.EventType.PUBLIC_EVENT;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.SimpleMessageQueueClient.publicEventToTopic;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.UPDATE_DOCUMENT_STATUS;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.SimpleRestClient.postRequest;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_SCAN_ENVELOPE_REGISTERED;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil.privateEvents;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil.publicEvents;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
@@ -23,6 +24,8 @@ import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockSt
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
+import java.time.ZonedDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -36,14 +39,15 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
 
-public class UpdateDocumentStatusCommandIT extends BaseIT {
+public class CaseEjectedFromCPPIT extends BaseIT {
 
     private static final String DOCUMENT_STATUS_CHECK = "id = '%s' and status = '%s'";
 
     private UUID documentId;
+    private UUID caseId;
     private static final UUID userId = randomUUID();
     private static final String PUBLIC_DOCUMENT_STATUS_UPDATED = "public.documentqueue.document-status-updated";
-    private static final String PUBLIC_DOCUMENT_STATUS_UPDATE_FAILED ="public.documentqueue.event.document-status-update-failed";
+    private static final String PUBLIC_CASE_OR_APPLICATION_EJECTED ="public.progression.events.case-or-application-ejected";
 
     @Inject
     private Logger logger;
@@ -57,46 +61,38 @@ public class UpdateDocumentStatusCommandIT extends BaseIT {
     public void setUp() {
         final Map<String, String> values = newDocumentValues("BULKSCAN", "APPLICATION", "FOLLOW_UP");
         values.put("fileName", PUBLIC_SCAN_ENVELOPE_REGISTERED);
-        stubIdMapperReturningExistingAssociation(UUID.randomUUID());
+        caseId = randomUUID();
+        stubIdMapperReturningExistingAssociation(caseId);
         newScanEnvelopeRegistered(values);
         documentId = fromString(values.get("documentId"));
     }
 
+
     @Test
-    public void testUpdateDocumentStatusToInProgressCommand() {
+    public void testDeleteDocumentWhenInProgress() {
         updateDocumentStatus(IN_PROGRESS);
-    }
+        final Map<String, String> valueMap = new HashMap<>();
+        valueMap.put("caseId", caseId.toString());
+        final MessageConsumer messageConsumer = privateEvents.createConsumer("documentqueue.event.document-marked-completed");
 
-    @Test
-    public void testUpdateDocumentStatusToCompletedCommand() {
-        updateDocumentStatus(IN_PROGRESS);
-        updateDocumentStatus(COMPLETED);
-    }
+        publicEventToTopic(
+                PUBLIC_CASE_OR_APPLICATION_EJECTED,
+                PUBLIC_EVENT.getStringValue(),
+                "documentqueue/public.progression.events.case-or-application-ejected.json",
+                valueMap,
+                ZonedDateTime.now());
 
-    @Test
-    public void testUpdateDocumentStatusToOutstandingCommand() {
-        updateDocumentStatus(IN_PROGRESS);
-        updateDocumentStatus(OUTSTANDING);
-    }
-
-    @Test
-    public void shouldFailOnConsecutiveInProgressUpdates() {
-        failUpdateDocumentStatus(IN_PROGRESS,IN_PROGRESS);
-    }
-
-    private void failUpdateDocumentStatus(Status initialStatus,Status nextStatus) {
-        MessageConsumer  messageConsumerForInitialStatus =  postDocumentStatusUpdate(initialStatus,documentId,PUBLIC_DOCUMENT_STATUS_UPDATED);
-        verifyDocumentStatusUpdatedPublicEventReceived(documentId,initialStatus,messageConsumerForInitialStatus);
-        MessageConsumer messageConsumerForNextStatus = postDocumentStatusUpdate(nextStatus,documentId,PUBLIC_DOCUMENT_STATUS_UPDATE_FAILED);
-        verifyDocumentStatusUpdatedPublicEventReceived(documentId,nextStatus,messageConsumerForNextStatus);
-    }
+        assertThat("Document Id does not match",
+                privateEvents.retrieveMessage(messageConsumer)
+                        .getJsonObject("documentId")
+                        .equals(documentId.toString()));
+     }
 
     private void updateDocumentStatus(final Status status) {
         MessageConsumer messageConsumerForDocumentStatusUpdated = postDocumentStatusUpdate(status, documentId,PUBLIC_DOCUMENT_STATUS_UPDATED);
         waitUntilDataPersist(DOCUMENT.toString(), format(DOCUMENT_STATUS_CHECK, documentId.toString(), status.toString()), 1);
         verifyDocumentStatusUpdatedPublicEventReceived(documentId, status, messageConsumerForDocumentStatusUpdated);
     }
-
     private static MessageConsumer postDocumentStatusUpdate(final Status status, final UUID documentId,final String eventSelector) {
         MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createConsumer(eventSelector);
         postRequest(format(UPDATE_DOCUMENT_STATUS.getUri(), documentId.toString()),
@@ -106,7 +102,9 @@ public class UpdateDocumentStatusCommandIT extends BaseIT {
         return messageConsumerForDocumentStatusUpdated;
     }
 
-    private void verifyDocumentStatusUpdatedPublicEventReceived(final UUID documentId, final Status status, final MessageConsumer messageConsumerForDocumentStatusUpdated) {
+    private void verifyDocumentStatusUpdatedPublicEventReceived(final UUID documentId,
+                                                                final Status status,
+                                                                final MessageConsumer messageConsumerForDocumentStatusUpdated) {
         final JsonPath topicMessage = publicEvents.retrieveMessage(messageConsumerForDocumentStatusUpdated);
         final String payloadDocumentId = topicMessage.getJsonObject("documentId");
         final String payloadStatus =  topicMessage.getJsonObject( "status");
@@ -118,5 +116,4 @@ public class UpdateDocumentStatusCommandIT extends BaseIT {
             logger.error("Error while closing Message consumer: {}", e);
         }
     }
-
 }

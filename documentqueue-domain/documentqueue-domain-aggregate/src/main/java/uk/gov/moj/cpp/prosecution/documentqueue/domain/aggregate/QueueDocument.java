@@ -73,7 +73,7 @@ public class QueueDocument implements Aggregate {
 
     private Stream<Object> markDocumentDeleted() {
         final Stream.Builder<Object> streamBuilder = Stream.builder();
-        if (documentStatus.equals(COMPLETED)) {
+        if (COMPLETED.equals(documentStatus)) {
             streamBuilder.add(DocumentMarkedDeleted.documentMarkedDeleted().withDocumentId(documentId).build());
         }
         return apply(streamBuilder.build());
@@ -96,9 +96,9 @@ public class QueueDocument implements Aggregate {
     }
 
 
-    private Stream<Object> markDocumentAsCompleted() {
+    private Stream<Object> markDocumentAsCompleted(final Boolean override) {
         final Stream.Builder<Object> streamBuilder = Stream.builder();
-        if (documentStatus.equals(Status.IN_PROGRESS)) {
+        if ((Boolean.TRUE.equals(override) && OUTSTANDING.equals(documentStatus)) || IN_PROGRESS.equals(documentStatus)) {
             streamBuilder.add(DocumentMarkedCompleted.documentMarkedCompleted().withDocumentId(documentId).build());
             streamBuilder.add(DocumentStatusUpdated.documentStatusUpdated().withDocumentId(documentId).withStatus(COMPLETED).build());
         } else {
@@ -146,13 +146,21 @@ public class QueueDocument implements Aggregate {
                 ));
     }
 
-    public Stream<Object> updateDocumentStatus(final Status status ) {
+    public Stream<Object> updateDocumentStatus(final Status status, final Boolean override ) {
           switch (status) {
               case OUTSTANDING: return markDocumentAsOutstanding();
               case IN_PROGRESS: return  markDocumentAsInProgress();
               case DELETED:   return markDocumentDeleted();
-              case COMPLETED: return markDocumentAsCompleted();
+              case COMPLETED: return markDocumentAsCompleted(override);
           }
           return null;
+    }
+
+    public Stream<Object> markDocumentAsCompletedForEjectedOrFilteredCase() {
+        final Stream.Builder<Object> streamBuilder = Stream.builder();
+        if(null != this.documentId) {
+            streamBuilder.add(DocumentMarkedDeleted.documentMarkedDeleted().withDocumentId(documentId).build());
+        }
+        return apply(streamBuilder.build());
     }
 }

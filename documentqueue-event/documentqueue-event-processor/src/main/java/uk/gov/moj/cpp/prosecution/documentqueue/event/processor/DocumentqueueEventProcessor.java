@@ -10,6 +10,7 @@ import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
 import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
 import static uk.gov.justice.services.messaging.Envelope.metadataFrom;
+import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument.receiveOutstandingDocument;
 
 import uk.gov.justice.prosecution.documentqueue.domain.model.CourtDocument;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
@@ -20,7 +21,9 @@ import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.documentqueue.event.DocumentLinkedToCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.AttachDocument;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
 import java.util.Optional;
@@ -50,6 +53,8 @@ public class DocumentqueueEventProcessor {
     private static final String RECORD_DOCUMENT_ATTACHED = "documentqueue.command.record-document-attached";
     private static final String PUBLIC_DOCUMENT_QUEUE_DOCUMENT_ALREADY_ATTACHED ="public.documentqueue.document-already-attached";
     private static final String DOCUMENT_ID = "documentId";
+    private static final String DOCUMENTQUEUE_COMMAND_RECEIVE_OUTSTANDING_DOCUMENT = "documentqueue.command.receive-outstanding-document";
+
 
     @Inject
     private Sender sender;
@@ -82,6 +87,14 @@ public class DocumentqueueEventProcessor {
     public void processDocumentMarkedCompleted(final JsonEnvelope event) {
         final UUID documentId = UUID.fromString(event.payloadAsJsonObject().getString(DOCUMENT_ID));
         getEnvelopeIdByDocumentId(documentId).map(x -> buildPayload(fromString(x), documentId)).ifPresent(x -> sender.sendAsAdmin(envelopeFrom(metadataBuilder().withId(randomUUID()).withName(STAGING_BULKSCAN_MARK_DOCUMENT).build(), x)));
+    }
+
+    @Handles("documentqueue.event.document-linked-to-case")
+    public void processDocumentLinkedToCase(final Envelope<DocumentLinkedToCase> documentLinkedToCaseEnvelope) {
+        final ReceiveOutstandingDocument receiveOutstandingDocumentEnvelope = receiveOutstandingDocument().withOutstandingDocument(documentLinkedToCaseEnvelope.payload().getDocument()).build();
+        sender.send(envelop(receiveOutstandingDocumentEnvelope)
+                .withName(DOCUMENTQUEUE_COMMAND_RECEIVE_OUTSTANDING_DOCUMENT)
+                .withMetadataFrom(documentLinkedToCaseEnvelope));
     }
 
     private JsonObject buildPayload(final UUID scanEnvelopeId, final UUID documentId) {

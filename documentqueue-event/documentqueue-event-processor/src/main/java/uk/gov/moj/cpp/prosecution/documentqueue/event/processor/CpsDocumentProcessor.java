@@ -8,8 +8,8 @@ import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.client.FileService;
 import uk.gov.justice.services.messaging.Envelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument;
-import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.OutstandingDocumentEnveloper;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.material.MaterialService;
 import uk.gov.moj.cps.prosecutioncasefile.domain.event.DocumentReviewRequired;
 
@@ -28,7 +28,7 @@ public class CpsDocumentProcessor {
     Sender sender;
 
     @Inject
-    private OutstandingDocumentEnveloper outstandingDocumentEnveloper;
+    private LinkDocumentToCaseEnveloper linkDocumentToCaseEnveloper;
 
     @Inject
     private MaterialService materialService;
@@ -39,14 +39,14 @@ public class CpsDocumentProcessor {
         final Optional<JsonObject> fileMetadata = fileService.retrieveMetadata(documentReviewRequiredEnvelope.payload().getFileStoreId());
 
         final String fileName = fileMetadata.get().getString("fileName");
-        final Envelope<ReceiveOutstandingDocument> envelope = outstandingDocumentEnveloper.toEnvelope(documentReviewRequiredEnvelope, fileName);
+        final Envelope<LinkDocumentToCase> envelope = linkDocumentToCaseEnveloper.toEnvelope(documentReviewRequiredEnvelope, fileName);
         sender.send(envelope);
     }
 
     @Handles("public.progression.document-review-required")
     public void processDocumentReviewRequired(final Envelope<uk.gov.moj.cps.progression.domain.event.DocumentReviewRequired> documentReviewRequiredEnvelope) {
         final String fileName = materialService.materialMetaDataForMaterialId(documentReviewRequiredEnvelope.payload().getMaterialId()).getFileName();
-        final Envelope<ReceiveOutstandingDocument> envelope = outstandingDocumentEnveloper.toReviewEnvelope(documentReviewRequiredEnvelope, fileName);
+        final Envelope<LinkDocumentToCase> envelope = linkDocumentToCaseEnveloper.toReviewEnvelope(documentReviewRequiredEnvelope, fileName);
         sender.send(envelope);
     }
 }

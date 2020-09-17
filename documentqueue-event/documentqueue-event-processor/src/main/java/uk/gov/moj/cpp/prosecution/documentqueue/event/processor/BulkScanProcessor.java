@@ -11,7 +11,7 @@ import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.OutstandingDocumentEnveloper;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 
 import javax.inject.Inject;
 
@@ -22,7 +22,7 @@ public class BulkScanProcessor {
     private Sender sender;
 
     @Inject
-    private OutstandingDocumentEnveloper outstandingDocumentEnveloper;
+    private LinkDocumentToCaseEnveloper outstandingDocumentEnveloper;
 
     @Handles("public.stagingbulkscan.scan-envelope-registered")
     public void processRegisteredScanEnvelope(final Envelope<ScanEnvelopeRegistered> registeredScanEnvelope) {

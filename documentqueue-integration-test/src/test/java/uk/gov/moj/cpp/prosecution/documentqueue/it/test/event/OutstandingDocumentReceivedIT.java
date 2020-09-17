@@ -8,14 +8,22 @@ import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.Documen
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.OUTSTANDING_DOCUMENT_RECEIVED;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_MARKED_FOLLOW_UP;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_SCAN_ENVELOPE_REGISTERED;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
 
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
 import java.util.Map;
+import java.util.UUID;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class OutstandingDocumentReceivedIT extends BaseIT {
+
+    @Before
+    public  void setUp() {
+        stubIdMapperReturningExistingAssociation(UUID.randomUUID());
+    }
 
     @Test
     public void shouldHandleOutstandingDocumentReceivedEvent() {

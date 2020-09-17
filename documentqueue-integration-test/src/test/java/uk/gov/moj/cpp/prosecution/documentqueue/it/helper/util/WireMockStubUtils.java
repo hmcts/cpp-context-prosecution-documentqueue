@@ -1,13 +1,11 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.String.format;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils.stubPingFor;
 import static uk.gov.justice.services.common.http.HeaderConstants.ID;
 import static uk.gov.justice.services.test.utils.core.http.BaseUriProvider.getBaseUri;
 import static uk.gov.justice.services.test.utils.core.http.RequestParamsBuilder.requestParams;
@@ -27,6 +25,8 @@ public class WireMockStubUtils {
     private static final String CONTENT_TYPE_QUERY_GROUPS = "application/vnd.usersgroups.groups+json";
     private static final String GET_GROUPS_BY_USER_URL = "/usersgroups-service/query/api/rest/usersgroups/users/%s/groups";
     private static final String GET_GROUPS_PAYLOAD_PATH = "json/stub-data/usersgroups.get-groups-by-user.json";
+    private static final String SYSTEM_ID_MAPPER_URL = "/system-id-mapper-api/rest/systemid/mappings/*";
+
 
     public static void setupAsAuthorisedUser(final UUID userId, final String userGroup) {
         final Map<String, String> values = new HashMap<>();
@@ -48,6 +48,28 @@ public class WireMockStubUtils {
     private static void waitForStubToBeReady(final String resource, final String mediaType, final Status expectedStatus) {
         poll(requestParams(MessageFormat.format("{0}{1}", getBaseUri(), resource), mediaType).build())
                 .until(status().is(expectedStatus));
+    }
+
+    public static void stubIdMapperReturningExistingAssociation(final UUID associationId) {
+        stubPingFor("system-id-mapper-api");
+        stubFor(get(urlPathMatching(SYSTEM_ID_MAPPER_URL))
+                .willReturn(aResponse()
+                        .withStatus(200)
+                        .withBody(systemIdMappingResponseTemplate(associationId))));
+        waitForStubToBeReady("/system-id-mapper-api/rest/systemid/mappings/abc", "application/vnd.systemid.mapping+json");
+
+    }
+
+    private static String systemIdMappingResponseTemplate(final UUID associationId) {
+
+        return "{\n" +
+                "  \"mappingId\": \"166c0ae9-e276-4d29-b669-cb32013228b3\",\n" +
+                "  \"sourceId\": \"ID01\",\n" +
+                "  \"sourceType\": \"SystemACaseId\",\n" +
+                "  \"targetId\": \"" + associationId + "\",\n" +
+                "  \"targetType\": \"caseId\",\n" +
+                "  \"createdAt\": \"2016-09-07T14:30:53.294Z\"\n" +
+                "}";
     }
 
 }

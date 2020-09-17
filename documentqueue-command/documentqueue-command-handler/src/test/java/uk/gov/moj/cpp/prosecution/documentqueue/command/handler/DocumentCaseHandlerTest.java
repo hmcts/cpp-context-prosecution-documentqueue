@@ -3,7 +3,6 @@ package uk.gov.moj.cpp.prosecution.documentqueue.command.handler;
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anyOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -21,11 +20,13 @@ import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMatch
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.metadata;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopePayloadMatcher.payloadIsJson;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeStreamMatcher.streamContaining;
+import static uk.gov.moj.cpp.documentqueue.command.handler.RecordCaseStatus.recordCaseStatus;
 import static uk.gov.moj.cpp.documentqueue.command.handler.UpdateDocumentStatus.updateDocumentStatus;
 import static uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted.documentMarkedCompleted;
 import static uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress.documentMarkedInprogress;
 import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.ReceiveOutstandingDocument.receiveOutstandingDocument;
 
+import uk.gov.justice.prosecution.documentqueue.domain.Document;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.model.CourtDocument;
 import uk.gov.justice.services.core.aggregate.AggregateService;
@@ -33,23 +34,27 @@ import uk.gov.justice.services.eventsourcing.source.core.EventSource;
 import uk.gov.justice.services.eventsourcing.source.core.EventStream;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.moj.cpp.DocumentStatusUpdated;
+import uk.gov.moj.cpp.documentqueue.command.handler.RecordCaseStatus;
 import uk.gov.moj.cpp.documentqueue.command.handler.UpdateDocumentStatus;
 import uk.gov.moj.cpp.documentqueue.event.AttachDocumentRequested;
-import uk.gov.moj.cpp.documentqueue.event.DocumentAttached;
+import uk.gov.moj.cpp.documentqueue.event.CaseMarkedEjected;
+import uk.gov.moj.cpp.documentqueue.event.CaseMarkedFiltered;
+import uk.gov.moj.cpp.documentqueue.event.DocumentLinkedToCase;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedDeleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedOutstanding;
+import uk.gov.moj.cpp.documentqueue.event.DocumentNotLinkedToCase;
 import uk.gov.moj.cpp.documentqueue.event.DocumentStatusUpdateFailed;
 import uk.gov.moj.cpp.documentqueue.event.OutstandingDocumentReceived;
+import uk.gov.moj.cpp.prosecution.documentqueue.domain.aggregate.CPPCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.domain.aggregate.QueueDocument;
+import uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus;
 
-import java.util.Queue;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -78,7 +83,11 @@ public class DocumentCaseHandlerTest {
                 DocumentMarkedDeleted.class,
                 DocumentStatusUpdated.class,
                 DocumentStatusUpdateFailed.class,
-                AttachDocumentRequested.class);
+                AttachDocumentRequested.class,
+                DocumentLinkedToCase.class,
+                DocumentNotLinkedToCase.class,
+                CaseMarkedEjected.class,
+                CaseMarkedFiltered.class);
     }
 
     @Test
@@ -414,4 +423,179 @@ public class DocumentCaseHandlerTest {
                 )
         );
     }
+
+    @Test
+    public void shouldLinkDocumentToTheCase() throws Exception {
+
+        final UUID scanDocumentId = randomUUID();
+        final UUID caseId = randomUUID();
+        final String fileName = "theFile.pdf";
+        final EventStream eventStream = mock(EventStream.class);
+        final CPPCase cppCase = new CPPCase();
+
+        final LinkDocumentToCase linkDocumentToCase = LinkDocumentToCase.linkDocumentToCase()
+                .withDocument(document()
+                        .withScanDocumentId(scanDocumentId)
+                        .withCaseId(caseId)
+                        .withStatus(OUTSTANDING)
+                        .withFileName(fileName)
+                        .build())
+                .build();
+
+        final UUID commandId = randomUUID();
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope = envelopeFrom(
+                metadataBuilder()
+                        .withId(commandId)
+                        .withName("documentqueue.command.link-document-to-case"),
+                linkDocumentToCase);
+
+        when(eventSource.getStreamById(caseId)).thenReturn(eventStream);
+        when(aggregateService.get(eventStream, CPPCase.class)).thenReturn(cppCase);
+
+        documentCaseHandler.linkOutstandingDocumentsToCase(linkDocumentToCaseEnvelope);
+
+        assertThat(verifyAppendAndGetArgumentFrom(eventStream), streamContaining(
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName("documentqueue.event.document-linked-to-case"),
+                        payloadIsJson(allOf(
+                                withJsonPath("$.document.scanDocumentId", equalTo(scanDocumentId.toString())),
+                                withJsonPath("$.document.caseId", equalTo(caseId.toString())),
+                                withJsonPath("$.document.status", equalTo(OUTSTANDING.toString())),
+                                withJsonPath("$.document.fileName", equalTo(fileName))
+                        )))
+                        .thatMatchesSchema()
+                )
+        );
+    }
+
+    @Test
+    public void shouldNotLinkDocumentToTheCase() throws Exception {
+
+        final UUID scanDocumentId = randomUUID();
+        final UUID caseId = randomUUID();
+        final String fileName = "theFile.pdf";
+        final EventStream eventStream = mock(EventStream.class);
+        final CPPCase cppCase = new CPPCase();
+
+        final LinkDocumentToCase linkDocumentToCase = LinkDocumentToCase.linkDocumentToCase()
+                .withDocument(document()
+                        .withScanDocumentId(scanDocumentId)
+                        .withCaseId(caseId)
+                        .withStatus(OUTSTANDING)
+                        .withFileName(fileName)
+                        .build())
+                .build();
+
+        final UUID commandId = randomUUID();
+        final Envelope<LinkDocumentToCase> linkDocumentToCaseEnvelope = envelopeFrom(
+                metadataBuilder()
+                        .withId(commandId)
+                        .withName("documentqueue.command.link-document-to-case"),
+                linkDocumentToCase);
+
+        when(eventSource.getStreamById(caseId)).thenReturn(eventStream);
+        when(aggregateService.get(eventStream, CPPCase.class)).thenReturn(cppCase);
+
+        cppCase.updateCaseStatus(CaseStatus.EJECTED, caseId);
+        documentCaseHandler.linkOutstandingDocumentsToCase(linkDocumentToCaseEnvelope);
+
+        assertThat(verifyAppendAndGetArgumentFrom(eventStream), streamContaining(
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName("documentqueue.event.document-not-linked-to-case"),
+                        payloadIsJson(allOf(
+                                withJsonPath("$.document.scanDocumentId", equalTo(scanDocumentId.toString())),
+                                withJsonPath("$.document.caseId", equalTo(caseId.toString())),
+                                withJsonPath("$.document.status", equalTo(OUTSTANDING.toString())),
+                                withJsonPath("$.document.fileName", equalTo(fileName)),
+                                withJsonPath("$.reason", equalTo("The document is not linked to the case as the status of the case is EJECTED"))
+                        )))
+                        .thatMatchesSchema()
+                )
+        );
+
+    }
+
+    @Test
+    public void shouldRecordCaseStatusAsEjectedWhenEjected() throws Exception {
+        shouldRecordCaseStatus(CaseStatus.EJECTED, "documentqueue.event.case-marked-ejected");
+    }
+
+    @Test
+    public void shouldRecordCaseStatusAsFilteredWhenFiltered() throws Exception {
+        shouldRecordCaseStatus(CaseStatus.FILTERED, "documentqueue.event.case-marked-filtered");
+    }
+
+    public void shouldRecordCaseStatus(final CaseStatus caseStatus, final String eventName) throws Exception {
+
+        final UUID caseId = randomUUID();
+        final EventStream caseEventStream = mock(EventStream.class);
+        final CPPCase cppCase = new CPPCase();
+        final EventStream documentEventStream = mock(EventStream.class);
+        final QueueDocument queueDocument = new QueueDocument();
+
+        // prepare the command
+        final RecordCaseStatus recordCaseStatus = recordCaseStatus()
+                .withCaseId(caseId)
+                .withStatus(caseStatus)
+                .build();
+
+        final UUID commandId = randomUUID();
+        final Envelope<RecordCaseStatus> recordCaseStatusEnvelope = envelopeFrom(
+                metadataBuilder()
+                        .withId(commandId)
+                        .withName("documentqueue.command.record-case-status"),
+                recordCaseStatus);
+
+        when(eventSource.getStreamById(caseId)).thenReturn(caseEventStream);
+        when(aggregateService.get(caseEventStream, CPPCase.class)).thenReturn(cppCase);
+        final UUID documentId = UUID.fromString("03d5986b-31f6-4a13-9999-0dfd6dfff79e");
+
+        when(eventSource.getStreamById(documentId)).thenReturn(documentEventStream);
+        when(aggregateService.get(documentEventStream, QueueDocument.class)).thenReturn(queueDocument);
+
+        final Document document = Document.document()
+                .withScanDocumentId(documentId)
+                .withStatus(OUTSTANDING).build();
+        cppCase.linkDocumentToCase(document);
+        queueDocument.receiveOutstandingDocument(document);
+
+        documentCaseHandler.recordCaseStatus(recordCaseStatusEnvelope);
+
+        assertThat(verifyAppendAndGetArgumentFrom(caseEventStream), streamContaining(
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName(eventName),
+                        payloadIsJson(allOf(
+                                withJsonPath("$.caseId", equalTo(caseId.toString()))
+                        )))
+                        .thatMatchesSchema()
+        ));
+
+        assertThat(verifyAppendAndGetArgumentFrom(documentEventStream), streamContaining(
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName("documentqueue.event.document-marked-completed"),
+                        payloadIsJson(allOf(
+                                withJsonPath("$.documentId", equalTo(documentId.toString()))
+                        )))
+                        .thatMatchesSchema(),
+                jsonEnvelope(
+                        metadata()
+                                .withCausationIds(commandId)
+                                .withName("documentqueue.event.document-status-updated"),
+                        payloadIsJson(allOf(
+                                withJsonPath("$.documentId", equalTo(documentId.toString())),
+                                withJsonPath("$.status", equalTo(COMPLETED.toString()))
+                        )))
+                        .thatMatchesSchema()
+        ));
+
+    }
+
 }

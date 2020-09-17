@@ -1,17 +1,18 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "id": "http://moj.gov.uk/cpp/documentqueue/command/handler/update-document-status.json",
+  "id": "http://moj.gov.uk/cpp/documentqueue/command/handler/record-case-status.json",
   "type": "object",
   "properties": {
-    "documentId": {
+    "caseId": {
       "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
     },
     "status": {
-      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+      "$ref": "http://moj.gov.uk/prosecution/documentqueue/domain/enums/case-status.json"
+
     }
   },
   "required": [
-    "documentId",
+    "caseId",
     "status"
   ],
   "additionalProperties": false
