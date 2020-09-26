@@ -96,7 +96,7 @@
                         <configuration>
                             <sourceDirectory>CLASSPATH</sourceDirectory>
                             <includes>
-                                <include>**/*.json</include>
+                                <include>**/*command*.json</include>
                             </includes>
                             <generatorProperties implementation="uk.gov.justice.generation.pojo.core.PojoGeneratorProperties">
                                 <plugins>
