@@ -17,7 +17,7 @@
 #
 ##################################################################################################
 
-FRAMEWORK_VERSION=7.0.6
+FRAMEWORK_VERSION=7.0.10
 CONTEXT_NAME="ducumentqueue"
 USER_NAME="admin"
 PASSWORD="admin"
