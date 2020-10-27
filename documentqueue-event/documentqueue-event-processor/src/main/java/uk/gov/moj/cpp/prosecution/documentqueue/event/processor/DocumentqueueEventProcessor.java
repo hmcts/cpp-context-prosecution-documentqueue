@@ -45,7 +45,7 @@ public class DocumentqueueEventProcessor {
     private static final String PUBLIC_DOCUMENT_QUEUE_DOC_STATUS_UPDATED = "public.documentqueue.document-status-updated";
     private static final String PUBLIC_DOCUMENT_STATUS_UPDATE_FAILED = "public.documentqueue.event.document-status-update-failed";
     private static final String DOCUMENT_QUEUE_QUERY_GET_DOCUMENT = "documentqueue.query.get-document";
-    private static final String STAGING_BULKSCAN_MARK_DOCUMENT = "stagingbulkscan.command.mark-as-action";
+    private static final String STAGING_BULKSCAN_MARK_DOCUMENT = "stagingbulkscan.mark-as-action";
     private static final String DOCUMENT_QUEUE_QUERY_DOCUMENT_CONTENT = "documentqueue.query.document-content";
     private static final String MATERIAL_UPLOAD_FILE = "material.command.upload-file";
     private static final String PROGRESSION_ADD_COURT_DOCUMENT = "progression.add-court-document";

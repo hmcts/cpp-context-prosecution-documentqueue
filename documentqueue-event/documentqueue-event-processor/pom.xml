@@ -219,18 +219,7 @@
                             </exclusion>
                         </exclusions>
                     </dependency>
-                    <dependency>
-                        <groupId>uk.gov.moj.cpp.stagingbulkscan</groupId>
-                        <artifactId>stagingbulkscan-command-handler</artifactId>
-                        <version>${bulkscan.version}</version>
-                        <classifier>raml</classifier>
-                        <exclusions>
-                            <exclusion>
-                                <groupId>*</groupId>
-                                <artifactId>*</artifactId>
-                            </exclusion>
-                        </exclusions>
-                    </dependency>
+
                 </dependencies>
             </plugin>
             <plugin>
@@ -241,6 +230,18 @@
                         <groupId>uk.gov.moj.cpp.material</groupId>
                         <artifactId>material-query-api</artifactId>
                         <version>${material.version}</version>
+                        <classifier>raml</classifier>
+                        <exclusions>
+                            <exclusion>
+                                <groupId>*</groupId>
+                                <artifactId>*</artifactId>
+                            </exclusion>
+                        </exclusions>
+                    </dependency>
+                    <dependency>
+                        <groupId>uk.gov.moj.cpp.stagingbulkscan</groupId>
+                        <artifactId>stagingbulkscan-command-api</artifactId>
+                        <version>${bulkscan.version}</version>
                         <classifier>raml</classifier>
                         <exclusions>
                             <exclusion>
