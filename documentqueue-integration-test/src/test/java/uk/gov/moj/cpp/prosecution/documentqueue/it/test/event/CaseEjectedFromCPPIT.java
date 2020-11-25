@@ -93,8 +93,9 @@ public class CaseEjectedFromCPPIT extends BaseIT {
         waitUntilDataPersist(DOCUMENT.toString(), format(DOCUMENT_STATUS_CHECK, documentId.toString(), status.toString()), 1);
         verifyDocumentStatusUpdatedPublicEventReceived(documentId, status, messageConsumerForDocumentStatusUpdated);
     }
+
     private static MessageConsumer postDocumentStatusUpdate(final Status status, final UUID documentId,final String eventSelector) {
-        MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createConsumer(eventSelector);
+        final MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createConsumer(eventSelector);
         postRequest(format(UPDATE_DOCUMENT_STATUS.getUri(), documentId.toString()),
                 UPDATE_DOCUMENT_STATUS.getMediaType(),
                 createObjectBuilder().add("status", status.toString()).build().toString(),

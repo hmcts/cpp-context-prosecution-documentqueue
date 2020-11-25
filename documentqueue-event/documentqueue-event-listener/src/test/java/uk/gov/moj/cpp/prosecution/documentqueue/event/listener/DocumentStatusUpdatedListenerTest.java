@@ -1,7 +1,11 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.event.listener;
 
 import static java.time.ZoneOffset.UTC;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.matches;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -15,17 +19,21 @@ import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.Metadata;
+import uk.gov.moj.cpp.documentqueue.event.CaseMarkedSubmissionSucceeded;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedDeleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedInprogress;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedOutstanding;
+import uk.gov.moj.cpp.prosecution.documentqueue.entity.CaseStatus;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
+import uk.gov.moj.cpp.prosecution.documentqueue.event.service.CaseStatusService;
 import uk.gov.moj.cpp.prosecution.documentqueue.event.service.DocumentService;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
+import org.hamcrest.CoreMatchers;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -43,8 +51,14 @@ public class DocumentStatusUpdatedListenerTest {
     @Mock
     DocumentService documentService;
 
+    @Mock
+    CaseStatusService caseStatusService;
+
     @Captor
     private ArgumentCaptor<Document> documentCaptor;
+
+    @Captor
+    private ArgumentCaptor<CaseStatus> caseStatusCaptor;
 
     @Test
     public void handleDocumentMarkedDeleted() throws IOException {
@@ -128,6 +142,34 @@ public class DocumentStatusUpdatedListenerTest {
 
         final Document document = documentCaptor.getValue();
         assertThat(document, matchesNonNullPropertiesOfDocument(expectedDocument));
+    }
+
+    @Test
+    public void handleDocumentCaseMarkedSubmissionSucceeded() throws IOException {
+        final Envelope<CaseMarkedSubmissionSucceeded> documentMarkedCompletedEnvelope = mock(Envelope.class);
+        CaseMarkedSubmissionSucceeded documentCaseMarkedSubmissionSucceeded = mock(CaseMarkedSubmissionSucceeded.class);
+        final UUID exampleCaseId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
+
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final Metadata metadata = metadataWithRandomUUID("documentqueue.event.case-marked-submission-succeeded")
+                .createdAt(eventDateTime).build();
+
+        when(documentMarkedCompletedEnvelope.payload()).thenReturn(documentCaseMarkedSubmissionSucceeded);
+        when(documentMarkedCompletedEnvelope.metadata()).thenReturn(metadata);
+        when(documentCaseMarkedSubmissionSucceeded.getCaseId()).thenReturn(exampleCaseId);
+        doNothing().when(caseStatusService).saveCaseStatus(any(CaseStatus.class));
+
+        final CaseStatus expectedCaseStatus = new CaseStatus.CaseStatusBuilder()
+                .withStatus(Status.COMPLETED)
+                .withCaseId(exampleCaseId)
+                .withId(UUID.randomUUID())
+                .build();
+        documentStatusUpdatedListener.handleDocumentCaseMarkedSubmissionSucceeded(documentMarkedCompletedEnvelope);
+        verify(caseStatusService, times(1)).saveCaseStatus(caseStatusCaptor.capture());
+
+        final CaseStatus caseStatus = caseStatusCaptor.getValue();
+        assertThat(caseStatus.getStatus(), equalTo(expectedCaseStatus.getStatus()));
+        assertThat(caseStatus.getCaseId(), equalTo(expectedCaseStatus.getCaseId()));
     }
 
     @Test

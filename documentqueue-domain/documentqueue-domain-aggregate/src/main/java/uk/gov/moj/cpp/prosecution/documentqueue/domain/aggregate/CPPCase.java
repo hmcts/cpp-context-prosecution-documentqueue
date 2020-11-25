@@ -4,16 +4,19 @@ import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.doNothing;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.match;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.when;
 import static uk.gov.moj.cpp.documentqueue.event.CaseMarkedEjected.caseMarkedEjected;
+import static uk.gov.moj.cpp.documentqueue.event.CaseMarkedSubmissionSucceeded.caseMarkedSubmissionSucceeded;
 import static uk.gov.moj.cpp.documentqueue.event.CaseMarkedFiltered.caseMarkedFiltered;
 import static uk.gov.moj.cpp.documentqueue.event.DocumentLinkedToCase.documentLinkedToCase;
 import static uk.gov.moj.cpp.documentqueue.event.DocumentNotLinkedToCase.documentNotLinkedToCase;
 import static uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus.EJECTED;
 import static uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus.FILTERED;
+import static uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus.COMPLETED;
 
 import uk.gov.justice.domain.aggregate.Aggregate;
 import uk.gov.justice.prosecution.documentqueue.domain.Document;
 import uk.gov.moj.cpp.documentqueue.event.CaseMarkedEjected;
 import uk.gov.moj.cpp.documentqueue.event.CaseMarkedFiltered;
+import uk.gov.moj.cpp.documentqueue.event.CaseMarkedSubmissionSucceeded;
 import uk.gov.moj.cpp.documentqueue.event.DocumentLinkedToCase;
 import uk.gov.moj.cpp.documentqueue.event.DocumentNotLinkedToCase;
 import uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus;
@@ -58,6 +61,8 @@ public class CPPCase implements Aggregate {
             return markCaseAsRejected(caseId);
         } else if (FILTERED.equals(status)) {
             return markCaseAsFiltered(caseId);
+        } else if (COMPLETED.equals(status)) {
+            return markCaseAsSubmissionSucceeded(caseId);
         }
         return null;
     }
@@ -78,6 +83,13 @@ public class CPPCase implements Aggregate {
         return apply(streamBuilder.build());
     }
 
+    private Stream<Object> markCaseAsSubmissionSucceeded(final UUID caseId) {
+        final Stream.Builder<Object> streamBuilder = Stream.builder();
+        streamBuilder.add(caseMarkedSubmissionSucceeded()
+                .withCaseId(caseId)
+                .build());
+        return apply(streamBuilder.build());
+    }
     @Override
     public Object apply(Object event) {
         return match(event).with(
@@ -101,11 +113,16 @@ public class CPPCase implements Aggregate {
                 ),
                 when(CaseMarkedFiltered.class).apply(e ->
                         caseStatus = FILTERED
+                ),                when(CaseMarkedSubmissionSucceeded.class).apply(e ->
+                        doNothing()
                 ));
     }
 
     public List<UUID> getDocuments() {
         return Collections.unmodifiableList(documents);
+    }
+    public CaseStatus getCaseStatus() {
+        return this.caseStatus;
     }
 
 }

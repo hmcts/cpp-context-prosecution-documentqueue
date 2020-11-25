@@ -23,3 +23,22 @@ baseUri: message://command/handler/message/documentqueue
       application/vnd.documentqueue.command.record-case-status+json:
         schema: !include json/schema/documentqueue.command.record-case-status.json
         example: !include json/documentqueue.command.record-case-status.json
+      application/vnd.documentqueue.command.delete-documents-of-cases+json:
+        schema: !include json/schema/documentqueue.command.delete-documents-of-cases.json
+        example: !include json/documentqueue.command.delete-documents-of-cases.json
+      application/vnd.documentqueue.command.mark-documents-deleted-for-cases+json:
+        schema: !include json/schema/documentqueue.command.mark-documents-deleted-for-cases.json
+        example: !include json/documentqueue.command.mark-documents-deleted-for-cases.json
+      application/vnd.documentqueue.command.mark-document-deleted-from-file-store+json:
+        schema: !include json/schema/documentqueue.command.mark-document-deleted-from-file-store.json
+        example: !include json/documentqueue.command.mark-document-deleted-from-file-store.json
+      application/vnd.documentqueue.command.remove-document-from-queue+json:
+        schema: !include json/schema/documentqueue.command.remove-document-from-queue.json
+        example: !include json/documentqueue.command.remove-document-from-queue.json
+
+      application/vnd.documentqueue.command.delete-expired-documents+json:  !!null
+      application/vnd.documentqueue.command.mark-delete-expired-documents-as-requested+json:
+        schema: !include json/schema/documentqueue.command.mark-delete-expired-documents-as-requested.json
+        example: !include json/documentqueue.command.mark-delete-expired-documents-as-requested.json
+
+

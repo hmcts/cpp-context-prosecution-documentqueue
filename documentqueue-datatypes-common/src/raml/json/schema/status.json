@@ -6,6 +6,7 @@
     "OUTSTANDING",
     "IN_PROGRESS",
     "COMPLETED",
-    "DELETED"
+    "DELETED",
+    "FILE_DELETED"
   ]
 }

@@ -2,9 +2,11 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.String.format;
+import static java.util.UUID.randomUUID;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
+import static org.apache.http.HttpStatus.SC_OK;
 import static uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils.stubPingFor;
 import static uk.gov.justice.services.common.http.HeaderConstants.ID;
 import static uk.gov.justice.services.test.utils.core.http.BaseUriProvider.getBaseUri;
@@ -12,6 +14,9 @@ import static uk.gov.justice.services.test.utils.core.http.RequestParamsBuilder.
 import static uk.gov.justice.services.test.utils.core.http.RestPoller.poll;
 import static uk.gov.justice.services.test.utils.core.matchers.ResponseStatusMatcher.status;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.SimpleFileClient.getFileAsString;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.FileUtil.resourceToString;
+
+import uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils;
 
 import java.text.MessageFormat;
 import java.util.HashMap;
@@ -27,6 +32,8 @@ public class WireMockStubUtils {
     private static final String GET_GROUPS_PAYLOAD_PATH = "json/stub-data/usersgroups.get-groups-by-user.json";
     private static final String SYSTEM_ID_MAPPER_URL = "/system-id-mapper-api/rest/systemid/mappings/*";
 
+    private static final String REFERENCE_DATA_ACTION_SECTION_CODE_QUERY_URL = "/referencedata-service/query/api/rest/referencedata/documents-type-access";
+    private static final String REFERENCE_DATA_ACTION_DOCUMENTS_TYPE_ACCESS_BY_SECTION_CODE_MEDIA_TYPE = "application/vnd.referencedata.query.document-type-access-by-sectioncode+json";
 
     public static void setupAsAuthorisedUser(final UUID userId, final String userGroup) {
         final Map<String, String> values = new HashMap<>();
@@ -58,6 +65,17 @@ public class WireMockStubUtils {
                         .withBody(systemIdMappingResponseTemplate(associationId))));
         waitForStubToBeReady("/system-id-mapper-api/rest/systemid/mappings/abc", "application/vnd.systemid.mapping+json");
 
+    }
+
+    public static void stubGetReferenceDataBySectionCode( ) {
+        InternalEndpointMockUtils.stubPingFor("referencedata-service");
+        stubFor(get(urlPathEqualTo(REFERENCE_DATA_ACTION_SECTION_CODE_QUERY_URL))
+                .willReturn(aResponse().withStatus(SC_OK)
+                        .withHeader("CPPID", randomUUID().toString())
+                        .withHeader("Content-Type", REFERENCE_DATA_ACTION_DOCUMENTS_TYPE_ACCESS_BY_SECTION_CODE_MEDIA_TYPE)
+                            .withBody(resourceToString("json/stub-data/referencedata.query.document-type-access-by-sectionCode.json"))));
+
+        waitForStubToBeReady(REFERENCE_DATA_ACTION_SECTION_CODE_QUERY_URL, REFERENCE_DATA_ACTION_DOCUMENTS_TYPE_ACCESS_BY_SECTION_CODE_MEDIA_TYPE);
     }
 
     private static String systemIdMappingResponseTemplate(final UUID associationId) {

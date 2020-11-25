@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/cpp/prosecution/documentqueue/domain/prosecution-case-doc-status.json",
+  "type": "object",
+  "properties": {
+    "caseId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "caseUrn": {
+      "type": "string"
+    },
+    "casePTIUrn": {
+      "type": "string"
+    },
+    "documentDeleteStatusList": {
+      "type": "array",
+      "items": {
+        "id": "http://justice.gov.uk/cpp/prosecution/documentqueue/domain/document-delete-status.json",
+        "type": "object",
+        "properties": {
+          "documentId": {
+            "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+          },
+          "deleteStatus": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "caseUrn"
+      ]
+    },
+    {
+      "required": [
+        "casePTIUrn"
+      ]
+    }
+  ],
+  "additionalProperties": false
+}

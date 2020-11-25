@@ -4,6 +4,7 @@
   "type": "object",
   "enum": [
     "FILTERED",
-    "EJECTED"
+    "EJECTED",
+    "COMPLETED"
   ]
 }

@@ -16,6 +16,14 @@ subscriptions_descriptor:
           schema_uri: http://moj.gov.uk/cps/progression/domain/event/public.progression.document-review-required
         - name: public.progression.events.case-or-application-ejected
           schema_uri: http://justice.gov.uk/progression/courts/case-or-application-ejected
+        - name: public.stagingprosecutorsspi.event.prosecution-case-filtered
+          schema_uri: http://cpp.moj.gov.uk/staging/prosecutors/spi/json/schemas/public.stagingprosecutorsspi.event.prosecution-case-filtered.json
+        - name: public.prosecutioncasefile.prosecution-submission-succeeded
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/prosecutioncasefile/events/public.prosecutioncasefile.prosecution-submission-succeeded.json
+        - name: public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings
+          schema_uri: http://moj.gov.uk/cps/prosecutioncasefile/domain/event/public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings.json
+        - name: public.prosecutioncasefile.material-added
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/prosecutioncasefile/events/public.prosecutioncasefile.material-added.json
     - name: event processor documentqueue subscription
       event_source_name: documentqueue
       events:
@@ -28,4 +36,12 @@ subscriptions_descriptor:
         - name: documentqueue.event.attach-document-requested
           schema_uri: http://moj.gov.uk/cpp/documentqueue/event/attach-document-requested.json
         - name: documentqueue.event.document-linked-to-case
-          schema_uri: http://moj.gov.uk/cpp/documentqueue.document-linked-to-case.json
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-linked-to-case.json
+        - name: documentqueue.event.delete-documents-of-cases-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/delete-documents-of-cases-requested.json
+        - name: documentqueue.event.document-delete-from-file-store-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-delete-from-file-store-requested.json
+        - name: documentqueue.event.delete-expired-documents-request-received
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/delete-expired-documents-request-received.json
+
+

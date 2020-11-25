@@ -3,8 +3,11 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.view.service;
 import static java.lang.String.format;
 import static java.util.Optional.empty;
 import static java.util.Optional.of;
+import static uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases.documentIdsOfCases;
 import static uk.gov.justice.services.messaging.JsonObjects.getString;
 
+import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
+import uk.gov.justice.cpp.prosecution.documentqueue.domain.ProsecutionCase;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
@@ -25,6 +28,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping;
 import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -34,6 +39,7 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.json.JsonObject;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
 public class DocumentService {
@@ -57,11 +63,11 @@ public class DocumentService {
         if (source.isPresent() && status.isPresent()) {
             return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusOrderByVendorReceivedDateAsc(source.get(), status.get()));
         } else if (source.isPresent()) {
-            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(source.get(), Status.DELETED));
+            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(source.get(), Arrays.asList(Status.DELETED, Status.FILE_DELETED)));
         } else if (status.isPresent()) {
             return documentConverter.convertToScanDocuments(documentRepository.findByStatusOrderByVendorReceivedDateAsc(status.get()));
         } else {
-            return documentConverter.convertToScanDocuments(documentRepository.findByStatusNotEqualOrderByVendorReceivedDateAsc(Status.DELETED));
+            return documentConverter.convertToScanDocuments(documentRepository.findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED)));
         }
     }
 
@@ -79,7 +85,7 @@ public class DocumentService {
     }
 
     @SuppressWarnings("squid:S2629")
-    public Optional<ScanDocument> getDocumentById(final UUID documentId){
+    public Optional<ScanDocument> getDocumentById(final UUID documentId) {
         final Document document = documentRepository.findBy(documentId);
 
         if (document != null) {
@@ -101,6 +107,69 @@ public class DocumentService {
         withOutstandingCounts(documentCountMapping, builder);
 
         return builder.build();
+    }
+
+    /**
+     * @param urns: this can refer either to the caseUrns or the casePTIUrns
+     * @return
+     */
+    public Optional<DocumentIdsOfCases> getDocumentIdsForCases(final List<String> urns) {
+        final List<Document> documents = documentRepository.findByCaseUrnInOrCasePTIUrnInOrderByCaseUrnAsc(urns);
+        final List<ProsecutionCase> prosecutionCaseList = new ArrayList<>();
+
+        ProsecutionCase.Builder prosecutionCaseBuilder = ProsecutionCase.prosecutionCase();
+        String previousCaseUrn = null;
+        List<UUID> documentIds  = new ArrayList<>();
+
+        if (documents == null || documents.isEmpty()) {
+            return Optional.of(
+                    documentIdsOfCases()
+                            .withProsecutionCases(prosecutionCaseList)
+                            .build());
+        }
+
+        for (final Document document : documents) {
+            if (!StringUtils.equals(previousCaseUrn, getUrn(document))) {
+                if (previousCaseUrn != null) {
+                    buildProsecutionCase(prosecutionCaseList, prosecutionCaseBuilder, documentIds);
+                    // reinitialize after the build
+                    documentIds = new ArrayList<>();
+                    prosecutionCaseBuilder = ProsecutionCase.prosecutionCase();
+                }
+
+                prosecutionCaseBuilder
+                        .withCaseUrn(document.getCaseUrn())
+                        .withCasePTIUrn(document.getCasePTIUrn())
+                        .withCaseId(document.getCaseId());
+
+                previousCaseUrn = getUrn(document);
+            }
+
+            documentIds.add(document.getScanDocumentId());
+        }
+
+        buildProsecutionCase(prosecutionCaseList, prosecutionCaseBuilder, documentIds);
+
+        return Optional.of(documentIdsOfCases().withProsecutionCases(prosecutionCaseList).build());
+    }
+
+    public List<Document> getExpiredDocuments(final int documentExpiryDays) {
+        return documentRepository.getExpiredDocuments(documentExpiryDays);
+    }
+
+    public List<Document> getDocumentsEligibleForDeletionFromFileStore(final int days, final int maxResults) {
+        return documentRepository.getDocumentsEligibleForDeletionFromFileStore(days, maxResults);
+    }
+
+    private void buildProsecutionCase(final List<ProsecutionCase> prosecutionCaseList, final ProsecutionCase.Builder prosecutionCaseBuilder, final List<UUID> documentIds) {
+        if(prosecutionCaseBuilder != null) {
+            prosecutionCaseBuilder.withDocumentIds(documentIds);
+            prosecutionCaseList.add(prosecutionCaseBuilder.build());
+        }
+    }
+
+    private String getUrn(final Document document) {
+        return document.getCasePTIUrn() != null ? document.getCasePTIUrn() : document.getCaseUrn();
     }
 
     private void withOutstandingCounts(final List<DocumentCountMapping> documentCountMapping, final DocumentsCount.Builder builder) {

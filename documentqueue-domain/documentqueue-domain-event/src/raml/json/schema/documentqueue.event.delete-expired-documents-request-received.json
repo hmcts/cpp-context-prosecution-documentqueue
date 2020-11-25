@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/event/delete-expired-documents-request-received.json",
+  "type": "object",
+  "properties": {
+     "requestedAt": {
+          "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+     }
+  },
+  "required": [
+    "requestedAt"
+  ],
+  "additionalProperties": false
+}

@@ -2,6 +2,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.command.api;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createArrayBuilder;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -11,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
 import static uk.gov.justice.services.core.annotation.Component.COMMAND_API;
+import static uk.gov.justice.services.messaging.Envelope.metadataBuilder;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.HandlerClassMatcher.isHandlerClass;
 import static uk.gov.justice.services.test.utils.core.matchers.HandlerMethodMatcher.method;
@@ -23,9 +25,6 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
 
-import java.util.UUID;
-
-import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
@@ -40,6 +39,10 @@ import org.mockito.runners.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentQueueApiTest {
 
+    private static final String DELETE_DOCUMENTS_OF_CASES = "documentqueue.delete-documents-of-cases";
+    private static final String DELETE_EXPIRED_DOCUMENTS = "documentqueue.delete-expired-documents";
+    private static final String DELETE_DOCUMENTS_OF_CASES_COMMAND = "documentqueue.command.delete-documents-of-cases";
+    private static final String DELETE_EXPIRED_DOCUMENTS_COMMAND = "documentqueue.command.delete-expired-documents";
     private static final String ATTACH_DOCUMENT_NAME = "documentqueue.attach-document";
     private static final String ATTACH_DOCUMENT_COMMAND_NAME = "documentqueue.command.attach-document";
 
@@ -95,23 +98,72 @@ public class DocumentQueueApiTest {
         assertThat(newCommand.payload(), equalTo(commandEnvelope.payload()));
     }
 
+    @Test
+    public void shouldDeleteDocumentsOfCases() {
+        final JsonEnvelope commandEnvelope = buildCommandEnvelopeForDeleteDocs();
+
+        documentQueueApi.deleteDocumentsOfCases(commandEnvelope);
+        verify(sender, times(1)).send(envelopeCaptor.capture());
+
+        final Envelope newCommand = envelopeCaptor.getValue();
+
+        assertThat(newCommand.metadata().name(), is(DELETE_DOCUMENTS_OF_CASES_COMMAND));
+        assertThat(newCommand.payload(), equalTo(commandEnvelope.payload()));
+    }
+
+    @Test
+    public void shouldDeleteExpiredDocuments() {
+        final JsonEnvelope commandEnvelope = new DefaultJsonEnvelopeProvider()
+                .envelopeFrom(metadataBuilder()
+                        .withName(DELETE_EXPIRED_DOCUMENTS)
+                        .withId(randomUUID())
+                        .withUserId(randomUUID().toString())
+                        .build(), null);
+
+        documentQueueApi.deleteExpiredDocuments(commandEnvelope);
+        verify(sender, times(1)).send(envelopeCaptor.capture());
+
+        final Envelope newCommand = envelopeCaptor.getValue();
+
+        assertThat(newCommand.metadata().name(), is(DELETE_EXPIRED_DOCUMENTS_COMMAND));
+        assertThat(newCommand.payload(), equalTo(null));
+    }
+
+    private JsonEnvelope buildCommandEnvelopeForDeleteDocs() {
+        final JsonObject payload = createObjectBuilder()
+                .add("casePTIUrns",
+                        createArrayBuilder()
+                                .add("URN1")
+                                .build())
+                .build();
+
+        final Metadata metadata = metadataBuilder()
+                .withName(DELETE_DOCUMENTS_OF_CASES)
+                .withId(randomUUID())
+                .withUserId(randomUUID().toString())
+                .build();
+
+        final JsonEnvelope commandEnvelope =  new DefaultJsonEnvelopeProvider()
+                .envelopeFrom(metadata, payload);
+        return commandEnvelope;
+    }
+
     private JsonEnvelope buildAttachDocumentEnvelope() {
-        final JsonObject payload = Json.createObjectBuilder()
-                .add("courtDocument", Json.createObjectBuilder()
-                        .add("courtDocumentId", UUID.randomUUID().toString())
-                        .add("documentCategory", Json.createObjectBuilder().build())
+        final JsonObject payload = createObjectBuilder()
+                .add("courtDocument", createObjectBuilder()
+                        .add("courtDocumentId", randomUUID().toString())
+                        .add("documentCategory", createObjectBuilder().build())
                         .add("name", "Document Name")
-                        .add("documentTypeId", UUID.randomUUID().toString())
-                        .add("materials", Json.createArrayBuilder().build())
+                        .add("documentTypeId", randomUUID().toString())
+                        .add("materials", createArrayBuilder().build())
                         .add("containsFinancialMeans", true)
                         .build())
                 .build();
 
-        final Metadata metadata = Envelope
-                .metadataBuilder()
+        final Metadata metadata = metadataBuilder()
                 .withName(ATTACH_DOCUMENT_NAME)
-                .withId(UUID.randomUUID())
-                .withUserId(UUID.randomUUID().toString())
+                .withId(randomUUID())
+                .withUserId(randomUUID().toString())
                 .build();
 
         return new DefaultJsonEnvelopeProvider().envelopeFrom(metadata, payload);

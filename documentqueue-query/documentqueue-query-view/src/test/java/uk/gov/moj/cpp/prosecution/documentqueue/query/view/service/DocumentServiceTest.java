@@ -1,5 +1,6 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.view.service;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
@@ -18,6 +19,7 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PR
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 
+import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
@@ -30,6 +32,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -88,12 +91,12 @@ public class DocumentServiceTest {
         final List<Document> documents = Stream.of(new Document.DocumentBuilder().withId(randomUUID()).build()).collect(toList());
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
-        when(documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(BULKSCAN, Status.DELETED)).thenReturn(documents);
+        when(documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(BULKSCAN, Arrays.asList(Status.DELETED, Status.FILE_DELETED))).thenReturn(documents);
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
         final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
 
-        verify(documentRepository).findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(BULKSCAN, Status.DELETED);
+        verify(documentRepository).findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(BULKSCAN, Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         verify(documentConverter).convertToScanDocuments(documents);
 
         assertThat(resultScanDocuments, is(resultScanDocuments));
@@ -133,12 +136,12 @@ public class DocumentServiceTest {
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
 
-        when(documentRepository.findByStatusNotEqualOrderByVendorReceivedDateAsc(Status.DELETED)).thenReturn(documents);
+        when(documentRepository.findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED))).thenReturn(documents);
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
         final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
 
-        verify(documentRepository).findByStatusNotEqualOrderByVendorReceivedDateAsc(Status.DELETED);
+        verify(documentRepository).findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         verify(documentConverter).convertToScanDocuments(documents);
 
         assertThat(resultScanDocuments, is(scanDocuments));
@@ -232,4 +235,53 @@ public class DocumentServiceTest {
 
         verify(logger).info("No document found in document table with id '25bb9886-c97c-4aa6-a254-75211b50536c'");
     }
+
+    @Test
+    public void shouldGetDocumentIdsForCasesWithCaseUrns() {
+        final boolean isPriUrn = false;
+        final DocumentIdsOfCases documentIdsOfCases = getDocumentIdsOfCases(isPriUrn);
+
+        assertThat(documentIdsOfCases.getProsecutionCases().get(0).getCaseUrn(), is("urn1"));
+        assertThat(documentIdsOfCases.getProsecutionCases().get(1).getCaseUrn(), is("urn2"));
+    }
+
+    @Test
+    public void shouldGetDocumentIdsForCasesWithCasePtiUrns() {
+        final boolean isPriUrn = true;
+        final DocumentIdsOfCases documentIdsOfCases = getDocumentIdsOfCases(isPriUrn);
+
+        assertThat(documentIdsOfCases.getProsecutionCases().get(0).getCasePTIUrn(), is("urn1"));
+        assertThat(documentIdsOfCases.getProsecutionCases().get(1).getCasePTIUrn(), is("urn2"));
+    }
+
+    private DocumentIdsOfCases getDocumentIdsOfCases(final boolean isPriUrn) {
+        final List<String> caseUrns = asList("urn1", "urn2");
+        final Document document1 = getDocument("urn1", isPriUrn);
+        final Document document2 = getDocument("urn2", isPriUrn);
+
+        final List<Document> documents  =  new ArrayList<>();
+        documents.add(document1);
+        documents.add(document2);
+        when(documentRepository.findByCaseUrnInOrCasePTIUrnInOrderByCaseUrnAsc(caseUrns)).thenReturn(documents);
+        final DocumentIdsOfCases documentIdsOfCases = documentService.getDocumentIdsForCases(caseUrns).get();
+
+        assertThat(documentIdsOfCases.getProsecutionCases().size(), is(2));
+        assertThat(documentIdsOfCases.getProsecutionCases().get(0).getDocumentIds().get(0), is(document1.getScanDocumentId()));
+        assertThat(documentIdsOfCases.getProsecutionCases().get(1).getDocumentIds().get(0), is(document2.getScanDocumentId()));
+        return documentIdsOfCases;
+    }
+
+    private Document getDocument(final String urn, final boolean isPtiUrn) {
+        final Document.DocumentBuilder documentBuilder = new Document.DocumentBuilder()
+                .withId(UUID.randomUUID())
+                .withCaseUrn("urn1");
+
+        if (isPtiUrn) {
+            documentBuilder.withCasePTIUrn(urn);
+        } else {
+            documentBuilder.withCaseUrn(urn);
+        }
+        return documentBuilder.build();
+    }
+
 }

@@ -2,17 +2,21 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.view;
 
 import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createArrayBuilder;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases.documentIdsOfCases;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 
+import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
@@ -140,6 +144,26 @@ public class DocumentQueryViewTest {
         assertThat(scanDocumentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope).withName("documentqueue.query.get-document"));
         assertThat(scanDocumentEnvelope.payload(), is(expectedScanDocument));
 
+    }
 
+    @Test
+    public void shouldGetDocumentIdsOfCases() {
+        final UUID documentId = UUID.randomUUID();
+        final JsonEnvelope queryEnvelope = envelopeFrom(
+                metadataBuilder().withId(randomUUID()).withName("documentqueue.query.document-ids-of-cases"),
+                createObjectBuilder()
+                        .add("urns", createArrayBuilder()
+                                        .add("urn1")
+                                        .add("urn2")
+                                        .build()));
+
+        final DocumentIdsOfCases responseObject = documentIdsOfCases().build();
+
+        when(documentService.getDocumentIdsForCases(any())).thenReturn(Optional.of(responseObject));
+
+        final Envelope<DocumentIdsOfCases> scanDocumentEnvelope = documentQueryView.getDocumentIdsOfCases(queryEnvelope);
+
+        assertThat(scanDocumentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope).withName("documentqueue.query.document-ids-of-cases"));
+        assertThat(scanDocumentEnvelope.payload(), is(responseObject));
     }
 }

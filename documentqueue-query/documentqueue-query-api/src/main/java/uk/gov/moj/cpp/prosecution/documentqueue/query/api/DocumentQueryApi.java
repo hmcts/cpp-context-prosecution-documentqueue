@@ -8,7 +8,6 @@ import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.core.annotation.Handles;
 import uk.gov.justice.services.core.annotation.ServiceComponent;
-import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContent;

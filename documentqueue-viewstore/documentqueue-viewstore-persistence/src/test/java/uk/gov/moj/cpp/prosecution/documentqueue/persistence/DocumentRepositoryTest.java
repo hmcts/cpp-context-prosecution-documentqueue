@@ -17,6 +17,7 @@ import uk.gov.justice.services.test.utils.persistence.BaseTransactionalTest;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -60,14 +61,14 @@ public class DocumentRepositoryTest extends BaseTransactionalTest  {
         documentRepository.save(document_3);
         documentRepository.save(document_4);
 
-        final List<Document> documents_1 = documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(document_2.getSource(), Status.DELETED);
+        final List<Document> documents_1 = documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(document_2.getSource(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_1.size(), is(1));
         assertThat(documents_1.get(0), is(document_2));
 
-        final List<Document> documents_2 = documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(document_3.getSource(), Status.DELETED);
+        final List<Document> documents_2 = documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(document_3.getSource(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_2.size(), is(0));
 
-        final List<Document> documents_3 = documentRepository.findBySourceAndStatusNotEqualOrderByVendorReceivedDateAsc(document_4.getSource(), Status.DELETED);
+        final List<Document> documents_3 = documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(document_4.getSource(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_3.size(), is(2));
 
         final Document document_resp_1 = documents_3.get(0);
@@ -89,14 +90,14 @@ public class DocumentRepositoryTest extends BaseTransactionalTest  {
         documentRepository.save(document_3);
         documentRepository.save(document_4);
 
-        final List<Document> documents_1 = documentRepository.findByTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_2.getType(), Status.DELETED);
+        final List<Document> documents_1 = documentRepository.findByTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_2.getType(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_1.size(), is(1));
         assertThat(documents_1.get(0), is(document_2));
 
-        final List<Document> documents_2 = documentRepository.findByTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_3.getType(), Status.DELETED);
+        final List<Document> documents_2 = documentRepository.findByTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_3.getType(),Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_2.size(), is(0));
 
-        final List<Document> documents_3 = documentRepository.findByTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_4.getType(), Status.DELETED);
+        final List<Document> documents_3 = documentRepository.findByTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_4.getType(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_3.size(), is(2));
 
         final Document document_resp_1 = documents_3.get(0);
@@ -144,14 +145,14 @@ public class DocumentRepositoryTest extends BaseTransactionalTest  {
         documentRepository.save(document_3);
         documentRepository.save(document_4);
 
-        final List<Document> documents_1 = documentRepository.findBySourceAndTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_2.getSource(), document_2.getType(), Status.DELETED);
+        final List<Document> documents_1 = documentRepository.findBySourceAndTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_2.getSource(), document_2.getType(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_1.size(), is(1));
         assertThat(documents_1.get(0), is(document_2));
 
-        final List<Document> documents_2 = documentRepository.findBySourceAndTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_3.getSource(), document_3.getType(), Status.DELETED);
+        final List<Document> documents_2 = documentRepository.findBySourceAndTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_3.getSource(), document_3.getType(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_2.size(), is(0));
 
-        final List<Document> documents_3 = documentRepository.findBySourceAndTypeAndStatusNotEqualOrderByVendorReceivedDateAsc(document_4.getSource(), document_4.getType(), Status.DELETED);
+        final List<Document> documents_3 = documentRepository.findBySourceAndTypeAndStatusNotInOrderByVendorReceivedDateAsc(document_4.getSource(), document_4.getType(), Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_3.size(), is(2));
 
         final Document document_resp_1 = documents_3.get(0);
@@ -199,7 +200,7 @@ public class DocumentRepositoryTest extends BaseTransactionalTest  {
         documentRepository.save(document_3);
         documentRepository.save(document_4);
 
-        final List<Document> documents_1 = documentRepository.findByStatusNotEqualOrderByVendorReceivedDateAsc(Status.DELETED);
+        final List<Document> documents_1 = documentRepository.findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED));
         assertThat(documents_1.size(), is(3));
 
         final Document document_resp_1 = documents_1.get(0);

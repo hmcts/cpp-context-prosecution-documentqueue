@@ -12,6 +12,7 @@ public final class RuleConstants {
     private static final String GROUP_CROWN_COURT_ADMIN = "Crown Court Admin";
     private static final String GROUP_LISTING_OFFICERS = "Listing Officers";
     private static final String GROUP_COURT_CLERKS = "Court Clerks";
+    private static final String GROUP_SYSTEM_USERS = "System Users";
 
     private RuleConstants() {
     }
@@ -25,4 +26,13 @@ public final class RuleConstants {
                 GROUP_LISTING_OFFICERS,
                 GROUP_COURT_CLERKS);
     }
+
+    public static List<String> getAccessGroupsForMarkCaseDocumentsDeleted() {
+        return asList(GROUP_SYSTEM_USERS);
+    }
+
+    public static List<String> getAccessGroupsForDeleteDocumentsExpired() {
+        return asList(GROUP_SYSTEM_USERS);
+    }
+
 }

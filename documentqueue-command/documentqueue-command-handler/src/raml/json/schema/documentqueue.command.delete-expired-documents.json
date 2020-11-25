@@ -1,0 +1,8 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/prosecution/documentqueue/command/handler/delete-expired-documents.json",
+  "type": "object",
+  "properties": {
+  },
+  "additionalProperties": false
+}

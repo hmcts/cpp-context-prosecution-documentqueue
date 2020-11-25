@@ -4,7 +4,7 @@
   "cmsDocumentId": "45b0c3fe-afe6-4652-882f-7882d79eadd9",
   "source": 	"CPS",
   "documentType": "OTHER",
-  "caseId": "45b0c3fe-afe6-4652-882f-7882d79eadd9",
+  "caseId": "${caseId}",
   "errorCodes": [
     "reasonCode1",
     "reasonCode2"

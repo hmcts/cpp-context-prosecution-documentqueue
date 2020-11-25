@@ -54,6 +54,9 @@
                                     <plugin>
                                         uk.gov.justice.generation.pojo.plugin.classmodifying.AddToStringMethodToClassPlugin
                                     </plugin>
+                                    <plugin>
+                                        uk.gov.justice.generation.pojo.plugin.classmodifying.MakeClassSerializablePlugin
+                                    </plugin>
                                 </plugins>
                                 <typeMappings>
                                     <typeMapping>

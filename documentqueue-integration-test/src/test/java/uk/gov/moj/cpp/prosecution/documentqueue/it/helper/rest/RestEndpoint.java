@@ -23,8 +23,17 @@ public enum RestEndpoint {
     ATTACH_DOCUMENT(
             "/documentqueue-command-api/command/api/rest/documentqueue/documents/%s",
             "application/vnd.documentqueue.attach-document+json"
-    );
+    ),
 
+    DELETE_DOCUMENTS_OF_CASES(
+            "/documentqueue-command-api/command/api/rest/documentqueue/documents",
+                    "application/vnd.documentqueue.delete-documents-of-cases+json"
+    ),
+
+    DELETE_EXPIRED_DOCUMENTS(
+            "/documentqueue-command-api/command/api/rest/documentqueue/delete/documents",
+                    "application/vnd.documentqueue.delete-expired-documents+json"
+    );
 
     private final String uri;
     private final String mediaType;

@@ -1,11 +1,13 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.event.converter;
 
+import static java.util.UUID.randomUUID;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static uk.gov.justice.prosecution.documentqueue.domain.Document.document;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase.linkDocumentToCase;
 import static uk.gov.moj.cpp.prosecution.documentqueue.event.util.ProsecutorCaseReferenceUtil.getProsecutorCaseReference;
 
-import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.json.schemas.stagingbulkscan.ScanEnvelopeDocument;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
@@ -13,8 +15,9 @@ import uk.gov.justice.stagingbulkscan.domain.ScanDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.SystemIdMapperService;
 
-import javax.inject.Inject;
 import java.util.UUID;
+
+import javax.inject.Inject;
 
 
 public class ScanDocumentConverter {
@@ -76,11 +79,17 @@ public class ScanDocumentConverter {
     }
 
     private UUID getCaseId(final String prosecutorAuthorityId, final String caseUrn, final String ptiUrn) {
-        final String urn = StringUtils.isBlank(caseUrn) ? ptiUrn : caseUrn;
-        final String prosecutorIdWithDocument = StringUtils.isBlank(caseUrn) ? null : prosecutorAuthorityId;
+        if ((isBlank(caseUrn) && isBlank(ptiUrn))
+                || (isNotBlank(caseUrn) && isBlank(prosecutorAuthorityId))) {
+            return randomUUID();
+        }
+
+        final String urn = isBlank(caseUrn) ? ptiUrn : caseUrn;
+        final String prosecutorIdWithDocument = isBlank(caseUrn) ? null : prosecutorAuthorityId;
         final String prosecutorCaseReference = getProsecutorCaseReference(
                 prosecutorIdWithDocument,
                 urn);
+
         return systemIdMapperService.getCppCaseIdFor(prosecutorCaseReference);
     }
     private Type getDocumentType(String documentName) {

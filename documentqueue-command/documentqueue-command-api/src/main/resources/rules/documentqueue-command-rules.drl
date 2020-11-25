@@ -24,3 +24,21 @@ rule "Attach Document"
   then
     $outcome.setSuccess(true);
 end
+
+rule "delete documents of cases"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.delete-documents-of-cases");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getAccessGroupsForMarkCaseDocumentsDeleted()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "delete expired documents"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.delete-expired-documents");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getAccessGroupsForDeleteDocumentsExpired()));
+  then
+    $outcome.setSuccess(true);
+end

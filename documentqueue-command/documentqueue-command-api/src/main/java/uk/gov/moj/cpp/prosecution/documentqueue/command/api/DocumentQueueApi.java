@@ -30,4 +30,19 @@ public class DocumentQueueApi {
                 .withName("documentqueue.command.attach-document")
                 .withMetadataFrom(envelope));
     }
+
+    @Handles("documentqueue.delete-documents-of-cases")
+    public void deleteDocumentsOfCases(final JsonEnvelope envelope) {
+        sender.send(envelop(envelope.payload())
+                .withName("documentqueue.command.delete-documents-of-cases")
+                .withMetadataFrom(envelope));
+    }
+
+    @Handles("documentqueue.delete-expired-documents")
+    public void deleteExpiredDocuments(final JsonEnvelope envelope) {
+        sender.send(envelop(envelope.payload())
+                .withName("documentqueue.command.delete-expired-documents")
+                .withMetadataFrom(envelope));
+    }
+
 }

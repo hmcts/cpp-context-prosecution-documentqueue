@@ -1,9 +1,16 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util;
 
+import static java.lang.ClassLoader.getSystemResourceAsStream;
+import static java.lang.String.format;
 import static java.nio.charset.Charset.defaultCharset;
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+
 import com.google.common.io.Resources;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +27,16 @@ public class FileUtil {
             fail("Error consuming file from location " + path);
         }
         return request;
+    }
+
+    public static String resourceToString(final String path, final Object... placeholders) {
+        try (final InputStream systemResourceAsStream = getSystemResourceAsStream(path)) {
+            return format(IOUtils.toString(systemResourceAsStream), placeholders);
+        } catch (final IOException e) {
+            LOGGER.error("Error consuming file from location {}", path, e);
+            fail("Error consuming file from location " + path);
+            throw new UncheckedIOException(e);
+        }
     }
 
 }
