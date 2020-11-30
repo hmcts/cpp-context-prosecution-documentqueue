@@ -4,6 +4,7 @@ import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.DELETED;
+import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.FILE_DELETED;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTableList.DOCUMENT;
@@ -77,6 +78,10 @@ public class DocumentFactory {
         final String documentId = values.get("documentId");
         publishPrivateEvent(DOCUMENTQUEUE_EVENT_DOCUMENT_MARKED_DELETED, fileName, values);
         waitUntilDataPersist(DOCUMENT.name(), format(DOCUMENT_STATUS_CRITERIA, documentId, DELETED.toString()), 1);
+    }
+
+    public static void waitUntilFileDeletedStatusIsUpdated(final String documentId) {
+        waitUntilDataPersist(DOCUMENT.name(), format(DOCUMENT_STATUS_CRITERIA, documentId, FILE_DELETED.toString()), 1);
     }
 
     public static void documentMarkedOutstanding(final Map<String, String> values) {

@@ -2,6 +2,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.event.listener;
 
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.DELETED;
+import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.FILE_DELETED;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_LISTENER;
@@ -54,6 +55,13 @@ public class DocumentStatusUpdatedListener {
         final UUID documentId = envelope.payload().getDocumentId();
         final Optional<ZonedDateTime> eventDateTime = envelope.metadata().createdAt();
         updateDocumentStatus(OUTSTANDING, documentId, eventDateTime);
+    }
+
+    @Handles("documentqueue.event.document-marked-file-deleted")
+    public void handleDocumentMarkedFileDeleted(final Envelope<DocumentMarkedOutstanding> envelope) {
+        final UUID documentId = envelope.payload().getDocumentId();
+        final Optional<ZonedDateTime> eventDateTime = envelope.metadata().createdAt();
+        updateDocumentStatus(FILE_DELETED, documentId, eventDateTime);
     }
 
     @Handles("documentqueue.event.document-marked-completed")

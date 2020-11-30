@@ -12,6 +12,7 @@ import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTa
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database.DBUtil.waitUntilDataPersist;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.waitUntilFileDeletedStatusIsUpdated;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.FileServiceHelper.create;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.DELETE_EXPIRED_DOCUMENTS;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.UPDATE_DOCUMENT_STATUS;
@@ -126,6 +127,8 @@ public class DeleteExpiredDocumentsIT {
         Optional<JsonEnvelope> documentMarkedFileDeletedEnvelope = eventListener.popEvent(DOCUMENT_MARKED_FILE_DELETED);
 
         assertThat(documentMarkedFileDeletedEnvelope.isPresent(), is(true));
+
+        waitUntilFileDeletedStatusIsUpdated(documentId);
     }
 
     private void postDeleteExpiredDocumentsOfCases() {

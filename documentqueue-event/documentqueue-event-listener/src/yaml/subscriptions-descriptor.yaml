@@ -18,4 +18,6 @@ subscriptions_descriptor:
           schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-outstanding.json
         - name: documentqueue.event.case-marked-submission-succeeded
           schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/case-marked-submission-succeeded.json
+        - name: documentqueue.event.document-marked-file-deleted
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-file-deleted.json
 
