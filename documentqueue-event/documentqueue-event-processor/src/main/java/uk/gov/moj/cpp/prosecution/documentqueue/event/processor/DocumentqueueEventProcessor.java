@@ -69,7 +69,7 @@ public class DocumentqueueEventProcessor {
     private static final String DOCUMENT_QUEUE_QUERY_GET_DOCUMENT = "documentqueue.query.get-document";
     private static final String DOCUMENT_QUEUE_QUERY_EXPIRED_DOCUMENTS = "documentqueue.query.expired-documents";
     private static final String DOCUMENT_QUEUE_QUERY_DELETE_FILE_SERVICE_DOCUMENTS = "documentqueue.query.documents-eligible-for-deletion-from-fileservice";
-    private static final String STAGING_BULKSCAN_MARK_DOCUMENT = "stagingbulkscan.command.mark-as-action";
+    private static final String STAGING_BULKSCAN_MARK_DOCUMENT = "stagingbulkscan.mark-as-action";
     private static final String DOCUMENT_QUEUE_QUERY_DOCUMENT_CONTENT = "documentqueue.query.document-content";
     private static final String MATERIAL_UPLOAD_FILE = "material.command.upload-file";
     private static final String PROGRESSION_ADD_COURT_DOCUMENT = "progression.add-court-document";
