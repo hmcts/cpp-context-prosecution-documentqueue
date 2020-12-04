@@ -41,6 +41,7 @@ public class CaseSubmissionSucceededFromCPPIT extends BaseIT {
 
     // filtered event
     private static final String PUBLIC_CASE_OR_APPLICATION_COMPLETED = "public.prosecutioncasefile.prosecution-submission-succeeded";
+    private static final String PUBLIC_CASE_OR_APPLICATION_COMPLETED_WITH_WARNINGS = "public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings";
 
     // document
     private static final String DOCUMENT_DELETE_FROM_FILE_STORE_REQUESTED = "documentqueue.event.document-delete-from-file-store-requested";
@@ -92,6 +93,33 @@ public class CaseSubmissionSucceededFromCPPIT extends BaseIT {
 
     }
 
+    @Test
+    public void shouldMarkCaseSubmittedWhenDocumentQueueInProgressAndCaseSucceededWithWarnings() {
+
+        final EventListener eventListener1 = new EventListener()
+                .withMaxWaitTime(3000)
+                .subscribe(DOCUMENT_DOCUMENT_LINKED_TO_CASE)
+                .subscribe(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED)
+                .run(this::createCPSDocument);
+
+        final Optional<JsonEnvelope> documentLinkedToCase = eventListener1.popEvent(DOCUMENT_DOCUMENT_LINKED_TO_CASE);
+        final Optional<JsonEnvelope> outStandingDocumentReceived = eventListener1.popEvent(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED);
+        assertThat(documentLinkedToCase.isPresent(), is(true));
+        assertThat(outStandingDocumentReceived.isPresent(), is(true));
+
+        // delete documents cases command
+        final EventListener eventListener = new EventListener()
+                .withMaxWaitTime(3000)
+                .subscribe(CASE_MARKED_SUBMISSION_SUCCEEDED)
+                .run(this::raiseCaseSubmittedWithWarnings);
+
+
+        final Optional<JsonEnvelope> caseMarkedSubmissionSucceeded = eventListener.popEvent(CASE_MARKED_SUBMISSION_SUCCEEDED);
+
+        assertThat(caseMarkedSubmissionSucceeded.isPresent(), is(true));
+
+    }
+
     private void createCPSDocument() {
         // Create CPS document
         final UUID documentId;
@@ -117,5 +145,17 @@ public class CaseSubmissionSucceededFromCPPIT extends BaseIT {
                 valueMap,
                 ZonedDateTime.now());
     }
+
+    private void raiseCaseSubmittedWithWarnings() {
+        final Map<String, String> valueMap = new HashMap<>();
+        valueMap.put("caseId", caseId.toString());
+        publicEventToTopic(
+                PUBLIC_CASE_OR_APPLICATION_COMPLETED_WITH_WARNINGS,
+                PUBLIC_EVENT.getStringValue(),
+                "documentqueue/public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings.json",
+                valueMap,
+                ZonedDateTime.now());
+    }
+
 
 }

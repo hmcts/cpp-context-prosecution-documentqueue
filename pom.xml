@@ -23,7 +23,7 @@
         <criminal-court-public-model.version>1.0.66</criminal-court-public-model.version>
         <material.version>7.0.3</material.version>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
-        <progression.version>7.0.78</progression.version>
+        <progression.version>7.0.84</progression.version>
         <referencedata.version>7.0.23</referencedata.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
