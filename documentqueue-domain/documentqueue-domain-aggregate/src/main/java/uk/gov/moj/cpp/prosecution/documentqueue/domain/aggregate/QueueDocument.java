@@ -3,6 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.domain.aggregate;
 
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.doNothing;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.match;
+import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.otherwiseDoNothing;
 import static uk.gov.justice.domain.aggregate.matcher.EventSwitcher.when;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Source.CPS;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.COMPLETED;
@@ -24,6 +25,7 @@ import uk.gov.moj.cpp.documentqueue.event.AttachDocumentRequested;
 import uk.gov.moj.cpp.documentqueue.event.DocumentAlreadyAttached;
 import uk.gov.moj.cpp.documentqueue.event.DocumentAttached;
 import uk.gov.moj.cpp.documentqueue.event.DocumentDeleteFromFileStoreRequested;
+import uk.gov.moj.cpp.documentqueue.event.DocumentDeletedFromFileStore;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedCompleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedDeleted;
 import uk.gov.moj.cpp.documentqueue.event.DocumentMarkedFileDeleted;
@@ -175,9 +177,12 @@ public class QueueDocument implements Aggregate {
                 when(DocumentDeleteFromFileStoreRequested.class).apply(e ->
                         doNothing()
                 ),
+                when(DocumentDeletedFromFileStore.class).apply(e ->
+                        doNothing()
+                ),
                 when(DocumentMarkedFileDeleted.class).apply(e ->
                         doNothing()
-                ));
+                ), otherwiseDoNothing());
     }
 
     public Stream<Object> updateDocumentStatus(final Status status, final Boolean override ) {

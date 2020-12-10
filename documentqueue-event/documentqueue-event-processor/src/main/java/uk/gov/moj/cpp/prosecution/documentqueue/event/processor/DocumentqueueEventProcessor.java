@@ -247,11 +247,19 @@ public class DocumentqueueEventProcessor {
                 .withMetadataFrom(deleteDocumentsOfCasesRequestedEnvelope));
     }
 
+    @SuppressWarnings("squid:S2221")
     @Handles("documentqueue.event.document-delete-from-file-store-requested")
     public void processDocumentDeleteFromFileStoreRequested(final Envelope<DocumentDeleteFromFileStoreRequested>
                                                      documentDeleteFromFileStoreRequestedEnvelope) throws FileServiceException {
         final DocumentDeleteFromFileStoreRequested documentDeleteFromFileStoreRequested = documentDeleteFromFileStoreRequestedEnvelope.payload();
-        fileService.delete(documentDeleteFromFileStoreRequested.getFileServiceId());
+        // revert this try catch when the cps documents cleanup SDP is run properly
+        try {
+            fileService.delete(documentDeleteFromFileStoreRequested.getFileServiceId());
+        } catch (Exception exception) {
+            logger.info("Exception while deleting file from file service for fileServiceId:{}, documentId:{}",
+                    documentDeleteFromFileStoreRequested.getFileServiceId(),
+                    documentDeleteFromFileStoreRequested.getDocumentId());
+        }
 
         final MarkDocumentDeletedFromFilestore markDocumentDeletedFromFileStore =
                 markDocumentDeletedFromFilestore()
