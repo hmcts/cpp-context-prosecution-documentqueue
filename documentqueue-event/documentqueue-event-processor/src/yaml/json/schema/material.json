@@ -11,6 +11,10 @@
     },
     "fileType": {
       "type": "string"
+    },
+    "isUnbundledDocument": {
+      "type": "boolean",
+      "default": false
     }
   },
   "required": [
