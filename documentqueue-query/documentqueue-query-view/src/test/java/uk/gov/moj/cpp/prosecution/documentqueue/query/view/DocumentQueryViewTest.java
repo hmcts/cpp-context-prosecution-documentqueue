@@ -1,5 +1,28 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.view;
 
+import org.apache.commons.lang3.tuple.Pair;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
+import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
+import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
+import uk.gov.justice.services.common.converter.ListToJsonArrayConverter;
+import uk.gov.justice.services.messaging.Envelope;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
+
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonValue;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
 import static javax.json.Json.createArrayBuilder;
@@ -15,30 +38,6 @@ import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
-
-import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
-import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
-import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
-import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
-import uk.gov.justice.services.common.converter.ListToJsonArrayConverter;
-import uk.gov.justice.services.messaging.Envelope;
-import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
-
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentQueryViewTest {
@@ -64,9 +63,14 @@ public class DocumentQueryViewTest {
         final JsonArray jsonArray = Json.createArrayBuilder()
                 .add(jsonObject)
                 .build();
-        final JsonValue expectedResult = createObjectBuilder().add("documents", jsonArray).build();
+        final JsonValue expectedResult = createObjectBuilder().add("documents", jsonArray)
+                .add("total", 1)
+                .add("page", 1)
+                .add("pageSize", 50)
+                .add("sortBy", "vendorReceivedDate")
+                .build();
 
-        when(documentService.getDocuments(envelope)).thenReturn(scanDocuments);
+        when(documentService.getDocuments(Optional.empty(),Optional.empty(),"vendorReceivedDate", "asc", 0, 50)).thenReturn(Pair.of(1,scanDocuments));
         when(listToJsonArrayConverter.convert(scanDocuments)).thenReturn(jsonArray);
 
         final Envelope<JsonObject> documents = documentQueryView.getDocuments(envelope);

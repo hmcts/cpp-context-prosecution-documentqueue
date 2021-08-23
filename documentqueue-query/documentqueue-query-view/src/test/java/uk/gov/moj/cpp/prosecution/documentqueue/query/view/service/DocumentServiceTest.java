@@ -19,8 +19,8 @@ import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PR
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.services.test.utils.core.enveloper.EnvelopeFactory.createEnvelope;
 
+import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
-import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
@@ -28,11 +28,11 @@ import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping;
+import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentQueueRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,6 +55,9 @@ public class DocumentServiceTest {
     private DocumentRepository documentRepository;
 
     @Mock
+    private DocumentQueueRepository documentQueueRepository;
+
+    @Mock
     private Logger logger;
 
     @InjectMocks
@@ -70,12 +73,12 @@ public class DocumentServiceTest {
         final List<Document> documents = Stream.of(new Document.DocumentBuilder().withId(documentId).build()).collect(toList());
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
-        when(documentRepository.findByStatusOrderByVendorReceivedDateAsc(OUTSTANDING)).thenReturn(documents);
+        when(documentQueueRepository.getDocumentList(Optional.empty(),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50)).thenReturn(Pair.of(2,documents));
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
-        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
+        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(Optional.empty(),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50).getRight();
 
-        verify(documentRepository).findByStatusOrderByVendorReceivedDateAsc(OUTSTANDING);
+        verify(documentQueueRepository).getDocumentList(Optional.empty(),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50);
         verify(documentConverter).convertToScanDocuments(documents);
 
         assertThat(resultScanDocuments, is(resultScanDocuments));
@@ -91,12 +94,14 @@ public class DocumentServiceTest {
         final List<Document> documents = Stream.of(new Document.DocumentBuilder().withId(randomUUID()).build()).collect(toList());
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
-        when(documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(BULKSCAN, Arrays.asList(Status.DELETED, Status.FILE_DELETED))).thenReturn(documents);
+        when(documentQueueRepository.getDocumentList(Optional.of(BULKSCAN),Optional.empty(),"statusUpdatedDate", "desc", 0, 50)).thenReturn(Pair.of(2,documents));
+
+
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
-        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
+        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(Optional.of(BULKSCAN),Optional.empty(),"statusUpdatedDate", "desc", 0, 50).getRight();
 
-        verify(documentRepository).findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(BULKSCAN, Arrays.asList(Status.DELETED, Status.FILE_DELETED));
+        verify(documentQueueRepository).getDocumentList(Optional.of(BULKSCAN),Optional.empty(),"statusUpdatedDate", "desc", 0, 50);
         verify(documentConverter).convertToScanDocuments(documents);
 
         assertThat(resultScanDocuments, is(resultScanDocuments));
@@ -114,13 +119,12 @@ public class DocumentServiceTest {
         final List<Document> documents = Stream.of(new Document.DocumentBuilder().withId(randomUUID()).build()).collect(toList());
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
-        when(documentRepository.findBySourceAndStatusOrderByVendorReceivedDateAsc(BULKSCAN, OUTSTANDING)).thenReturn(documents);
+        when(documentQueueRepository.getDocumentList(Optional.of(BULKSCAN),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50)).thenReturn(Pair.of(2,documents));
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
-        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
+        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(Optional.of(BULKSCAN),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50).getRight();
 
-        verify(documentRepository).findBySourceAndStatusOrderByVendorReceivedDateAsc(BULKSCAN, OUTSTANDING);
-        verify(documentConverter).convertToScanDocuments(documents);
+        verify(documentQueueRepository).getDocumentList(Optional.of(BULKSCAN),Optional.of(OUTSTANDING),"statusUpdatedDate", "desc", 0, 50);
 
         assertThat(resultScanDocuments, is(resultScanDocuments));
     }
@@ -136,12 +140,12 @@ public class DocumentServiceTest {
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
 
-        when(documentRepository.findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED))).thenReturn(documents);
+        when(documentQueueRepository.getDocumentList(Optional.empty(),Optional.empty(),"vendorReceivedDate", "asc", 0, 50)).thenReturn(Pair.of(2,documents));
         when(documentConverter.convertToScanDocuments(documents)).thenReturn(scanDocuments);
 
-        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(envelope);
+        final List<ScanDocument> resultScanDocuments = documentService.getDocuments(Optional.empty(),Optional.empty(),"vendorReceivedDate", "asc", 0, 50).getRight();
 
-        verify(documentRepository).findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED));
+        verify(documentQueueRepository).getDocumentList(Optional.empty(),Optional.empty(),"vendorReceivedDate", "asc", 0, 50);
         verify(documentConverter).convertToScanDocuments(documents);
 
         assertThat(resultScanDocuments, is(scanDocuments));

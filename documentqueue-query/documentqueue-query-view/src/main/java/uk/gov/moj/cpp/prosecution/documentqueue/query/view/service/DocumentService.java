@@ -1,11 +1,8 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.view.service;
 
-import static java.lang.String.format;
-import static java.util.Optional.empty;
-import static java.util.Optional.of;
-import static uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases.documentIdsOfCases;
-import static uk.gov.justice.services.messaging.JsonObjects.getString;
-
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
 import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
 import uk.gov.justice.cpp.prosecution.documentqueue.domain.ProsecutionCase;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
@@ -22,25 +19,25 @@ import uk.gov.justice.prosecution.documentqueue.domain.model.Outstanding;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Pleas;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
 import uk.gov.justice.prosecution.documentqueue.domain.model.Total;
-import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping;
+import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentQueueRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
 
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.json.JsonObject;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
+import static java.lang.String.format;
+import static java.util.Optional.empty;
+import static java.util.Optional.of;
+import static uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases.documentIdsOfCases;
 
 public class DocumentService {
 
@@ -50,25 +47,20 @@ public class DocumentService {
     @Inject
     private DocumentRepository documentRepository;
 
+    @Inject
+    private DocumentQueueRepository documentQueueRepository;
+
     @SuppressWarnings("squid:S1312")
     @Inject
     private Logger logger;
 
-    public List<ScanDocument> getDocuments(final JsonEnvelope envelope) {
+    @Transactional(Transactional.TxType.REQUIRES_NEW)
+    public Pair<Integer,List<ScanDocument>> getDocuments(final Optional<Source> source, final Optional<Status> status, final String sort, final String sortOrder, final int offset, final int pageSize) {
 
-        final JsonObject payload = envelope.payloadAsJsonObject();
-        final Optional<Source> source = getString(payload, "source").map(Source::valueOf);
-        final Optional<Status> status = getString(payload, "status").map(Status::valueOf);
-
-        if (source.isPresent() && status.isPresent()) {
-            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusOrderByVendorReceivedDateAsc(source.get(), status.get()));
-        } else if (source.isPresent()) {
-            return documentConverter.convertToScanDocuments(documentRepository.findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(source.get(), Arrays.asList(Status.DELETED, Status.FILE_DELETED)));
-        } else if (status.isPresent()) {
-            return documentConverter.convertToScanDocuments(documentRepository.findByStatusOrderByVendorReceivedDateAsc(status.get()));
-        } else {
-            return documentConverter.convertToScanDocuments(documentRepository.findByStatusNotInOrderByVendorReceivedDateAsc(Arrays.asList(Status.DELETED, Status.FILE_DELETED)));
-        }
+        final Pair<Integer, List<Document>> documentListWithTotalSize = documentQueueRepository.getDocumentList(source, status, sort, sortOrder, offset, pageSize);
+        final Integer totalCount = documentListWithTotalSize.getLeft();
+        final List<Document> documents = documentListWithTotalSize.getRight();
+        return Pair.of(totalCount, documentConverter.convertToScanDocuments(documents));
     }
 
     @SuppressWarnings("squid:S2629")

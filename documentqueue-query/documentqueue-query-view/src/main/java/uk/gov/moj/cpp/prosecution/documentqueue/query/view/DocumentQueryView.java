@@ -1,9 +1,9 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.view;
 
-import static javax.json.Json.createObjectBuilder;
-import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
-
+import org.apache.commons.lang3.tuple.Pair;
 import uk.gov.justice.cpp.prosecution.documentqueue.domain.DocumentIdsOfCases;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
@@ -14,16 +14,34 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
 
+import javax.inject.Inject;
+import javax.json.JsonObject;
+import javax.json.JsonString;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.inject.Inject;
-import javax.json.JsonObject;
-import javax.json.JsonString;
+import static java.lang.String.format;
+import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
+import static uk.gov.justice.services.messaging.JsonObjects.getString;
 
 public class DocumentQueryView {
+
+    private static final String PAGE = "page";
+    private static final String PAGE_SIZE = "pageSize";
+    private static final String SORT_BY = "sortBy";
+    private static final String ORDER_BY = "orderBy";
+    private static final String SOURCE = "source";
+    private static final String STATUS = "status";
+    private static final int DEFAULT_CASES_PAGE_SIZE = 50;
+    private static final String VENDOR_RECEIVED_DATE = "vendorReceivedDate";
+    private static final String STATUS_UPDATED_DATE = "statusUpdatedDate";
+    private static final String ASC = "asc";
+    private static final String DESC = "desc";
+    public static final String DOCUMENTS = "documents";
+    public static final String TOTAL = "total";
 
     @Inject
     private DocumentService documentService;
@@ -36,8 +54,38 @@ public class DocumentQueryView {
 
     public Envelope<JsonObject> getDocuments(final JsonEnvelope query) {
 
-        final List<ScanDocument> scanDocuments = documentService.getDocuments(query);
-        final JsonObject documentsPayload = buildDocumentsPayload(scanDocuments);
+        final JsonObject payload = query.payloadAsJsonObject();
+
+        final int pageSize = payload.getInt(PAGE_SIZE, DEFAULT_CASES_PAGE_SIZE);
+        final int page = payload.getInt(PAGE, 1);
+
+        if(page <= 0 || pageSize <= 0) {
+            throw new IllegalArgumentException(format("invalid page number (%s) or page size (%s)", page, pageSize));
+        }
+
+        final String sort = getString(payload, SORT_BY).orElse(VENDOR_RECEIVED_DATE);
+
+        if(!(sort.equalsIgnoreCase(VENDOR_RECEIVED_DATE) || sort.equalsIgnoreCase(STATUS_UPDATED_DATE))) {
+            throw new IllegalArgumentException(format("invalid sort by field (%s) ", sort));
+        }
+
+        final String sortOrder = getString(payload, ORDER_BY).orElse(ASC);
+
+        if(!(sortOrder.equalsIgnoreCase(ASC) || sortOrder.equalsIgnoreCase(DESC))) {
+            throw new IllegalArgumentException(format("invalid order by  field (%s) ", sortOrder));
+        }
+
+        final int offset = pageSize * (page - 1);
+
+        final Optional<Source> source = getString(payload, SOURCE).map(Source::valueOf);
+        final Optional<Status> status = getString(payload, STATUS).map(Status::valueOf);
+        final Pair<Integer, List<ScanDocument>> documentListWithTotalSize = documentService.getDocuments(source, status, sort, sortOrder, offset, pageSize);
+
+
+        final List<ScanDocument> scanDocuments = documentListWithTotalSize.getRight();
+        final int totalCount = documentListWithTotalSize.getLeft();
+
+        final JsonObject documentsPayload = buildDocumentsPayload(scanDocuments, page, pageSize, totalCount, sort );
 
         return envelop(documentsPayload)
                 .withName("documentqueue.query.documents")
@@ -96,9 +144,13 @@ public class DocumentQueryView {
     }
 
 
-    private JsonObject buildDocumentsPayload(final List<ScanDocument> documents) {
+    private JsonObject buildDocumentsPayload(final List<ScanDocument> documents, final int page, final int pageSize, final int totalCount, final String sort) {
         return createObjectBuilder()
-                .add("documents", listToJsonArrayConverter.convert(documents))
+                .add(DOCUMENTS, listToJsonArrayConverter.convert(documents))
+                .add(TOTAL, totalCount)
+                .add(PAGE, page)
+                .add(PAGE_SIZE, pageSize)
+                .add(SORT_BY, sort)
                 .build();
     }
 

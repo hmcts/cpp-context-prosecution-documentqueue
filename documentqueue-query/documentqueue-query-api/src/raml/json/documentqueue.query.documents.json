@@ -11,5 +11,10 @@
       "source": "BULKSCAN",
       "hearingDate": "2020-02-20T20:51:32.013Z"
     }
-  ]
+  ],
+
+  "total" : 123,
+  "page": 1,
+  "pageSize": 50,
+  "sortBy": "vendorReceivedDate"
 }

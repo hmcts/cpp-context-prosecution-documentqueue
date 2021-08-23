@@ -20,6 +20,24 @@ baseUri: http://localhost:8080/documentqueue-query-api/query/api/rest/documentqu
         description: Source of Document
         type: string
         required: false
+      pageSize:
+        description: Number of item per page. Default is 50
+        type: number
+        required: false
+      page:
+        description: Current page. Could be 1 or 2 or 3 or ...
+        type: number
+        required: false
+      sortBy:
+        description: sort by received_date or update_date
+        example: vendorReceivedDate or statusUpdatedDate
+        type: string
+        required: false
+      orderBy:
+        description: sort direction
+        example: asc, desc
+        type: string
+        required: false
 
     responses:
         200:

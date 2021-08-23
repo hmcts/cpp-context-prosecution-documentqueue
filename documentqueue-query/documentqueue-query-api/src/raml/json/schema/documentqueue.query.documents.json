@@ -6,6 +6,18 @@
     "documents": {
       "type": "array",
       "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/model/scan-document.json"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "page": {
+      "type": "integer"
+    },
+    "pageSize": {
+      "type": "integer"
+    },
+    "sortBy" :{
+      "type": "string"
     }
   },
   "additionalProperties": true
