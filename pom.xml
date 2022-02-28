@@ -21,10 +21,10 @@
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <criminal-court-public-model.version>1.0.66</criminal-court-public-model.version>
-        <material.version>7.0.20</material.version>
+        <material.version>7.0.24</material.version>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
-        <progression.version>7.0.182</progression.version>
-        <referencedata.version>7.0.67</referencedata.version>
+        <progression.version>7.0.202</progression.version>
+        <referencedata.version>7.0.74</referencedata.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>

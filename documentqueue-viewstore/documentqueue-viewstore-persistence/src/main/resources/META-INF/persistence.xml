@@ -10,7 +10,7 @@
         <class>uk.gov.moj.cpp.prosecution.documentqueue.entity.Document</class>
 
         <properties>
-            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL94Dialect"/>
+            <property name="jboss.as.jpa.providerModule" value="org.hibernate:5.2"/>
         </properties>
     </persistence-unit>
 
