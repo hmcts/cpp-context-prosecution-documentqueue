@@ -2,7 +2,6 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file;
 
 import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.domain.FileReference;
-import uk.gov.justice.services.fileservice.utils.test.DatabaseDialect;
 import uk.gov.justice.services.fileservice.utils.test.FileServiceTestClient;
 import uk.gov.justice.services.test.utils.common.host.TestHostProvider;
 import uk.gov.justice.services.test.utils.core.jdbc.JdbcConnectionProvider;
@@ -18,7 +17,7 @@ import java.util.UUID;
 
 public class FileServiceHelper {
 
-    private static final FileServiceTestClient client = new FileServiceTestClient(DatabaseDialect.POSTGRES);
+    private static final FileServiceTestClient client = new FileServiceTestClient();
     private static final JdbcConnectionProvider connectionProvider = new JdbcConnectionProvider();
     private static Properties properties = new Properties();
     private static String user;

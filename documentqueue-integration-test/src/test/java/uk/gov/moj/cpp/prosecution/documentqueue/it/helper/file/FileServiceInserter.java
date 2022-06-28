@@ -1,7 +1,6 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file;
 
 import static java.lang.String.format;
-import static uk.gov.justice.services.fileservice.utils.test.DatabaseDialect.POSTGRES;
 
 import uk.gov.justice.services.fileservice.api.FileServiceException;
 import uk.gov.justice.services.fileservice.utils.test.FileServiceTestClient;
@@ -20,7 +19,7 @@ import java.util.UUID;
 public class FileServiceInserter {
 
     private final ClasspathFileResource classpathFileResource = new ClasspathFileResource();
-    private final FileServiceTestClient fileServiceTestClient = new FileServiceTestClient(POSTGRES);
+    private final FileServiceTestClient fileServiceTestClient = new FileServiceTestClient();
     private final TestJdbcDataSourceProvider testJdbcDataSourceProvider = new TestJdbcDataSourceProvider();
 
     public void addPdf(final UUID fileId, final String pathOnClasspath, final String fileName) throws FileServiceException {

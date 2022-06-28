@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 
 CONTEXT_NAME=documentqueue
-FRAMEWORK_VERSION=7.0.10
-EVENT_STORE_VERSION=7.0.8
-FILE_SERVICE_VERSION=1.17.12
+
+FRAMEWORK_LIBRARIES_VERSION=8.0.4
+FRAMEWORK_VERSION=8.0.4
+EVENT_STORE_VERSION=8.2.0
 
 LIQUIBASE_ACTION=update
 #LIQUIBASE_ACTION=dropAll
@@ -58,8 +59,8 @@ function runEventTrackingLiquibase {
 
 function runFileServiceLiquibase {
     echo "Running File Service liquibase"
-    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.1:copy -DoutputDirectory=target -Dartifact=uk.gov.justice.services:file-service-liquibase:${FILE_SERVICE_VERSION}:jar
-    java -jar target/file-service-liquibase-${FILE_SERVICE_VERSION}.jar --url=jdbc:postgresql://localhost:5432/fileservice --username=fileservice --password=fileservice --logLevel=debug ${LIQUIBASE_ACTION}
+    mvn org.apache.maven.plugins:maven-dependency-plugin:3.0.1:copy -DoutputDirectory=target -Dartifact=uk.gov.justice.services:file-service-liquibase:${FRAMEWORK_LIBRARIES_VERSION}:jar
+    java -jar target/file-service-liquibase-${FRAMEWORK_LIBRARIES_VERSION}.jar --url=jdbc:postgresql://localhost:5432/fileservice --username=fileservice --password=fileservice --logLevel=debug ${LIQUIBASE_ACTION}
     echo "Finished executing File Service liquibase"
 }
 

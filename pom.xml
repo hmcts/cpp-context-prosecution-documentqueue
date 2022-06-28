@@ -4,12 +4,12 @@
     <parent>
         <groupId>uk.gov.moj.cpp.common</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>10.4.0</version>
+        <version>10.8.11</version>
     </parent>
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
     <artifactId>documentqueue-parent</artifactId>
-    <version>7.0.24-SNAPSHOT</version>
+    <version>8.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Prosecution document queue Microservice - Parent</name>
@@ -21,10 +21,10 @@
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <criminal-court-public-model.version>1.0.66</criminal-court-public-model.version>
-        <material.version>7.0.26</material.version>
+        <material.version>8.0.6</material.version>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
-        <progression.version>8.0.1</progression.version>
-        <referencedata.version>7.0.75</referencedata.version>
+        <progression.version>8.0.30</progression.version>
+        <referencedata.version>8.0.5</referencedata.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>
