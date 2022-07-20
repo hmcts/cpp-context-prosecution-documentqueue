@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-viewstore</artifactId>
-        <version>8.0.1-SNAPSHOT</version>
+        <version>8.0.0</version>
     </parent>
     <artifactId>documentqueue-viewstore-liquibase</artifactId>
     <properties>
