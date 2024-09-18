@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-event</artifactId>
-        <version>8.0.4-SNAPSHOT</version>
+        <version>17.0.8-FRAMEWORK-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -50,8 +50,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -71,18 +71,16 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
             <artifactId>documentqueue-domain-event</artifactId>
-            <version>8.0.4-SNAPSHOT</version>
+            <version>17.0.8-FRAMEWORK-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>test-utils-common</artifactId>
-            <version>4.4.1</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -214,6 +212,11 @@
                 <artifactId>messaging-client-generator-plugin</artifactId>
                 <dependencies>
                     <dependency>
+                        <groupId>javax</groupId>
+                        <artifactId>javaee-api</artifactId>
+                        <version>${javaee-api.version}</version>
+                    </dependency>
+                    <dependency>
                         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
                         <artifactId>documentqueue-command-handler</artifactId>
                         <version>${project.version}</version>
@@ -243,6 +246,11 @@
                 <groupId>uk.gov.justice.framework-generators</groupId>
                 <artifactId>rest-client-generator-plugin</artifactId>
                 <dependencies>
+                    <dependency>
+                        <groupId>javax</groupId>
+                        <artifactId>javaee-api</artifactId>
+                        <version>${javaee-api.version}</version>
+                    </dependency>
                     <dependency>
                         <groupId>uk.gov.moj.cpp.material</groupId>
                         <artifactId>material-query-api</artifactId>

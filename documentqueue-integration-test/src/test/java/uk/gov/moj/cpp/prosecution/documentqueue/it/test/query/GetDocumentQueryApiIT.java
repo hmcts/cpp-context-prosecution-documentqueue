@@ -22,15 +22,15 @@ import java.util.UUID;
 
 import javax.json.JsonObject;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class GetDocumentQueryApiIT extends BaseIT {
     private static final UUID DOCUMENT_ID = randomUUID();
     public static final UUID MATERIAL_ID = randomUUID();
     public static final UUID FILE_SERVICE_ID = randomUUID();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createOutstandingDocuments(newDocumentValues(DOCUMENT_ID, "CPS", "APPLICATION", "OUTSTANDING", MATERIAL_ID, FILE_SERVICE_ID));
     }

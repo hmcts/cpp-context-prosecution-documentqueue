@@ -1,34 +1,32 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test.event;
 
-import static java.util.UUID.randomUUID;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.EventType.PUBLIC_EVENT;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.SimpleMessageQueueClient.publicEventToTopic;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubGetReferenceDataBySectionCode;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.test.command.DeleteDocumentsOfCasesIT.uploadFile;
-
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventListener;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.JmsMessageSender;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
+import javax.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPrivateJmsMessageConsumerClientProvider;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames.CONTEXT_NAME;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.*;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.test.command.DeleteDocumentsOfCasesIT.uploadFile;
 
 
 public class DeleteDocumentsQueueIT extends BaseIT {
@@ -37,51 +35,41 @@ public class DeleteDocumentsQueueIT extends BaseIT {
 
     private UUID documentId;
     private UUID caseId = randomUUID();
+    private final JmsMessageSender jmsMessageSender = new JmsMessageSender();
     private static final UUID userId = randomUUID();
 
-    // document
-    private static final String DOCUMENT_STATUS_UPDATED = "documentqueue.event.document-status-updated";
-
-    private static final String DOCUMENT_DOCUMENT_LINKED_TO_CASE = "documentqueue.event.document-linked-to-case";
-    private static final String DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED = "documentqueue.event.outstanding-document-received";
-
-    private static final String PUBLIC_PROSECUTION_CASE_FILE_MATERIAL_ADDED = "public.prosecutioncasefile.material-added";
 
     @Inject
     private Logger logger;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         setupAsAuthorisedUser(userId, "Legal Advisers");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         stubIdMapperReturningExistingAssociation(caseId);
         stubGetReferenceDataBySectionCode();
     }
 
     @Test
-    public void testDeleteDocumentWhenInProgress() {
+    public void testDeleteDocumentWhenInProgress() throws Exception {
+        final JmsMessageConsumerClient docLinkedToCaseConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_DOCUMENT_LINKED_TO_CASE).getMessageConsumerClient();
+        final JmsMessageConsumerClient docOutstandingDocReceivedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docStatusUpdatedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_STATUS_UPDATED).getMessageConsumerClient();
 
-        final EventListener eventListener1 = new EventListener()
-                .withMaxWaitTime(3000)
-                .subscribe(DOCUMENT_DOCUMENT_LINKED_TO_CASE)
-                .subscribe(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED)
-                .run(this::createCPSDocument);
+        createCPSDocument();
 
-        final Optional<JsonEnvelope> documentLinkedToCase = eventListener1.popEvent(DOCUMENT_DOCUMENT_LINKED_TO_CASE);
-        final Optional<JsonEnvelope> outStandingDocumentReceived = eventListener1.popEvent(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED);
+        final Optional<JsonEnvelope> documentLinkedToCase = docLinkedToCaseConsumer.retrieveMessageAsJsonEnvelope();
+        final Optional<JsonEnvelope> outStandingDocumentReceived = docOutstandingDocReceivedConsumer.retrieveMessageAsJsonEnvelope();
         assertThat(documentLinkedToCase.isPresent(), is(true));
         assertThat(outStandingDocumentReceived.isPresent(), is(true));
 
         // raise material added event
-        final EventListener eventListener = new EventListener()
-                .withMaxWaitTime(3000)
-                .subscribe(DOCUMENT_STATUS_UPDATED)
-                .run(this::raiseMaterialAddedEvent);
+        raiseMaterialAddedEvent();
 
-        final Optional<JsonEnvelope> DOCUMENT_STATUS_UPDATED = eventListener.popEvent(DeleteDocumentsQueueIT.DOCUMENT_STATUS_UPDATED);
+        final Optional<JsonEnvelope> DOCUMENT_STATUS_UPDATED = docStatusUpdatedConsumer.retrieveMessageAsJsonEnvelope();
 
         assertThat(DOCUMENT_STATUS_UPDATED.isPresent(), is(true));
     }
@@ -106,9 +94,8 @@ public class DeleteDocumentsQueueIT extends BaseIT {
         valueMap.put("caseId", caseId.toString());
         valueMap.put("fileStoreId", documentId.toString());
 
-        publicEventToTopic(
-                PUBLIC_PROSECUTION_CASE_FILE_MATERIAL_ADDED,
-                PUBLIC_EVENT.getStringValue(),
+        jmsMessageSender.sendPublicEvent(
+                EventNames.PUBLIC_PROSECUTION_CASE_FILE_MATERIAL_ADDED,
                 "documentqueue/public.prosecutioncasefile.material-added.json",
                 valueMap,
                 ZonedDateTime.now());

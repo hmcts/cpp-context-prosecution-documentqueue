@@ -13,7 +13,7 @@ import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Type;
 import uk.gov.justice.services.common.util.UtcClock;
-import uk.gov.justice.services.test.utils.persistence.BaseTransactionalTest;
+import uk.gov.justice.services.test.utils.persistence.BaseTransactionalJunit4Test;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 
 import java.time.ZonedDateTime;
@@ -27,7 +27,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(CdiTestRunner.class)
-public class DocumentRepositoryTest extends BaseTransactionalTest  {
+public class DocumentRepositoryTest extends BaseTransactionalJunit4Test  {
 
     @Inject
     private DocumentRepository documentRepository;

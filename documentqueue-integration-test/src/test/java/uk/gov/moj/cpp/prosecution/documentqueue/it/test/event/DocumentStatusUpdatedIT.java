@@ -13,7 +13,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
 import java.util.Map;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class DocumentStatusUpdatedIT extends BaseIT {
 

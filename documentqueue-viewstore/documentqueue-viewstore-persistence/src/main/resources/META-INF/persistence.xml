@@ -8,10 +8,6 @@
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         <jta-data-source>java:/DS.documentqueue</jta-data-source>
         <class>uk.gov.moj.cpp.prosecution.documentqueue.entity.Document</class>
-
-        <properties>
-            <property name="jboss.as.jpa.providerModule" value="org.hibernate:5.2"/>
-        </properties>
     </persistence-unit>
 
 </persistence>

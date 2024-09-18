@@ -24,11 +24,11 @@ import java.util.UUID;
 
 import javax.json.JsonObject;
 
-import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-@Ignore("15-04-2020 Ignored while Jenkins build pipeline not setup with fileservice database")
+
 public class FileServiceDocumentQueryApiIT extends BaseIT {
 
     private static final String QUERY_API_GET_DOCUMENT_URI = "/documentqueue-query-api/query/api/rest/documentqueue/documents/%s";
@@ -42,14 +42,14 @@ public class FileServiceDocumentQueryApiIT extends BaseIT {
     private final FileServiceInserter fileServiceInserter = new FileServiceInserter();
     private final Base64Encoder base64Encoder = new Base64Encoder();
 
-    @Before
+    @BeforeEach
     public void setUp() {
         createOutstandingDocuments(newDocumentValues("BULKSCAN", "PLEA", "OUTSTANDING"));
         createOutstandingDocuments(newDocumentValues(DOCUMENT_ID, "CPS", "APPLICATION", "OUTSTANDING", MATERIAL_ID, FILE_SERVICE_ID));
         createOutstandingDocuments(newDocumentValues("OTHER", "CORRESPONDENCE", "OUTSTANDING"));
     }
 
-    @Before
+    @BeforeEach
     public void insertPdfIntoFileServiceDatabase() throws Exception {
 
         fileServiceInserter.clean();

@@ -7,8 +7,8 @@ import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -32,7 +32,8 @@ import uk.gov.justice.services.fileservice.client.FileService;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
-import uk.gov.justice.services.test.utils.common.reflection.ReflectionUtils;
+import uk.gov.justice.services.messaging.spi.DefaultEnvelope;
+import uk.gov.justice.services.test.utils.core.reflection.ReflectionUtil;
 import uk.gov.moj.cpp.documentqueue.command.handler.RemoveDocumentFromQueue;
 import uk.gov.moj.cpp.documentqueue.command.handler.UpdateDocumentStatus;
 import uk.gov.moj.cpp.documentqueue.event.DeleteDocumentsOfCasesRequested;
@@ -53,18 +54,17 @@ import java.util.UUID;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
 
-import org.h2.command.dml.Update;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentqueueEventProcessorTest {
 
     @Mock
@@ -78,9 +78,6 @@ public class DocumentqueueEventProcessorTest {
 
     @InjectMocks
     private DocumentqueueEventProcessor documentqueueEventProcessor;
-
-    @Captor
-    private ArgumentCaptor<JsonEnvelope> envelopeCaptor;
 
     @Captor
     private ArgumentCaptor<Envelope> argumentCaptor;
@@ -106,16 +103,16 @@ public class DocumentqueueEventProcessorTest {
 
     private final String documentFileServiceDeleteLimit = "300";
 
-    @Before
+    @BeforeEach
     public void setUp() {
-        ReflectionUtils.setField(this.documentqueueEventProcessor, "documentExpiryDays", documentExpiryDays);
-        ReflectionUtils.setField(this.documentqueueEventProcessor, "documentFileServiceDeleteDays", documentFileServiceDeleteDays);
-        ReflectionUtils.setField(this.documentqueueEventProcessor, "documentFileServiceDeleteLimit", documentFileServiceDeleteLimit);
+        ReflectionUtil.setField(this.documentqueueEventProcessor, "documentExpiryDays", documentExpiryDays);
+        ReflectionUtil.setField(this.documentqueueEventProcessor, "documentFileServiceDeleteDays", documentFileServiceDeleteDays);
+        ReflectionUtil.setField(this.documentqueueEventProcessor, "documentFileServiceDeleteLimit", documentFileServiceDeleteLimit);
     }
 
     @Test
     public void shouldSendPublicDocumentStatusUpdated() {
-
+        final var argumentCaptor = ArgumentCaptor.forClass(DefaultEnvelope.class);
         final String documentId = randomUUID().toString();
         final JsonEnvelope eventEnvelope = createEnvelope("documentqueue.event.document-status-updated",
                 createObjectBuilder()
@@ -129,9 +126,9 @@ public class DocumentqueueEventProcessorTest {
 
         verify(logger).isDebugEnabled();
         verifyNoMoreInteractions(logger);
-        verify(sender).send(envelopeCaptor.capture());
+        verify(sender).send(argumentCaptor.capture());
 
-        final Envelope<JsonValue> jsonValueEnvelope = envelopeCaptor.getValue();
+        final Envelope<JsonValue> jsonValueEnvelope = argumentCaptor.getValue();
 
         assertThat(jsonValueEnvelope.metadata(), withMetadataEnvelopedFrom(eventEnvelope).withName("public.documentqueue.document-status-updated"));
         assertThat(jsonValueEnvelope.payload(), payloadIsJson(allOf(
@@ -142,7 +139,7 @@ public class DocumentqueueEventProcessorTest {
 
     @Test
     public void shouldMarkDocumentCompleted() {
-
+        final var argumentCaptor = ArgumentCaptor.forClass(DefaultEnvelope.class);
         final String documentId = randomUUID().toString();
         final JsonEnvelope eventEnvelope = createEnvelope("documentqueue.event.document-marked-completed",
                 createObjectBuilder()
@@ -158,7 +155,7 @@ public class DocumentqueueEventProcessorTest {
         verify(sender, times(1)).sendAsAdmin(argumentCaptor.capture());
         verifyNoMoreInteractions(sender);
 
-        final Envelope<JsonObject> jsonObjectEnvelope = argumentCaptor.getValue();
+        final DefaultEnvelope<JsonObject> jsonObjectEnvelope = argumentCaptor.getValue();
 
         assertThat(jsonObjectEnvelope.payload().getString("scanDocumentId"), is(documentId));
         assertThat(jsonObjectEnvelope.payload().getString("scanEnvelopeId"), is(envelopeId.toString()));
@@ -184,6 +181,7 @@ public class DocumentqueueEventProcessorTest {
 
     @Test
     public void shouldProcessDocumentLinkedToCase() {
+        final var argumentCaptor = ArgumentCaptor.forClass(DefaultEnvelope.class);
         // given
         final UUID prosecutionCaseId = randomUUID();
         final uk.gov.justice.prosecution.documentqueue.domain.Document document1 = mock(uk.gov.justice.prosecution.documentqueue.domain.Document.class);
@@ -199,7 +197,7 @@ public class DocumentqueueEventProcessorTest {
 
         // then fire a command record the case status
         verify(sender).send(argumentCaptor.capture());
-        final Envelope<ReceiveOutstandingDocument> receiveOutstandingDocumentEnvelope = argumentCaptor.getValue();
+        final DefaultEnvelope<ReceiveOutstandingDocument> receiveOutstandingDocumentEnvelope = argumentCaptor.getValue();
 
         final ReceiveOutstandingDocument receiveOutstandingDocument = receiveOutstandingDocumentEnvelope.payload();
         final Metadata metadataOfSendRequest = receiveOutstandingDocumentEnvelope.metadata();

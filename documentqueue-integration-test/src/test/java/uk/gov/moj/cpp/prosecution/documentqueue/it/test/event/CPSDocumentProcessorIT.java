@@ -9,15 +9,14 @@ import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPaylo
 import java.util.Map;
 import java.util.UUID;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class CPSDocumentProcessorIT {
 
     private final static String PDF_MIME_TYPE = "application/pdf";
 
     @Test
-    @Ignore
     @SuppressWarnings({"squid:S1607","squid:S2699"})
     public void shouldCreateDocumentReviewRequiredEvent() throws  Exception {
          final UUID fileStoreId  =  uploadFile(PDF_MIME_TYPE);

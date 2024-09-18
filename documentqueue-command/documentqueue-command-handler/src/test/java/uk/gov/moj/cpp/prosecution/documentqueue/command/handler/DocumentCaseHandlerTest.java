@@ -70,14 +70,14 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentCaseHandlerTest {
 
     @Mock
@@ -89,7 +89,7 @@ public class DocumentCaseHandlerTest {
     @InjectMocks
     private DocumentCaseHandler documentCaseHandler;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         createEnveloperWithEvents(
                 OutstandingDocumentReceived.class,
@@ -544,7 +544,7 @@ public class DocumentCaseHandlerTest {
     public void shouldRecordCaseStatusAsEjectedWhenEjected() throws Exception {
         final UUID documentId = randomUUID();
         final UUID commandId = randomUUID();
-        final EventStream documentEventStream = shouldRecordCaseStatus(CaseStatus.EJECTED, "documentqueue.event.case-marked-ejected", documentId, commandId);
+        final EventStream documentEventStream = shouldRecordCaseStatus(CaseStatus.EJECTED, "documentqueue.event.case-marked-ejected", documentId, commandId, true);
 
         assertThat(verifyAppendAndGetArgumentFrom(documentEventStream), streamContaining(
                 jsonEnvelope(
@@ -572,7 +572,7 @@ public class DocumentCaseHandlerTest {
     public void shouldRecordCaseStatusAsFilteredWhenFiltered() throws Exception {
         final UUID commandId = randomUUID();
         final UUID documentId = randomUUID();
-        final EventStream documentEventStream = shouldRecordCaseStatus(CaseStatus.FILTERED, "documentqueue.event.case-marked-filtered", documentId, commandId);
+        final EventStream documentEventStream = shouldRecordCaseStatus(CaseStatus.FILTERED, "documentqueue.event.case-marked-filtered", documentId, commandId, true);
 
         assertThat(verifyAppendAndGetArgumentFrom(documentEventStream), streamContaining(
                 jsonEnvelope(
@@ -598,13 +598,13 @@ public class DocumentCaseHandlerTest {
     public void shouldRecordCaseStatusAsSubmissionSucceededWhenSubmissionSucceeded() throws Exception {
         final UUID documentId = randomUUID();
         final UUID commandId = randomUUID();
-        shouldRecordCaseStatus(CaseStatus.COMPLETED, "documentqueue.event.case-marked-submission-succeeded", documentId, commandId);
+        shouldRecordCaseStatus(CaseStatus.COMPLETED, "documentqueue.event.case-marked-submission-succeeded", documentId, commandId, false);
     }
 
     public EventStream shouldRecordCaseStatus(final CaseStatus caseStatus,
                                               final String eventName,
                                               final UUID documentId,
-                                              final UUID commandId) throws Exception {
+                                              final UUID commandId, boolean mockDocumentStream) throws Exception {
 
         final UUID caseId = randomUUID();
         final EventStream caseEventStream = mock(EventStream.class);
@@ -627,8 +627,11 @@ public class DocumentCaseHandlerTest {
         when(eventSource.getStreamById(caseId)).thenReturn(caseEventStream);
         when(aggregateService.get(caseEventStream, CPPCase.class)).thenReturn(cppCase);
 
-        when(eventSource.getStreamById(documentId)).thenReturn(documentEventStream);
-        when(aggregateService.get(documentEventStream, QueueDocument.class)).thenReturn(queueDocument);
+        if(mockDocumentStream) {
+            when(eventSource.getStreamById(documentId)).thenReturn(documentEventStream);
+            when(aggregateService.get(documentEventStream, QueueDocument.class)).thenReturn(queueDocument);
+        }
+
 
         final Document document = Document.document()
                 .withScanDocumentId(documentId)

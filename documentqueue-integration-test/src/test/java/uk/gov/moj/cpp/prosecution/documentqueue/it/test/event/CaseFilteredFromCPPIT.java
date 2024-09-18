@@ -1,100 +1,81 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test.event;
 
-import static java.util.UUID.randomUUID;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.EventType.PUBLIC_EVENT;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.SimpleMessageQueueClient.publicEventToTopic;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.test.command.DeleteDocumentsOfCasesIT.uploadFile;
-
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
 import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventListener;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.JmsMessageSender;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
+import javax.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import javax.inject.Inject;
-
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.slf4j.Logger;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPrivateJmsMessageConsumerClientProvider;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames.CONTEXT_NAME;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.test.command.DeleteDocumentsOfCasesIT.uploadFile;
 
 
 public class CaseFilteredFromCPPIT extends BaseIT {
 
-    private static final String DOCUMENT_STATUS_CHECK = "id = '%s' and status = '%s'";
     private final static String PDF_MIME_TYPE = "application/pdf";
 
     private UUID documentId;
     private UUID caseId = randomUUID();
+    private final JmsMessageSender jmsMessageSender = new JmsMessageSender();
     private static final UUID userId = randomUUID();
 
-    // filtered event
-    private static final String PUBLIC_CASE_OR_APPLICATION_FILTERED = "public.stagingprosecutorsspi.event.prosecution-case-filtered";
-
-    // document
-    private static final String DOCUMENT_MARKED_DELETED = "documentqueue.event.document-marked-deleted";
-    private static final String DOCUMENT_DELETE_FROM_FILE_STORE_REQUESTED = "documentqueue.event.document-delete-from-file-store-requested";
-    private static final String DOCUMENT_DELETED_FROM_FILE_STORE = "documentqueue.event.document-deleted-from-file-store";
-
-    private static final String DOCUMENT_DOCUMENT_LINKED_TO_CASE = "documentqueue.event.document-linked-to-case";
-    private static final String DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED = "documentqueue.event.outstanding-document-received";
-
-    // case
-    private static final String CASE_MARKED_FILTERED = "documentqueue.event.case-marked-filtered";
 
     @Inject
     private Logger logger;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         setupAsAuthorisedUser(userId, "Legal Advisers");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         stubIdMapperReturningExistingAssociation(caseId);
     }
 
     @Test
-    public void testDeleteDocumentWhenInProgress() {
+    public void testDeleteDocumentWhenInProgress() throws Exception {
+        final JmsMessageConsumerClient docLinkedToCaseConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_DOCUMENT_LINKED_TO_CASE).getMessageConsumerClient();
+        final JmsMessageConsumerClient docOutStandingDocReceivedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED).getMessageConsumerClient();
+        final JmsMessageConsumerClient caseMarkedFilteredConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.CASE_MARKED_FILTERED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docMarkedDeletedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_MARKED_DELETED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docDeleteFromFSRequestedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_DELETE_FROM_FILE_STORE_REQUESTED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docDeletedFromFSConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_DELETED_FROM_FILE_STORE).getMessageConsumerClient();
 
-        final EventListener eventListener1 = new EventListener()
-                .withMaxWaitTime(3000)
-                .subscribe(DOCUMENT_DOCUMENT_LINKED_TO_CASE)
-                .subscribe(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED)
-                .run(this::createCPSDocument);
+        createCPSDocument();
 
-        final Optional<JsonEnvelope> documentLinkedToCase = eventListener1.popEvent(DOCUMENT_DOCUMENT_LINKED_TO_CASE);
-        final Optional<JsonEnvelope> outStandingDocumentReceived = eventListener1.popEvent(DOCUMENT_OUT_STANDING_DOCUMENT_RECEIVED);
+        final Optional<JsonEnvelope> documentLinkedToCase = docLinkedToCaseConsumer.retrieveMessageAsJsonEnvelope();
+        final Optional<JsonEnvelope> outStandingDocumentReceived = docOutStandingDocReceivedConsumer.retrieveMessageAsJsonEnvelope();
         assertThat(documentLinkedToCase.isPresent(), is(true));
         assertThat(outStandingDocumentReceived.isPresent(), is(true));
 
-        // delete documents cases command
-        final EventListener eventListener = new EventListener()
-                .withMaxWaitTime(3000)
-                .subscribe(CASE_MARKED_FILTERED)
-                .subscribe(DOCUMENT_MARKED_DELETED)
-                .subscribe(DOCUMENT_DELETE_FROM_FILE_STORE_REQUESTED)
-                .subscribe(DOCUMENT_DELETED_FROM_FILE_STORE)
-                .run(this::raiseCaseFilteredEvent);
+        raiseCaseFilteredEvent();
 
 
-        final Optional<JsonEnvelope> caseMarkedFiltered = eventListener.popEvent(CASE_MARKED_FILTERED);
-        final Optional<JsonEnvelope> documentMarkedDeleted = eventListener.popEvent(DOCUMENT_MARKED_DELETED);
-        final Optional<JsonEnvelope> documentDeleteFromFileStoreRequested = eventListener.popEvent(DOCUMENT_DELETE_FROM_FILE_STORE_REQUESTED);
-        final Optional<JsonEnvelope> documentDeletedFromFileStore = eventListener.popEvent(DOCUMENT_DELETED_FROM_FILE_STORE);
+        final Optional<JsonEnvelope> caseMarkedFiltered = caseMarkedFilteredConsumer.retrieveMessageAsJsonEnvelope();
+        final Optional<JsonEnvelope> documentMarkedDeleted = docMarkedDeletedConsumer.retrieveMessageAsJsonEnvelope();
+        final Optional<JsonEnvelope> documentDeleteFromFileStoreRequested = docDeleteFromFSRequestedConsumer.retrieveMessageAsJsonEnvelope();
+        final Optional<JsonEnvelope> documentDeletedFromFileStore = docDeletedFromFSConsumer.retrieveMessageAsJsonEnvelope();
 
 
         assertThat(caseMarkedFiltered.isPresent(), is(true));
@@ -121,12 +102,10 @@ public class CaseFilteredFromCPPIT extends BaseIT {
     private void raiseCaseFilteredEvent() {
         final Map<String, String> valueMap = new HashMap<>();
         valueMap.put("caseId", caseId.toString());
-        publicEventToTopic(
-                PUBLIC_CASE_OR_APPLICATION_FILTERED,
-                PUBLIC_EVENT.getStringValue(),
+        jmsMessageSender.sendPublicEvent(
+                EventNames.PUBLIC_CASE_OR_APPLICATION_FILTERED,
                 "documentqueue/public.stagingprosecutorsspi.event.prosecution-case-filtered.json",
                 valueMap,
                 ZonedDateTime.now());
     }
-
 }

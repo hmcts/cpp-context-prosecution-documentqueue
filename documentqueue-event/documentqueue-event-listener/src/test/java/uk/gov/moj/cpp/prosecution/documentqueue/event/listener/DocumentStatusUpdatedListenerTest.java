@@ -3,8 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.event.listener;
 import static java.time.ZoneOffset.UTC;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.matches;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -31,18 +30,18 @@ import uk.gov.moj.cpp.prosecution.documentqueue.event.service.DocumentService;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentStatusUpdatedListenerTest {
 
     @InjectMocks
@@ -66,7 +65,7 @@ public class DocumentStatusUpdatedListenerTest {
         DocumentMarkedDeleted documentMarkedDeleted = mock(DocumentMarkedDeleted.class);
         final UUID exampleDocumentId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
         final Document dummyDocument = getDummyDocument();
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
         final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-completed")
                 .createdAt(eventDateTime).build();
 
@@ -94,7 +93,7 @@ public class DocumentStatusUpdatedListenerTest {
         DocumentMarkedInprogress documentMarkedInprogress = mock(DocumentMarkedInprogress.class);
         final UUID exampleDocumentId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
         final Document dummyDocument = getDummyDocument();
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
         final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-inprogress")
                 .createdAt(eventDateTime).build();
 
@@ -122,7 +121,7 @@ public class DocumentStatusUpdatedListenerTest {
         DocumentMarkedCompleted documentMarkedCompleted = mock(DocumentMarkedCompleted.class);
         final UUID exampleDocumentId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
         final Document dummyDocument = getDummyDocument();
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
         final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-completed")
                 .createdAt(eventDateTime).build();
 
@@ -150,12 +149,9 @@ public class DocumentStatusUpdatedListenerTest {
         CaseMarkedSubmissionSucceeded documentCaseMarkedSubmissionSucceeded = mock(CaseMarkedSubmissionSucceeded.class);
         final UUID exampleCaseId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
 
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
-        final Metadata metadata = metadataWithRandomUUID("documentqueue.event.case-marked-submission-succeeded")
-                .createdAt(eventDateTime).build();
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
 
         when(documentMarkedCompletedEnvelope.payload()).thenReturn(documentCaseMarkedSubmissionSucceeded);
-        when(documentMarkedCompletedEnvelope.metadata()).thenReturn(metadata);
         when(documentCaseMarkedSubmissionSucceeded.getCaseId()).thenReturn(exampleCaseId);
         doNothing().when(caseStatusService).saveCaseStatus(any(CaseStatus.class));
 
@@ -178,7 +174,7 @@ public class DocumentStatusUpdatedListenerTest {
         DocumentMarkedOutstanding documentMarkedOutstanding = mock(DocumentMarkedOutstanding.class);
         final UUID exampleDocumentId = UUID.fromString("285256e4-23df-475c-87ac-c0dc031349bf");
         final Document dummyDocument = getDummyDocument();
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
         final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-completed")
                 .createdAt(eventDateTime).build();
 

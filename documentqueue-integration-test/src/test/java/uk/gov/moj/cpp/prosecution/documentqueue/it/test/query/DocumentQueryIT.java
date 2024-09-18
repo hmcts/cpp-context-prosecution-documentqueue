@@ -24,12 +24,12 @@ import java.util.UUID;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class DocumentQueryIT extends BaseIT {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         final Map<String, String> values1 = newDocumentValues("BULKSCAN", "PLEA", "OUTSTANDING");
         final Map<String, String> values2 = newDocumentValues("CPS", "APPLICATION", "OUTSTANDING");
@@ -46,7 +46,7 @@ public class DocumentQueryIT extends BaseIT {
     }
 
     @Test
-    public void testQueryForAllDocuments() throws IOException {
+    public void testQueryForAllDocuments() throws IOException { //4
         final UUID userId = UUID.randomUUID();
         setupAsAuthorisedUser(userId, "Crown Court Admin");
         final SimpleResponse result = getRequest(GET_DOCUMENTS, userId.toString());
@@ -57,7 +57,7 @@ public class DocumentQueryIT extends BaseIT {
     }
 
     @Test
-    public void testQueryForDocumentsWithSource() {
+    public void testQueryForDocumentsWithSource() { //1
         final UUID userId = UUID.randomUUID();
         setupAsAuthorisedUser(userId, "Listing Officers");
         final Map<String, String> queryParams = new HashMap<>();
@@ -70,7 +70,7 @@ public class DocumentQueryIT extends BaseIT {
     }
 
     @Test
-    public void testQueryForDocumentsWithStatus() {
+    public void testQueryForDocumentsWithStatus() { //2
         final UUID userId = UUID.randomUUID();
         setupAsAuthorisedUser(userId, "Court Clerks");
         final Map<String, String> queryParams = new HashMap<>();
@@ -83,7 +83,7 @@ public class DocumentQueryIT extends BaseIT {
     }
 
     @Test
-    public void testQueryForDocumentsWithSourceAndStatus() {
+    public void testQueryForDocumentsWithSourceAndStatus() { //3
         final UUID userId = UUID.randomUUID();
         setupAsAuthorisedUser(userId, "Legal Advisers");
         final Map<String, String> queryParams = new HashMap<>();
@@ -97,7 +97,7 @@ public class DocumentQueryIT extends BaseIT {
     }
 
     @Test
-    public void testQueryForDocumentsCount() {
+    public void testQueryForDocumentsCount() { //5
         final UUID userId = UUID.randomUUID();
         setupAsAuthorisedUser(userId, "Legal Advisers");
         final SimpleResponse result = getRequest(GET_DOCUMENTS_COUNT, userId.toString());

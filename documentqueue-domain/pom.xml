@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-parent</artifactId>
-        <version>8.0.4-SNAPSHOT</version>
+        <version>17.0.8-FRAMEWORK-SNAPSHOT</version>
     </parent>
 
     <artifactId>documentqueue-domain</artifactId>
@@ -23,8 +23,8 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

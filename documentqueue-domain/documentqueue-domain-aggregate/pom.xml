@@ -5,14 +5,12 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-domain</artifactId>
-        <version>8.0.4-SNAPSHOT</version>
+        <version>17.0.8-FRAMEWORK-SNAPSHOT</version>
     </parent>
 
     <artifactId>documentqueue-domain-aggregate</artifactId>
 
     <properties>
-        <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
-        <domain.dsl.test.version>0.3.1</domain.dsl.test.version>
         <skip.schema.event.pojo.generation>false</skip.schema.event.pojo.generation>
     </properties>
 
@@ -102,7 +100,7 @@
         </dependency>
         <dependency>
             <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-library</artifactId>
+            <artifactId>hamcrest</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -118,7 +116,6 @@
         <dependency>
             <groupId>uk.gov.justice.services</groupId>
             <artifactId>domain-test-dsl</artifactId>
-            <version>${domain.dsl.test.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

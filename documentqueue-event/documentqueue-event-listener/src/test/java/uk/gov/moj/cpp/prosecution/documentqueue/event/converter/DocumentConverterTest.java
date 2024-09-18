@@ -5,7 +5,7 @@ import static java.util.Optional.of;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Source.BULKSCAN;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Type.CORRESPONDENCE;
@@ -18,15 +18,16 @@ import uk.gov.justice.services.common.util.UtcClock;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
 import javax.json.JsonObject;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentConverterTest {
 
     @InjectMocks
@@ -35,7 +36,7 @@ public class DocumentConverterTest {
     @Test
     public void shouldConvertPayloadToDocument() throws Exception {
 
-        final ZonedDateTime currentLastModified = new UtcClock().now();
+        final ZonedDateTime currentLastModified = new UtcClock().now().truncatedTo(ChronoUnit.MILLIS);
         final ZonedDateTime previousLastModified = currentLastModified.minusDays(2);
 
         final Document document = document()
@@ -46,23 +47,23 @@ public class DocumentConverterTest {
                 .withProsecutorAuthorityCode("prosecutorAuthorityCode")
                 .withDocumentControlNumber("documentControlNumber")
                 .withDocumentName("documentName")
-                .withScanningDate(new UtcClock().now().minusHours(23))
+                .withScanningDate(new UtcClock().now().truncatedTo(ChronoUnit.MILLIS).minusHours(23))
                 .withManualIntervention("manualIntervention")
                 .withEnvelopeId(randomUUID())
                 .withSource(BULKSCAN)
                 .withFileName("fileName")
                 .withNotes("notes")
-                .withVendorReceivedDate(new UtcClock().now().minusMinutes(73))
+                .withVendorReceivedDate(new UtcClock().now().truncatedTo(ChronoUnit.MILLIS).minusMinutes(73))
                 .withZipFileName("zipFileName")
                 .withStatus(OUTSTANDING)
                 .withType(CORRESPONDENCE)
-                .withStatusUpdatedDate(new UtcClock().now().minusHours(25))
+                .withStatusUpdatedDate(new UtcClock().now().truncatedTo(ChronoUnit.MILLIS).minusHours(25))
                 .withUserId(randomUUID())
                 .withActionedBy(randomUUID())
                 .withMaterialId(randomUUID())
                 .withFileServiceId(randomUUID())
                 .withExternalDocumentId("externalDocumentId")
-                .withReceivedDateTime(new UtcClock().now().minusDays(1))
+                .withReceivedDateTime(new UtcClock().now().truncatedTo(ChronoUnit.MILLIS).minusDays(1))
                 .withLastModified(previousLastModified)
                 .withCaseId(randomUUID())
                 .withStatusCode("statusCode")
@@ -83,7 +84,7 @@ public class DocumentConverterTest {
     @Test
     public void shouldNotUpdateLastModifiedIfNotPresent() throws Exception {
 
-        final ZonedDateTime lastModified = new UtcClock().now();
+        final ZonedDateTime lastModified = new UtcClock().now().truncatedTo(ChronoUnit.MILLIS);
 
         final Document document = document()
                 .withId(randomUUID())

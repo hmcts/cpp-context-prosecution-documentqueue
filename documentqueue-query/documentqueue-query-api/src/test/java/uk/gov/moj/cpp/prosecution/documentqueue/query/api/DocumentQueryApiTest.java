@@ -5,10 +5,10 @@ import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
@@ -34,13 +34,13 @@ import java.util.UUID;
 
 import javax.json.JsonObject;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DocumentQueryApiTest {
 
     @Mock
@@ -118,7 +118,7 @@ public class DocumentQueryApiTest {
         assertThat(getDocumentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope));
         assertThat(getDocumentEnvelope.payload(), is(nullValue()));
 
-        verifyZeroInteractions(documentContentService);
+        verifyNoInteractions(documentContentService);
     }
 
     @Test
@@ -164,6 +164,6 @@ public class DocumentQueryApiTest {
         assertThat(documentContentEnvelope.metadata(), withMetadataEnvelopedFrom(queryEnvelope));
         assertThat(documentContentEnvelope.payload(), is(nullValue()));
 
-        verifyZeroInteractions(documentContentService);
+        verifyNoInteractions(documentContentService);
     }
 }

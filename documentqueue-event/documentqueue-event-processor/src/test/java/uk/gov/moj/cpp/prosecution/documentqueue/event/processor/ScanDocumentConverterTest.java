@@ -4,7 +4,7 @@ import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
 import static uk.gov.justice.stagingbulkscan.domain.DocumentStatus.FOLLOW_UP;
 import static uk.gov.justice.stagingbulkscan.domain.ScanDocument.scanDocument;
@@ -22,13 +22,13 @@ import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.ScanDocumentConv
 import java.time.ZonedDateTime;
 import java.util.UUID;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.SystemIdMapperService;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ScanDocumentConverterTest {
 
     @InjectMocks

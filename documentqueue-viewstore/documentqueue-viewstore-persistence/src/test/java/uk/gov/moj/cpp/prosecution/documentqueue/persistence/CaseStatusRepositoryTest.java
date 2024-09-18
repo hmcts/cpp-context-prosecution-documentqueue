@@ -6,7 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.moj.cpp.prosecution.documentqueue.entity.CaseStatus.CaseStatusBuilder.caseStatus;
 
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
-import uk.gov.justice.services.test.utils.persistence.BaseTransactionalTest;
+import uk.gov.justice.services.test.utils.persistence.BaseTransactionalJunit4Test;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.CaseStatus;
 
 import java.util.List;
@@ -18,7 +18,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 @RunWith(CdiTestRunner.class)
-public class CaseStatusRepositoryTest extends BaseTransactionalTest  {
+public class CaseStatusRepositoryTest extends BaseTransactionalJunit4Test  {
 
     @Inject
     private CaseStatusRepository caseStatusRepository;

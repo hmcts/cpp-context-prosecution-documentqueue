@@ -20,17 +20,18 @@ import uk.gov.moj.cpp.prosecution.documentqueue.event.service.DocumentService;
 
 import java.io.IOException;
 import java.time.ZonedDateTime;
+import java.time.temporal.ChronoUnit;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class OutstandingDocumentReceivedListenerTest {
 
     @InjectMocks
@@ -47,7 +48,7 @@ public class OutstandingDocumentReceivedListenerTest {
 
     @Test
     public void testOutstandingDocumentReceivedEvent() throws IOException {
-        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC);
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
         final JsonEnvelope envelope = JsonEnvelope.envelopeFrom(
                 metadataWithRandomUUID("documentqueue.event.outstanding-document-received").createdAt(eventDateTime).build(),
                 givenPayload("/documentqueue.event.outstanding-document-received.json")

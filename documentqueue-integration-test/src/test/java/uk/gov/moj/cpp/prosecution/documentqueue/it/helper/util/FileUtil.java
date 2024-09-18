@@ -3,7 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.lang.String.format;
 import static java.nio.charset.Charset.defaultCharset;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;

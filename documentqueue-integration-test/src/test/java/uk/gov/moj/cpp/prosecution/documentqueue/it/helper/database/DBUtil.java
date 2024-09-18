@@ -1,6 +1,7 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database;
 
 import static java.lang.String.format;
+import static java.time.Duration.ofSeconds;
 
 import uk.gov.justice.services.jdbc.persistence.DataAccessException;
 import uk.gov.justice.services.test.utils.common.host.TestHostProvider;
@@ -16,8 +17,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.UUID;
 
-import com.jayway.awaitility.Awaitility;
-import com.jayway.awaitility.Duration;
+import org.awaitility.Awaitility;
+import org.awaitility.Durations;
 
 public class DBUtil {
 
@@ -78,8 +79,8 @@ public class DBUtil {
 
     public  static void waitUntilTheDocumentCountIsMatched(final UUID fileStoreId, final boolean deleted) {
         Awaitility.await()
-                .pollDelay(Duration.ZERO)
-                .pollInterval(Duration.FIVE_SECONDS)
+                .pollDelay(ofSeconds(0))
+                .pollInterval(Durations.FIVE_SECONDS)
                 .until(() -> checkIfFileInFileStoreIsDeleted(fileStoreId) == deleted);
     }
 
@@ -114,22 +115,22 @@ public class DBUtil {
 
     public static void waitUntilDataDeleted(String table, int count) {
         Awaitility.await()
-                .pollDelay(Duration.ZERO)
-                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .pollDelay(ofSeconds(0))
+                .pollInterval(Durations.TWO_HUNDRED_MILLISECONDS)
                 .until(() -> checkIfTableIsEmpty(table) == count);
     }
 
     public static void waitUntilDataPersist(String table, String criteria, int count) {
         Awaitility.await()
-                .pollDelay(Duration.ZERO)
-                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .pollDelay(Durations.ONE_MILLISECOND)
+                .pollInterval(Durations.TWO_HUNDRED_MILLISECONDS)
                 .until(() -> getCount(table, criteria) == count);
     }
 
     public static void waitUntilDataPersist(String table, int count) {
         Awaitility.await()
-                .pollDelay(Duration.ZERO)
-                .pollInterval(Duration.TWO_HUNDRED_MILLISECONDS)
+                .pollDelay(ofSeconds(0))
+                .pollInterval(Durations.TWO_HUNDRED_MILLISECONDS)
                 .until(() -> getCount(table) == count);
     }
 

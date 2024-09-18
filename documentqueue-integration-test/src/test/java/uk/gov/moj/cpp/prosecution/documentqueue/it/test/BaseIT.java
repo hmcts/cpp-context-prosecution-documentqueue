@@ -1,18 +1,21 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test;
 
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database.DBUtil.cleanDatabase;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import uk.gov.justice.services.integrationtest.utils.jms.JmsResourceManagementExtension;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database.DBUtil.cleanDatabase;
 
+@ExtendWith(JmsResourceManagementExtension.class)
 public class BaseIT {
 
     private static AtomicBoolean atomicBoolean = new AtomicBoolean();
 
-    @BeforeClass
+    @BeforeAll
     public static void setupOnce() throws Throwable {
         if (!atomicBoolean.get()) {
             atomicBoolean.set(true);
@@ -22,7 +25,7 @@ public class BaseIT {
         }
     }
 
-    @Before
+    @BeforeEach
     public void setUpBaseTest() {
         cleanDatabase();
     }

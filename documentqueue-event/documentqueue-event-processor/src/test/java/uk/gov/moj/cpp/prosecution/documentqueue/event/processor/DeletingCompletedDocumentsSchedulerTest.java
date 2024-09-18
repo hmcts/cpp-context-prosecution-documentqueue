@@ -5,7 +5,7 @@ import static javax.json.Json.createArrayBuilder;
 import static javax.json.Json.createObjectBuilder;
 import static org.apache.commons.lang3.reflect.FieldUtils.writeField;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -26,16 +26,16 @@ import java.time.ZonedDateTime;
 
 import javax.json.JsonObject;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DeletingCompletedDocumentsSchedulerTest {
 
     @InjectMocks
@@ -53,7 +53,7 @@ public class DeletingCompletedDocumentsSchedulerTest {
     @Captor
     private ArgumentCaptor<Envelope> envelopeArgumentCaptor;
 
-    @Before
+    @BeforeEach
     public void init() throws IllegalAccessException {
         writeField(deletingCompletedDocumentsScheduler, "deleteAfterCompletedDays", "30", true);
         writeField(deletingCompletedDocumentsScheduler, "deleteAfterCompletedDaysForBulkScan", "90", true);

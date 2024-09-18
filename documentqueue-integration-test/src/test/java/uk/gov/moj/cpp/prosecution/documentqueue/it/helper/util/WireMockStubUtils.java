@@ -3,6 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
+import static javax.json.Json.createObjectBuilder;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static javax.ws.rs.core.Response.Status.OK;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
@@ -16,6 +17,8 @@ import static uk.gov.justice.services.test.utils.core.matchers.ResponseStatusMat
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.SimpleFileClient.getFileAsString;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.FileUtil.resourceToString;
 
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
 import uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils;
 
 import java.text.MessageFormat;
@@ -30,7 +33,7 @@ public class WireMockStubUtils {
     private static final String CONTENT_TYPE_QUERY_GROUPS = "application/vnd.usersgroups.groups+json";
     private static final String GET_GROUPS_BY_USER_URL = "/usersgroups-service/query/api/rest/usersgroups/users/%s/groups";
     private static final String GET_GROUPS_PAYLOAD_PATH = "json/stub-data/usersgroups.get-groups-by-user.json";
-    private static final String SYSTEM_ID_MAPPER_URL = "/system-id-mapper-api/rest/systemid/mappings/*";
+    private static final String SYSTEM_ID_MAPPER_URL = "/system-id-mapper-api/rest/systemid/mappings(.*?)";
 
     private static final String REFERENCE_DATA_ACTION_SECTION_CODE_QUERY_URL = "/referencedata-service/query/api/rest/referencedata/documents-type-access";
     private static final String REFERENCE_DATA_ACTION_DOCUMENTS_TYPE_ACCESS_BY_SECTION_CODE_MEDIA_TYPE = "application/vnd.referencedata.query.document-type-access-by-sectioncode+json";
@@ -65,6 +68,31 @@ public class WireMockStubUtils {
                         .withBody(systemIdMappingResponseTemplate(associationId))));
         waitForStubToBeReady("/system-id-mapper-api/rest/systemid/mappings/abc", "application/vnd.systemid.mapping+json");
 
+    }
+
+    public static void stubForIdMapperSuccess(final Response.Status status) {
+        final String path = "/system-id-mapper-api/rest/systemid(.*?)";
+        final String mime = "application/vnd.systemid.map+json";
+
+        stubFor(post(urlPathMatching(path))
+                .withHeader(HttpHeaders.CONTENT_TYPE, equalTo(mime))
+                .willReturn(aResponse()
+                        .withStatus(status.getStatusCode())
+                        .withBody(createObjectBuilder().add("id", randomUUID().toString()).build().toString())
+                )
+        );
+    }
+
+    public static void stubForMaterialSuccess(final Response.Status status) {
+        stubFor(post(urlPathMatching("/.*/material.*"))
+                .willReturn(aResponse()
+                        .withStatus(status.getStatusCode())));
+    }
+
+    public static void stubForCourtDocumentSuccess(final Response.Status status) {
+        stubFor(post(urlPathMatching("/.*/courtdocument.*"))
+                .willReturn(aResponse()
+                        .withStatus(status.getStatusCode())));
     }
 
     public static void stubGetReferenceDataBySectionCode( ) {

@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
-import uk.gov.justice.services.test.utils.persistence.BaseTransactionalTest;
+import uk.gov.justice.services.test.utils.persistence.BaseTransactionalJunit4Test;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 
 import javax.inject.Inject;
@@ -19,7 +19,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 @RunWith(CdiTestRunner.class)
-public class DocumentQueueRepositoryTest extends BaseTransactionalTest {
+public class DocumentQueueRepositoryTest extends BaseTransactionalJunit4Test {
 
     @Inject
     private DocumentQueueRepository documentQueueRepository;

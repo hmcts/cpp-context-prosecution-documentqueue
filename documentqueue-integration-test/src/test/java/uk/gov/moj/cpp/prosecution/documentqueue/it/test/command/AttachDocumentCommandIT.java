@@ -1,60 +1,61 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test.command;
 
+import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
+
+import javax.ws.rs.core.Response;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPrivateJmsMessageConsumerClientProvider;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPublicJmsMessageConsumerClientProvider;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.FileServiceHelper.create;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.SimpleFileClient.getFile;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.ATTACH_DOCUMENT;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.SimpleRestClient.postRequest;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames.CONTEXT_NAME;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil.privateEvents;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil.publicEvents;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.*;
 
-import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil;
-import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil;
-import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-
-import javax.jms.MessageConsumer;
-
-import com.jayway.restassured.path.json.JsonPath;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-
-@Ignore("23-05-2020 Ignored while Jenkins build pipeline not setup with fileservice database")
 public class AttachDocumentCommandIT extends BaseIT {
     private final static String PDF_MIME_TYPE = "application/pdf";
-    private static final String PUBLIC_DOCUMENT_QUEUE_DOC_ATTACHED = "public.documentqueue.document-attached";
     private static final UUID userId = randomUUID();
 
-    private static final MessageConsumer documentAttachedEventConsumer = publicEvents.createConsumer(PUBLIC_DOCUMENT_QUEUE_DOC_ATTACHED);
-    private static final MessageConsumer attachDocumentRequested = privateEvents.createConsumer("documentqueue.event.attach-document-requested");
-    private static final MessageConsumer documentAlreadyAttached = privateEvents.createConsumer("documentqueue.event.document-already-attached");
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         setupAsAuthorisedUser(userId, "Legal Advisers");
+        stubForIdMapperSuccess(Response.Status.ACCEPTED);
+        stubForCourtDocumentSuccess(Response.Status.ACCEPTED);
+        stubForMaterialSuccess(Response.Status.ACCEPTED);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
     }
 
     @Test
     public void shouldSuccessfulyAttachDocument() throws Exception {
+        final JmsMessageConsumerClient documentAlreadyAttachedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_ALREADY_ATTACHED).getMessageConsumerClient();
+        final JmsMessageConsumerClient documentAttachedPublicConsumer = newPublicJmsMessageConsumerClientProvider().withEventNames(EventNames.PUBLIC_DOCUMENT_ATTACHED).getMessageConsumerClient();
+        final JmsMessageConsumerClient attachDocumentRequestedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.ATTACH_DOCUMENT_REQUESTED).getMessageConsumerClient();
+
         // Create CPS document
         final UUID documentId = uploadFile(PDF_MIME_TYPE);
         final Map<String, String> cpsDocumentValues = newReviewDocumentValues("CPS", "OTHER", documentId);
@@ -63,14 +64,14 @@ public class AttachDocumentCommandIT extends BaseIT {
 
         postAttachDocument(documentId);
 
-        verifyDocumentAttached(documentId);
-        verifyAttachDocumentRequested(documentId);
-        verifyDocumentAlreadyAttachedNotRaised();
+        verifyDocumentAttached(documentId, documentAttachedPublicConsumer);
+        verifyAttachDocumentRequested(documentId, attachDocumentRequestedConsumer);
+        verifyDocumentAlreadyAttachedNotRaised(documentAlreadyAttachedConsumer); //TODO this not a nice way to test as in happy path scenario test will wait for 20 secs timeout to retrieve message
 
         // Now send another attach document event
         postAttachDocument(documentId);
 
-        verifyDocumentAlreadyAttached(documentId);
+        verifyDocumentAlreadyAttached(documentId, documentAlreadyAttachedConsumer);
     }
 
     private static UUID uploadFile(final String mimeType) throws Exception {
@@ -86,14 +87,14 @@ public class AttachDocumentCommandIT extends BaseIT {
                 userId.toString());
     }
 
-    private static void verifyDocumentAttached(UUID documentId) {
-        final JsonPath topicMessage = publicEvents.retrieveMessage(documentAttachedEventConsumer);
+    private static void verifyDocumentAttached(UUID documentId, JmsMessageConsumerClient mc2) throws Exception {
+        final JsonPath topicMessage = mc2.retrieveMessageAsJsonPath().get();
         final String payloadDocumentId = topicMessage.getString("documentId");
         assertThat(payloadDocumentId, is(documentId.toString()));
     }
 
-    private static void verifyAttachDocumentRequested(UUID documentId) {
-        final JsonPath topicMessage = QueueUtil.retrieveMessage(attachDocumentRequested);
+    private static void verifyAttachDocumentRequested(UUID documentId, JmsMessageConsumerClient mc) throws Exception {
+        final JsonPath topicMessage = mc.retrieveMessageAsJsonPath().get();
         assertThat(topicMessage, notNullValue());
 
         final String payloadDocumentId = topicMessage.getString("documentId");
@@ -102,13 +103,12 @@ public class AttachDocumentCommandIT extends BaseIT {
         assertThat(payloadCourtDocument.get("courtDocumentId"), is(documentId.toString()));
     }
 
-    private static void verifyDocumentAlreadyAttachedNotRaised() {
-        final JsonPath topicMessage = QueueUtil.retrieveMessage(documentAlreadyAttached, 100);
-        assertThat(topicMessage, nullValue());
+    private static void verifyDocumentAlreadyAttachedNotRaised(JmsMessageConsumerClient mc) throws Exception {
+        assertTrue(mc.retrieveMessageAsJsonPath(1_000).isEmpty());
     }
 
-    private static void verifyDocumentAlreadyAttached(UUID documentId) {
-        final JsonPath topicMessage = QueueUtil.retrieveMessage(documentAlreadyAttached);
+    private static void verifyDocumentAlreadyAttached(UUID documentId, JmsMessageConsumerClient mc) throws Exception {
+        final JsonPath topicMessage = mc.retrieveMessageAsJsonPath().get();
         assertThat(topicMessage, notNullValue());
 
         final String payloadDocumentId = topicMessage.getString("documentId");

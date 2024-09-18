@@ -1,72 +1,62 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test.command;
 
+import io.restassured.path.json.JsonPath;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
+import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
+import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
+import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
+
+import javax.inject.Inject;
+import javax.json.JsonString;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static javax.json.Json.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTableList.DOCUMENT;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.database.DBUtil.waitUntilDataPersist;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newDocumentReviewRequired;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.newReviewDocumentValues;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.waitUntilFileDeletedStatusIsUpdated;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.factory.DocumentFactory.*;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.FileServiceHelper.create;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.DELETE_EXPIRED_DOCUMENTS;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.RestEndpoint.UPDATE_DOCUMENT_STATUS;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest.SimpleRestClient.postRequest;
+import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames.CONTEXT_NAME;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil.PUBLIC_DOCUMENT_REVIEW_REQUIRED;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.QueueUtil.publicEvents;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.setupAsAuthorisedUser;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
-import static uk.gov.moj.cpp.prosecution.documentqueue.it.test.command.DeleteDocumentsOfCasesIT.PUBLIC_DOCUMENT_STATUS_UPDATED;
-
-import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
-import uk.gov.justice.services.messaging.JsonEnvelope;
-import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventListener;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-
-import javax.inject.Inject;
-import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.json.JsonString;
-
-import com.jayway.restassured.path.json.JsonPath;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPrivateJmsMessageConsumerClientProvider;
+import static uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClientProvider.newPublicJmsMessageConsumerClientProvider;
 
 
-public class DeleteExpiredDocumentsIT {
+public class DeleteExpiredDocumentsIT extends BaseIT {
 
     private String documentId;
     private static final UUID LEGAL_ADVISER = randomUUID();
     private static final UUID SYSTEM_USER = randomUUID();
     private UUID caseId = randomUUID();
 
-    private static final String DELETE_EXPIRED_DOCUMENTS_RECEIVED = "documentqueue.event.delete-expired-documents-request-received";
-    private static final String DELETE_EXPIRED_DOCUMENTS_REQUESTED = "documentqueue.event.delete-expired-documents-requested";
-    private static final String DOCUMENT_MARKED_COMPLETED = "documentqueue.event.document-marked-completed";
-    private static final String DOCUMENT_MARKED_FILE_DELETED = "documentqueue.event.document-marked-file-deleted";
-    private static final String CASE_PTI_URN = "ID01";
     private static final String DOCUMENT_STATUS_CHECK = "id = '%s' and status = '%s'";
 
     @Inject
     private Logger logger;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         setupAsAuthorisedUser(LEGAL_ADVISER, "Legal Advisers");
         setupAsAuthorisedUser(SYSTEM_USER, "System Users");
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         stubIdMapperReturningExistingAssociation(UUID.randomUUID());
         final UUID fileStoreId = uploadFile("application/pdf");
@@ -78,17 +68,16 @@ public class DeleteExpiredDocumentsIT {
     }
 
     @Test
-    public void shouldDeleteExpiredDocuments() {
-        // delete documents cases command
-        final EventListener eventListener = new EventListener()
-                .withMaxWaitTime(3000)
-                .subscribe(DELETE_EXPIRED_DOCUMENTS_RECEIVED)
-                .subscribe(DELETE_EXPIRED_DOCUMENTS_REQUESTED)
-                .subscribe(DOCUMENT_MARKED_COMPLETED)
-                .run(this::postDeleteExpiredDocumentsOfCases);
+    public void shouldDeleteExpiredDocuments() throws Exception {
+        final JmsMessageConsumerClient delExpDocsReceivedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DELETE_EXPIRED_DOCUMENTS_RECEIVED).getMessageConsumerClient();
+        final JmsMessageConsumerClient delExpDocsRequestedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DELETE_EXPIRED_DOCUMENTS_REQUESTED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docMarkedCompletedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_MARKED_COMPLETED).getMessageConsumerClient();
 
-        Optional<JsonEnvelope> deleteExpiredDocumentsReceived = eventListener.popEvent(DELETE_EXPIRED_DOCUMENTS_RECEIVED);
-        Optional<JsonEnvelope> deleteExpiredDocumentsRequired = eventListener.popEvent(DELETE_EXPIRED_DOCUMENTS_REQUESTED);
+        // delete documents cases command
+        postDeleteExpiredDocumentsOfCases();
+
+        Optional<JsonEnvelope> deleteExpiredDocumentsReceived = delExpDocsReceivedConsumer.retrieveMessageAsJsonEnvelope();
+        Optional<JsonEnvelope> deleteExpiredDocumentsRequired = delExpDocsRequestedConsumer.retrieveMessageAsJsonEnvelope();
 
         assertThat(deleteExpiredDocumentsReceived.isPresent(), is(true));
         assertThat(deleteExpiredDocumentsRequired.isPresent(), is(true));
@@ -104,27 +93,27 @@ public class DeleteExpiredDocumentsIT {
                 .count();
         assertThat(matchedCount, is(1l));
 
-        final Optional<JsonEnvelope> documentMarkedCompleted = eventListener.popEvent(DOCUMENT_MARKED_COMPLETED);
+        final Optional<JsonEnvelope> documentMarkedCompleted = docMarkedCompletedConsumer.retrieveMessageAsJsonEnvelope();
         assertThat(deleteExpiredDocumentsReceived.isPresent(), is(true));
 
         final String docId = documentMarkedCompleted.get().payloadAsJsonObject().getString("documentId");
         assertThat(docId, equalTo(documentId));
     }
 
+
     @Test
-    public void shouldDeleteDocumentsFromFileStore() {
+    public void shouldDeleteDocumentsFromFileStore() throws Exception {
+        final JmsMessageConsumerClient docMarkedFileDeletedConsumer = newPrivateJmsMessageConsumerClientProvider(CONTEXT_NAME).withEventNames( EventNames.DOCUMENT_MARKED_FILE_DELETED).getMessageConsumerClient();
+        final JmsMessageConsumerClient docStatusUpdatedPublicConsumer = newPublicJmsMessageConsumerClientProvider().withEventNames(EventNames.PUBLIC_DOCUMENT_STATUS_UPDATED).getMessageConsumerClient();
 
-        updateDocumentStatus(Status.IN_PROGRESS);
+        updateDocumentStatus(Status.IN_PROGRESS, docStatusUpdatedPublicConsumer);
 
-        updateDocumentStatus(Status.COMPLETED);
+        updateDocumentStatus(Status.COMPLETED, docStatusUpdatedPublicConsumer);
 
         // delete documents cases command
-        final EventListener eventListener = new EventListener()
-                .withMaxWaitTime(10000)
-                .subscribe(DOCUMENT_MARKED_FILE_DELETED)
-                .run(this::postDeleteExpiredDocumentsOfCases);
+        postDeleteExpiredDocumentsOfCases();
 
-        Optional<JsonEnvelope> documentMarkedFileDeletedEnvelope = eventListener.popEvent(DOCUMENT_MARKED_FILE_DELETED);
+        Optional<JsonEnvelope> documentMarkedFileDeletedEnvelope = docMarkedFileDeletedConsumer.retrieveMessageAsJsonEnvelope();
 
         assertThat(documentMarkedFileDeletedEnvelope.isPresent(), is(true));
 
@@ -138,16 +127,14 @@ public class DeleteExpiredDocumentsIT {
                 SYSTEM_USER.toString());
     }
 
-    private void updateDocumentStatus(final Status status) {
-        MessageConsumer messageConsumerForDocumentStatusUpdated = postDocumentStatusUpdate(status, UUID.fromString(documentId), PUBLIC_DOCUMENT_STATUS_UPDATED);
-        waitUntilDataPersist(DOCUMENT.toString(), format(DOCUMENT_STATUS_CHECK, documentId.toString(), status.toString()), 1);
-        verifyDocumentStatusUpdatedPublicEventReceived(UUID.fromString(documentId), status, messageConsumerForDocumentStatusUpdated);
+    private void updateDocumentStatus(final Status status, final JmsMessageConsumerClient mc) throws Exception {
+        postDocumentStatusUpdate(status, UUID.fromString(documentId));
+        waitUntilDataPersist(DOCUMENT.toString(), format(DOCUMENT_STATUS_CHECK, documentId, status), 1);
+        verifyDocumentStatusUpdatedPublicEventReceived(UUID.fromString(documentId), status, mc);
     }
 
-    private static MessageConsumer postDocumentStatusUpdate(final Status status,
-                                                            final UUID documentId,
-                                                            final String eventSelector) {
-        final MessageConsumer messageConsumerForDocumentStatusUpdated = publicEvents.createConsumer(eventSelector);
+    private static void postDocumentStatusUpdate(final Status status,
+                                                            final UUID documentId) {
         postRequest(format(UPDATE_DOCUMENT_STATUS.getUri(), documentId.toString()),
                 UPDATE_DOCUMENT_STATUS.getMediaType(),
                 createObjectBuilder()
@@ -156,22 +143,16 @@ public class DeleteExpiredDocumentsIT {
                         .build()
                         .toString(),
                 LEGAL_ADVISER.toString());
-        return messageConsumerForDocumentStatusUpdated;
     }
 
     private void verifyDocumentStatusUpdatedPublicEventReceived(final UUID documentId,
                                                                 final Status status,
-                                                                final MessageConsumer messageConsumerForDocumentStatusUpdated) {
-        final JsonPath topicMessage = publicEvents.retrieveMessage(messageConsumerForDocumentStatusUpdated);
+                                                                final JmsMessageConsumerClient mc) throws Exception {
+        final JsonPath topicMessage = mc.retrieveMessageAsJsonPath().get();
         final String payloadDocumentId = topicMessage.getJsonObject("documentId");
         final String payloadStatus =  topicMessage.getJsonObject( "status");
         assertThat(payloadDocumentId, is(documentId.toString()));
         assertThat(payloadStatus, is(status.toString()));
-        try {
-            messageConsumerForDocumentStatusUpdated.close();
-        } catch (JMSException e) {
-            logger.error("Error while closing Message consumer: {}", e);
-        }
     }
 
     private static UUID uploadFile(final String mimeType) throws Exception {

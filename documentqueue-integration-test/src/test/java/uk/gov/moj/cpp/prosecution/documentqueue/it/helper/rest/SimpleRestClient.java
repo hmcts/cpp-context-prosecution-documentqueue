@@ -5,6 +5,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.test.utils.core.http.BaseUriProvider.getBaseUri;
 import static uk.gov.justice.services.test.utils.core.http.PollingRequestParamsBuilder.pollingRequestParams;
 
+import org.jboss.resteasy.core.Headers;
 import uk.gov.justice.services.common.http.HeaderConstants;
 import uk.gov.justice.services.test.utils.common.host.TestHostProvider;
 import uk.gov.justice.services.test.utils.core.http.PollingRequestParams;
@@ -17,6 +18,7 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,16 +30,57 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SimpleRestClient {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleRestClient.class);
+
+    private static final String ARTEMIS_WEB_INTERFACE_USERNAME = "admin";
+    private static final String ARTEMIS_WEB_INTERFACE_PASSWORD = "admin";
+    private static final String CREDENTIAL_TOKEN_DELIMITER = ":";
+    private static final String BASIC_HTTP_AUTH_HEADER_KEY = "Authorization";
+    private static final String BASIC_HTTP_AUTH_HEADER_VALUE_PREFIX = "Basic ";
+    private static final String BROKER_NAME = "default";
+
+    public static MultivaluedMap<String, Object> getAuthorizationHeader(){
+        final String credentials =  ARTEMIS_WEB_INTERFACE_USERNAME + CREDENTIAL_TOKEN_DELIMITER + ARTEMIS_WEB_INTERFACE_PASSWORD;
+        final String base64EncodedCredential = Base64.getEncoder().encodeToString(credentials.getBytes());
+        final MultivaluedMap<String, Object> headers = new Headers<>();
+        headers.add(BASIC_HTTP_AUTH_HEADER_KEY, BASIC_HTTP_AUTH_HEADER_VALUE_PREFIX + base64EncodedCredential);
+
+        return headers;
+    }
 
     public static SimpleResponse getRequest(final RestEndpoint restEndpoint, final String userId) {
         return getRequest(restEndpoint, Maps.newHashMap(), userId.toString(), Response.Status.OK);
     }
 
     public static SimpleResponse getSubscriptionsFor(final String topicName) {
-        final String url = "http://" + TestHostProvider.getHost() + ":8161/jolokia/exec/org.apache.activemq.artemis:type=Broker,brokerName=%22default%22,module=JMS,serviceType=Topic,name=%22" + topicName + "%22/listAllSubscriptions()";
-        final Response response = new RestClient().query(url, "text/plain");
+        var prefixedTopicName = topicName.startsWith("jms.topic.") ? topicName : "jms.topic." + topicName;
+        final String url = "http://" + TestHostProvider.getHost()
+                + ":8161/console/jolokia/read/org.apache.activemq.artemis:broker=%22" + BROKER_NAME + "%22,component=addresses,address=%22"
+                + prefixedTopicName
+                + "%22/QueueNames";
+        final Response response = new RestClient().query(url, "text/plain", getAuthorizationHeader());
+        final int responseStatus = response.getStatus();
+
+        assertThat(responseStatus, equalTo(Response.Status.OK.getStatusCode()));
+
+        return SimpleResponse.of(responseStatus, response.readEntity(String.class));
+    }
+
+    public static SimpleResponse getMessageCount(final String topicName, final String queueName) {
+        var prefixedTopicName = topicName.startsWith("jms.topic.") ? topicName : "jms.topic." + topicName;
+        final String url = "http://" + TestHostProvider.getHost()
+                + ":8161/console/jolokia/exec/org.apache.activemq.artemis:broker=%22" + BROKER_NAME + "%22,component=addresses,address=%22"
+                + prefixedTopicName
+                + "%22,subcomponent=queues,routing-type=%22multicast%22,queue=%22"
+                + queueName
+                + "%22/countMessages()";
+
+        final Response response = new RestClient().query(url, "text/plain", getAuthorizationHeader());
         final int responseStatus = response.getStatus();
 
         assertThat(responseStatus, equalTo(Response.Status.OK.getStatusCode()));
@@ -74,7 +117,9 @@ public class SimpleRestClient {
     }
 
     public static void postRequest(final String uri, final String mediaType, final String payload, final String userId) {
+        LOGGER.info("uri ={}, mediaType= {} , payload={}}, headers={}", getBaseUri() + uri, mediaType, payload, newHeadersMap(userId));
         final Response response = new RestClient().postCommand(getBaseUri() + uri, mediaType, payload, newHeadersMap(userId));
+        LOGGER.info("Response status {} and body={}", response.getStatus(), response.getEntity());
         assertThat(response.getStatus(), equalTo(Response.Status.ACCEPTED.getStatusCode()));
     }
 
