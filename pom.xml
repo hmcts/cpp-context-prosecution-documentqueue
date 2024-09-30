@@ -19,12 +19,12 @@
         <coredomain.version>17.21.2</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
-        <material.version>8.0.9</material.version>
-        <progression.version>8.0.194</progression.version>
-        <bulkscan.version>8.0.11</bulkscan.version>
+        <material.version>17.0.20</material.version>
+        <progression.version>17.0.7</progression.version>
+        <bulkscan.version>8.0.24</bulkscan.version>
         <referencedata.version>17.0.16</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
-        <system.id-mapper.version>6.4.1</system.id-mapper.version>
+        <system.id-mapper.version>17.0.15</system.id-mapper.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>
