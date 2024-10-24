@@ -20,9 +20,9 @@
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.20</material.version>
-        <progression.version>17.0.7</progression.version>
+        <progression.version>17.0.19</progression.version>
         <bulkscan.version>8.0.24</bulkscan.version>
-        <referencedata.version>17.0.16</referencedata.version>
+        <referencedata.version>17.0.29</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>17.0.15</system.id-mapper.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
@@ -30,6 +30,7 @@
         <sonar.scm.provider>git</sonar.scm.provider>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
         <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
+        <jgitflow.maven.developBranchName>main</jgitflow.maven.developBranchName>
         <junit4.version>4.13.1</junit4.version>
     </properties>
 
