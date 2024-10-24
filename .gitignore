@@ -6,6 +6,7 @@
 *.war
 *.ear
 *.rar
+*.puml
 
 # Thumbnails
 Thumbs.db
@@ -40,8 +41,6 @@ Thumbs.db
 # IntelliJ
 .idea/
 *.iml
-*.ipr
-*.iws
 
 # Maven
 target/
@@ -59,6 +58,4 @@ buildContexts.sh
 
 
 lightning-jenkins.properties
-
-# Mac
-.DS_Store
+**/.DS_Store
