@@ -16,12 +16,12 @@
     <description>documentqueue Microservice - Prosecution Context</description>
 
     <properties>
-        <coredomain.version>17.21.2</coredomain.version>
+        <coredomain.version>17.21.14</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
-        <material.version>17.0.20</material.version>
+        <material.version>17.0.23</material.version>
         <progression.version>17.0.19</progression.version>
-        <bulkscan.version>8.0.24</bulkscan.version>
+        <bulkscan.version>17.0.1</bulkscan.version>
         <referencedata.version>17.0.29</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>17.0.15</system.id-mapper.version>
