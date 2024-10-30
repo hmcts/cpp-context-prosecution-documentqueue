@@ -20,7 +20,7 @@
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.23</material.version>
-        <progression.version>17.0.19</progression.version>
+        <progression.version>17.0.21</progression.version>
         <bulkscan.version>17.0.1</bulkscan.version>
         <referencedata.version>17.0.29</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
