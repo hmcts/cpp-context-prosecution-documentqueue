@@ -65,7 +65,11 @@ public class DocumentQueueAuditInterceptor implements Interceptor {
     }
 
     private JsonEnvelope removeContentFromPayload(final JsonEnvelope envelope) {
-        final JsonObject payload = envelope.payloadAsJsonObject();
+        JsonObject payload = null;
+        if (!envelope.payloadIsNull()) {
+            payload = envelope.payloadAsJsonObject();
+        }
+
         if (nonNull(payload) && payload.containsKey("content")) {
             final JsonObject jsonObject = removeProperty(payload, "content");
             if(LOGGER.isInfoEnabled()) {

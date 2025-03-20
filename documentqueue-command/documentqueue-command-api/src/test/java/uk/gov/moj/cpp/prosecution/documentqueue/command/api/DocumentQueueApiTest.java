@@ -127,7 +127,7 @@ public class DocumentQueueApiTest {
         final Envelope newCommand = envelopeCaptor.getValue();
 
         assertThat(newCommand.metadata().name(), is(DELETE_EXPIRED_DOCUMENTS_COMMAND));
-        assertThat(newCommand.payload(), equalTo(null));
+        assertThat(newCommand.payload(), is(JsonValue.NULL));
     }
 
     private JsonEnvelope buildCommandEnvelopeForDeleteDocs() {
