@@ -5,7 +5,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-parent</artifactId>
-        <version>17.0.16-SNAPSHOT</version>
+        <version>17.0.16</version>
     </parent>
 
     <artifactId>documentqueue-domain</artifactId>
