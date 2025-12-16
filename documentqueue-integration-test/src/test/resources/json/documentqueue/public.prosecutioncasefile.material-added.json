@@ -1,0 +1,17 @@
+{
+  "caseId": "${caseId}",
+  "prosecutingAuthority": "TFLOUCODE",
+  "prosecutorDefendantId": "TFL_DEF001",
+  "material": {
+    "fileStoreId": "${fileStoreId}",
+    "documentType": "SJPN",
+    "isUnbundledDocument": true
+  },
+  "isCpsCase":false,
+  "cmsDocumentIdentifier": {
+    "materialType": 1,
+    "documentId": "ABCDEF"
+  },
+  "caseType": "CC",
+  "receivedDateTime": "2020-02-04T05:27:17.210Z"
+}

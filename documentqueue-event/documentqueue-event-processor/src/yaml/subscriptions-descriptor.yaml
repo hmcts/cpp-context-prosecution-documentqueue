@@ -1,0 +1,47 @@
+subscriptions_descriptor:
+  spec_version: 1.0.0
+  service: documentqueue
+  service_component: EVENT_PROCESSOR
+  subscriptions:
+    - name: event processor subscriptions
+      event_source_name: public
+      events:
+        - name: public.stagingbulkscan.scan-envelope-registered
+          schema_uri: http://justice.gov.uk/json/schemas/stagingbulkscan/events/scan-envelope-registered.json
+        - name: public.prosecutioncasefile.document-review-required
+          schema_uri: http://moj.gov.uk/cps/prosecutioncasefile/domain/event/public.prosecutioncasefile.document-review-required.json
+        - name: public.stagingbulkscan.document-marked-for-follow-up
+          schema_uri: http://justice.gov.uk/json/schemas/stagingbulkscan/follow-up-document.json
+        - name: public.progression.document-review-required
+          schema_uri: http://moj.gov.uk/cps/progression/domain/event/public.progression.document-review-required
+        - name: public.progression.events.case-or-application-ejected
+          schema_uri: http://justice.gov.uk/progression/courts/case-or-application-ejected
+        - name: public.stagingprosecutorsspi.event.prosecution-case-filtered
+          schema_uri: http://cpp.moj.gov.uk/staging/prosecutors/spi/json/schemas/public.stagingprosecutorsspi.event.prosecution-case-filtered.json
+        - name: public.prosecutioncasefile.prosecution-submission-succeeded
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/prosecutioncasefile/events/public.prosecutioncasefile.prosecution-submission-succeeded.json
+        - name: public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings
+          schema_uri: http://moj.gov.uk/cps/prosecutioncasefile/domain/event/public.prosecutioncasefile.prosecution-submission-succeeded-with-warnings.json
+        - name: public.prosecutioncasefile.material-added
+          schema_uri: http://moj.gov.uk/cpp/json/schemas/prosecutioncasefile/events/public.prosecutioncasefile.material-added.json
+    - name: event processor documentqueue subscription
+      event_source_name: documentqueue
+      events:
+        - name: documentqueue.event.document-status-updated
+          schema_uri: http://moj.gov.uk/cpp/documentqueue.event.document-status-updated.json
+        - name: documentqueue.event.document-status-update-failed
+          schema_uri: http://moj.gov.uk/cpp/documentqueue.event.document-status-update-failed.json
+        - name: documentqueue.event.document-marked-completed
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-marked-completed.json
+        - name: documentqueue.event.attach-document-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/attach-document-requested.json
+        - name: documentqueue.event.document-linked-to-case
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-linked-to-case.json
+        - name: documentqueue.event.delete-documents-of-cases-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/delete-documents-of-cases-requested.json
+        - name: documentqueue.event.document-delete-from-file-store-requested
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/document-delete-from-file-store-requested.json
+        - name: documentqueue.event.delete-expired-documents-request-received
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/delete-expired-documents-request-received.json
+
+

@@ -1,0 +1,57 @@
+  --
+  resource_descriptor:
+    spec_version: '1.0.0'
+    version: '${project.version}'
+
+    resources:
+      - name: java:/app/documentqueue-service/DS.eventstore
+        type: xa-datasource
+        setup:
+          - type: liquibase
+            maven:
+              groupId: uk.gov.justice.services
+              artifactId: event-repository-liquibase
+              type: jar
+              version: '${cpp.framework.version}'
+          - type: liquibase
+            maven:
+              groupId: uk.gov.justice.services
+              artifactId: aggregate-snapshot-repository-liquibase
+              type: jar
+              version: '${project.version}'
+
+      - name: java:/DS.documentqueue
+        type: xa-datasource
+        setup:
+          - type: liquibase
+            maven:
+              groupId: uk.gov.justice.services
+              artifactId: event-buffer-liquibase
+              type: jar
+              version: '${cpp.framework.version}'
+          - type: liquibase
+            maven:
+              groupId: uk.gov.moj.cpp.prosecution.documentqueue
+              artifactId: documentqueue-viewstore-liquibase
+              type: jar
+              version: '${project.version}'
+
+      - name: documentqueue.handler.command
+        type: queue
+      - name: documentqueue.event
+        type: topic
+      - name: public.event
+        type: topic
+
+    services:
+      # documentqueue provides these service mappings
+      - name: 'documentqueue-service'
+        id: 'documentqueue_service'
+        target: '/documentqueue-service'
+        map:
+          - '/documentqueue-command-api'
+          - '/documentqueue-event-listener'
+          - '/documentqueue-event-processor'
+          - '/documentqueue-query-api'
+          - '/documentqueue-query-view'
+        matcher: '/documentqueue-[^/]+'

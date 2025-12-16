@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/prosecution/documentqueue/command/handler/record-document-attached.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    }
+  },
+  "required": [
+    "documentId"
+  ],
+  "additionalProperties": false
+}

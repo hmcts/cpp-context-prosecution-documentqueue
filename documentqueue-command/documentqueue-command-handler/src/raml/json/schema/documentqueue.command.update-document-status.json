@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/command/handler/update-document-status.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "status": {
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+    }
+  },
+  "required": [
+    "documentId",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,30 @@
+subscriptions_descriptor:
+  spec_version: 1.0.0
+  service: stagingbulkscan
+  service_component: EVENT_PROCESSOR
+  subscriptions:
+    - name: public event processor publications
+      events:
+        - name: public.documentqueue.document-status-updated
+          schema_uri: http://justice.gov.uk/json/schemas/documentqueue/public.documentqueue.document-status-updated.json
+
+        - name: public.documentqueue.event.document-status-update-failed
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-status-update-failed.json
+
+        - name: public.documentqueue.document-attached
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-attached.json
+
+        - name: public.documentqueue.document-already-attached
+          schema_uri: http://moj.gov.uk/cpp/documentqueue/event/documentqueue.event.document-already-attached.json
+
+      event_source_name: public
+
+
+
+
+
+
+
+
+
+

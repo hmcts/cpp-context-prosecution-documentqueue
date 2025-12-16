@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/model/documents-count.json",
+  "type": "object",
+  "properties": {
+    "outstanding": {
+      "$ref": "#/definitions/counts"
+    },
+    "inProgress": {
+      "$ref": "#/definitions/counts"
+    },
+    "completed": {
+      "$ref": "#/definitions/counts"
+    }
+  },
+  "definitions": {
+    "counts": {
+      "type": "object",
+      "properties": {
+        "totalCount": {
+          "type": "integer"
+        },
+        "pleas": {
+          "$ref": "#/definitions/volumeAndSource"
+        },
+        "applications": {
+          "$ref": "#/definitions/volumeAndSource"
+        },
+        "correspondence": {
+          "$ref": "#/definitions/volumeAndSource"
+        },
+        "other": {
+          "$ref": "#/definitions/volumeAndSource"
+        },
+        "total": {
+          "$ref": "#/definitions/volumeAndSource"
+        }
+      }
+    },
+    "volumeAndSource": {
+      "type": "object",
+      "properties": {
+        "volume": {
+          "type": "integer"
+        },
+        "bulkScan": {
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

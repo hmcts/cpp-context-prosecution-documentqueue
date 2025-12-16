@@ -1,0 +1,23 @@
+subscriptions_descriptor:
+  spec_version: 1.0.0
+  service: documentqueue
+  service_component: EVENT_LISTENER
+  subscriptions:
+    - name: event listener subscription
+      event_source_name: documentqueue
+      events:
+        - name: documentqueue.event.outstanding-document-received
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/outstanding-document-received.json
+        - name: documentqueue.event.document-marked-deleted
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-deleted.json
+        - name: documentqueue.event.document-marked-completed
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-completed.json
+        - name: documentqueue.event.document-marked-inprogress
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-inprogress.json
+        - name: documentqueue.event.document-marked-outstanding
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-outstanding.json
+        - name: documentqueue.event.case-marked-submission-succeeded
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/case-marked-submission-succeeded.json
+        - name: documentqueue.event.document-marked-file-deleted
+          schema_uri: http://justice.gov.uk/json/schemas/domains/documentqueue/event/document-marked-file-deleted.json
+

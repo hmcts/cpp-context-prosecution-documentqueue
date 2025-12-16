@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/model/scan-document.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "envelopeId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "caseUrn": {
+      "type": "string"
+    },
+    "casePTIUrn": {
+      "type": "string"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "prosecutorAuthorityCode": {
+      "type": "string"
+    },
+    "documentType": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/type.json"
+    },
+    "receivedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "source": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/source.json"
+    },
+    "status": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+    },
+    "hearingDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "statusUpdatedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "documentName": {
+      "type": "string"
+    },
+    "availableAsPdf": {
+      "type": "boolean"
+    },
+    "statusCode": {
+      "type": "string"
+    }
+  }
+}

@@ -1,0 +1,64 @@
+#%RAML 0.8
+title: Document Queue Command API
+baseUri: http://localhost:8080/documentqueue-command-api/command/api/rest/documentqueue
+protocols: [ HTTP ]
+
+/documents/{documentId}:
+  post:
+    description: |
+      Update queue document.
+      ...
+      (mapping):
+          requestType: application/vnd.documentqueue.update-document-status+json
+          name: documentqueue.update-document-status
+      (mapping):
+          requestType: application/vnd.documentqueue.attach-document+json
+          name: documentqueue.attach-document
+      ...
+    body:
+      application/vnd.documentqueue.update-document-status+json:
+        example:
+          !include json/documentqueue.update-document-status.json
+        schema:
+          !include json/schema/documentqueue.update-document-status.json
+      application/vnd.documentqueue.attach-document+json:
+        example:
+          !include json/documentqueue.attach-document.json
+        schema:
+          !include json/schema/documentqueue.attach-document.json
+
+/documents:
+  post:
+    description: |
+      delete the documents of the given cases
+      ...
+      (mapping):
+          requestType: application/vnd.documentqueue.delete-documents-of-cases+json
+          name: documentqueue.delete-documents-of-cases
+      ...
+    body:
+      application/vnd.documentqueue.delete-documents-of-cases+json:
+        example:
+          !include json/documentqueue.delete-documents-of-cases.json
+        schema:
+          !include json/schema/documentqueue.delete-documents-of-cases.json
+    responses:
+      500:
+        description: Internal Server Error
+      202:
+        description: Accepted
+
+/delete/documents:
+  post:
+    description: |
+      delete the documents that are expired
+      ...
+      (mapping):
+          requestType: application/vnd.documentqueue.delete-expired-documents+json
+          name: documentqueue.delete-expired-documents
+      ...
+    body:
+      application/vnd.documentqueue.delete-expired-documents+json: !!null
+    responses:
+      202:
+        description: Accepted

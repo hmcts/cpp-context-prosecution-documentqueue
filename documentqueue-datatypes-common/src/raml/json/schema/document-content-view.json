@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/model/document-content-view.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "source": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/source.json"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "zipFileName": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+    },
+    "type": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/type.json"
+    },
+    "materialId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "fileServiceId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "externalDocumentId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "documentId",
+    "fileName",
+    "status"
+  ],
+  "additionalProperties": false
+}

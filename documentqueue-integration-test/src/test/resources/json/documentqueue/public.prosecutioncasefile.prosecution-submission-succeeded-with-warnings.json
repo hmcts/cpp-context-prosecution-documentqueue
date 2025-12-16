@@ -1,0 +1,20 @@
+{
+  "caseId": "${caseId}",
+  "defendantWarnings": [
+    {
+      "problems": [
+        {
+          "code": "OFFENCE_OUT_OF_TIME",
+          "values": [
+            {
+              "id": "74320bc7-77a3-4397-b867-f6b40d861212",
+              "key": "daysOverdue",
+              "value": "61"
+            }
+          ]
+        }
+      ],
+      "prosecutorDefendantReference": "TFLDEF001"
+    }
+  ]
+}

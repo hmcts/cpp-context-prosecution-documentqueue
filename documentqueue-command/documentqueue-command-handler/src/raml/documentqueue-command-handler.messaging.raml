@@ -1,0 +1,44 @@
+#%RAML 0.8
+title: Document Queue  Command Handler
+baseUri: message://command/handler/message/documentqueue
+
+/documentqueue.handler.command:
+  post:
+    body:
+      application/vnd.documentqueue.command.receive-outstanding-document+json:
+        schema: !include json/schema/documentqueue.command.receive-outstanding-document.json
+        example: !include json/documentqueue.command.receive-outstanding-document.json
+      application/vnd.documentqueue.command.update-document-status+json:
+        schema: !include json/schema/documentqueue.command.update-document-status.json
+        example: !include json/documentqueue.command.update-document-status.json
+      application/vnd.documentqueue.command.attach-document+json:
+        schema: !include json/schema/documentqueue.command.attach-document.json
+        example: !include json/documentqueue.command.attach-document.json
+      application/vnd.documentqueue.command.record-document-attached+json:
+        schema: !include json/schema/documentqueue.command.record-document-attached.json
+        example: !include json/documentqueue.command.attach-document.json
+      application/vnd.documentqueue.command.link-document-to-case+json:
+        schema: !include json/schema/documentqueue.command.link-document-to-case.json
+        example: !include json/documentqueue.command.link-document-to-case.json
+      application/vnd.documentqueue.command.record-case-status+json:
+        schema: !include json/schema/documentqueue.command.record-case-status.json
+        example: !include json/documentqueue.command.record-case-status.json
+      application/vnd.documentqueue.command.delete-documents-of-cases+json:
+        schema: !include json/schema/documentqueue.command.delete-documents-of-cases.json
+        example: !include json/documentqueue.command.delete-documents-of-cases.json
+      application/vnd.documentqueue.command.mark-documents-deleted-for-cases+json:
+        schema: !include json/schema/documentqueue.command.mark-documents-deleted-for-cases.json
+        example: !include json/documentqueue.command.mark-documents-deleted-for-cases.json
+      application/vnd.documentqueue.command.mark-document-deleted-from-file-store+json:
+        schema: !include json/schema/documentqueue.command.mark-document-deleted-from-file-store.json
+        example: !include json/documentqueue.command.mark-document-deleted-from-file-store.json
+      application/vnd.documentqueue.command.remove-document-from-queue+json:
+        schema: !include json/schema/documentqueue.command.remove-document-from-queue.json
+        example: !include json/documentqueue.command.remove-document-from-queue.json
+
+      application/vnd.documentqueue.command.delete-expired-documents+json:  !!null
+      application/vnd.documentqueue.command.mark-delete-expired-documents-as-requested+json:
+        schema: !include json/schema/documentqueue.command.mark-delete-expired-documents-as-requested.json
+        example: !include json/documentqueue.command.mark-delete-expired-documents-as-requested.json
+
+

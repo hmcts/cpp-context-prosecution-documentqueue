@@ -1,0 +1,74 @@
+{
+  "outstanding": {
+    "totalCount": 24,
+    "upcomingHearingCount": 4,
+    "pleas": {
+      "volume": 32,
+      "bulkScan": 40
+    },
+    "applications": {
+      "volume": 12,
+      "bulkScan": 20
+    },
+    "correspondence": {
+      "volume": 22,
+      "bulkScan": 140
+    },
+    "other": {
+      "volume": 312,
+      "bulkScan": 50
+    },
+    "total": {
+      "volume": 332,
+      "bulkScan": 440
+    }
+  },
+  "inProgress": {
+    "totalCount": 200,
+    "upcomingHearingCount": 40,
+    "pleas": {
+      "volume": 122,
+      "bulkScan": 30
+    },
+    "applications": {
+      "volume": 2,
+      "bulkScan": 10
+    },
+    "correspondence": {
+      "volume": 202,
+      "bulkScan": 10
+    },
+    "other": {
+      "volume": 1,
+      "bulkScan": 150
+    },
+    "total": {
+      "volume": 342,
+      "bulkScan": 40
+    }
+  },
+  "completed": {
+    "totalCount": 190,
+    "upcomingHearingCount": 45,
+    "pleas": {
+      "volume": 2,
+      "bulkScan": 140
+    },
+    "applications": {
+      "volume": 120,
+      "bulkScan": 200
+    },
+    "correspondence": {
+      "volume": 202,
+      "bulkScan": 40
+    },
+    "other": {
+      "volume": 12,
+      "bulkScan": 500
+    },
+    "total": {
+      "volume": 332,
+      "bulkScan": 440
+    }
+  }
+}

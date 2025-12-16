@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/prosecution/documentqueue/domain/document.json",
+  "type": "object",
+  "properties": {
+    "scanDocumentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "caseUrn": {
+      "type": "string"
+    },
+    "casePTIUrn": {
+      "type": "string"
+    },
+    "prosecutorAuthorityId": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "prosecutorAuthorityCode": {
+      "type": "string"
+    },
+    "documentControlNumber": {
+      "type": "string"
+    },
+    "documentName": {
+      "type": "string"
+    },
+    "scanningDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "manualIntervention": {
+      "type": "string"
+    },
+    "envelopeId": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/source.json"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "zipFileName": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "vendorReceivedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "status": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+    },
+    "type": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/type.json"
+    },
+    "statusUpdatedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "userId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "actionedBy": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "materialId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "fileServiceId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "receivedDateTime": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "externalDocumentId": {
+      "type": "string"
+    },
+    "statusCode": {
+      "type": "string"
+    },
+    "caseId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "mimeType": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "scanDocumentId",
+    "fileName",
+    "status"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/event/delete-documents-of-cases-actioned.json",
+  "type": "object",
+  "properties": {
+    "prosecutionCases": {
+      "type": "array",
+      "items": {
+        "$ref": "http://justice.gov.uk/cpp/prosecution/documentqueue/domain/prosecution-case-doc-status.json"
+      }
+    }
+  },
+  "required": [
+    "prosecutionCases"
+  ],
+  "additionalProperties": false
+}

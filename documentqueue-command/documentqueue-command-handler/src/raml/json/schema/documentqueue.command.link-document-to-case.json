@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/prosecution/documentqueue/command/handler/link-document-to-case.json",
+  "type": "object",
+  "properties": {
+    "document": {
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/document.json"
+    }
+  },
+  "required": [
+    "document"
+  ],
+  "additionalProperties": false
+}
