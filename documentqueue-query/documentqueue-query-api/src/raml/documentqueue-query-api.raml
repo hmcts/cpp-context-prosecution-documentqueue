@@ -1,0 +1,87 @@
+#%RAML 0.8
+title: Document Queue Query Api
+baseUri: http://localhost:8080/documentqueue-query-api/query/api/rest/documentqueue
+
+/documents:
+  get:
+    description: |
+      Get documents
+      ...
+      (mapping):
+          responseType: application/vnd.documentqueue.query.documents+json
+          name: documentqueue.query.documents
+      ...
+    queryParameters:
+      status:
+        description: Document Status
+        type: string
+        required: false
+      source:
+        description: Source of Document
+        type: string
+        required: false
+      pageSize:
+        description: Number of item per page. Default is 50
+        type: number
+        required: false
+      page:
+        description: Current page. Could be 1 or 2 or 3 or ...
+        type: number
+        required: false
+      sortBy:
+        description: sort by received_date or update_date
+        example: vendorReceivedDate or statusUpdatedDate
+        type: string
+        required: false
+      orderBy:
+        description: sort direction
+        example: asc, desc
+        type: string
+        required: false
+
+    responses:
+        200:
+          description: OK
+          body:
+                application/vnd.documentqueue.query.documents+json:
+                    example:  !include json/documentqueue.query.documents.json
+                    schema:  !include json/schema/documentqueue.query.documents.json
+
+/documents/counts:
+   get:
+      description: |
+        Get document counts
+        ...
+        (mapping):
+            responseType: application/vnd.documentqueue.query.documents-counts+json
+            name: documentqueue.query.documents-counts
+        ...
+      responses:
+          200:
+            description: OK
+            body:
+                  application/vnd.documentqueue.query.documents-counts+json:
+                      example: !include json/documentqueue.query.documents-counts.json
+                      schema:  !include json/schema/documentqueue.query.documents-counts.json
+
+/documents/{documentId}:
+  description: gets a document from the queue
+  get:
+    description: |
+      ...
+      (mapping):
+          responseType: application/vnd.documentqueue.query.document-content+json
+          name: documentqueue.query.document-content
+      (mapping):
+          responseType: application/vnd.documentqueue.query.get-document+json
+          name: documentqueue.query.get-document
+      ...
+    responses:
+      200:
+        body:
+          application/vnd.documentqueue.query.document-content+json:
+            example:  !include json/documentqueue.query.document-content.json
+            schema:  !include json/schema/documentqueue.query.document-content.json
+          application/vnd.documentqueue.query.get-document+json:
+            example:  !include json/documentqueue.query.get-document.json
+            schema:  !include json/schema/documentqueue.query.get-document.json

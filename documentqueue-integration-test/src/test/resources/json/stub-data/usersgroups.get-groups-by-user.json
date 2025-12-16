@@ -1,0 +1,11 @@
+{
+  "id": "${userId}",
+  "firstName": "test_first",
+  "lastName": "test_last",
+  "groups": [
+    {
+      "groupId": "8c5327b6-354e-4574-9558-b13fce8c055a",
+      "groupName": "${group}"
+    }
+  ]
+}

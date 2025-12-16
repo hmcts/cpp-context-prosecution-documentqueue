@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/stagingbulkscan/scan-envelope-document.json",
+  "type": "object",
+  "properties": {
+    "actionedBy": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "casePTIUrn": {
+      "type": "string"
+    },
+    "caseUrn": {
+      "type": "string"
+    },
+    "deleted": {
+      "type": "boolean"
+    },
+    "deletedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "documentFileName": {
+      "type": "string"
+    },
+    "documentName": {
+      "type": "string"
+    },
+    "extractedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "id": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "prosecutorAuthorityCode": {
+      "type": "string"
+    },
+    "prosecutorAuthorityId": {
+      "type": "string"
+    },
+    "scanEnvelopeId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "status": {
+      "type": "string"
+    },
+    "statusCode": {
+      "type": "string"
+    },
+    "statusUpdatedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "vendorReceivedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "zipFileName": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "scanEnvelopeId",
+    "documentName"
+  ]
+}

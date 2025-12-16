@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cps/progression/domain/event/public.progression.document-review-required",
+  "type": "object",
+  "properties": {
+    "materialId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "receivedDateTime": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "documentName": {
+      "type": "string"
+    },
+    "caseId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "source": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/source.json"
+    },
+    "urn": {
+      "type": "string"
+    },
+    "prosecutingAuthority": {
+      "type": "string"
+    },
+    "documentType": {
+      "type": "string"
+    },
+    "code": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}

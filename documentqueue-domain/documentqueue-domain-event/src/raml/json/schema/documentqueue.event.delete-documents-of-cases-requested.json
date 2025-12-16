@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/event/delete-documents-of-cases-requested.json",
+  "type": "object",
+  "properties": {
+    "caseUrns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "maxLength": 50
+      }
+    },
+    "casePTIUrns": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 50,
+      "items": {
+        "type": "string",
+        "maxLength": 50
+      }
+    }
+
+  },
+  "oneOf": [
+    {
+      "required": [
+        "casePTIUrns"
+      ]
+    },
+    {
+      "required": [
+        "caseUrns"
+      ]
+    }
+  ],
+  "additionalProperties": false
+}

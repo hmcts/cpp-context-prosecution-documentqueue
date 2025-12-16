@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/stagingbulkscan/domain/scan-document.json",
+  "type": "object",
+  "properties": {
+    "scanDocumentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "caseUrn": {
+      "type": "string"
+    },
+    "casePTIUrn": {
+      "type": "string"
+    },
+    "prosecutorAuthorityId": {
+      "type": "string",
+      "maxLength": 8
+    },
+    "prosecutorAuthorityCode": {
+      "type": "string"
+    },
+    "documentControlNumber": {
+      "type": "string"
+    },
+    "documentName": {
+      "type": "string"
+    },
+    "scanningDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "manualIntervention": {
+      "type": "string"
+    },
+    "nextAction": {
+      "type": "string"
+    },
+    "nextActionDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "fileName": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "vendorReceivedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "status": {
+      "$ref": "http://justice.gov.uk/stagingbulkscan/domain/document-status.json"
+    },
+    "statusUpdatedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+    "actionedBy": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "deleted": {
+      "type": "boolean"
+    },
+    "deletedDate": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/date-time"
+    },
+
+    "asn": {
+      "type": "string"
+    },
+    "envelopeId": {
+      "type" : "string"
+    },
+    "zipFileName": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/source.json"
+    }
+  },
+  "required": [
+    "scanDocumentId",
+    "fileName",
+    "status"
+  ],
+  "additionalProperties": true
+}

@@ -1,0 +1,44 @@
+package uk.gov.moj.cpp.prosecution.documentqueue.command.api.accesscontrol;
+
+import uk.gov.moj.cpp.accesscontrol.drools.Outcome;
+import uk.gov.moj.cpp.accesscontrol.drools.Action;
+import uk.gov.moj.cpp.prosecution.documentqueue.command.api.accesscontrol.RuleConstants;
+import java.util.Arrays;
+
+global uk.gov.moj.cpp.accesscontrol.common.providers.UserAndGroupProvider userAndGroupProvider;
+
+rule "Update Document Status"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.update-document-status");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "Attach Document"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.attach-document");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "delete documents of cases"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.delete-documents-of-cases");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getAccessGroupsForMarkCaseDocumentsDeleted()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "delete expired documents"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.delete-expired-documents");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getAccessGroupsForDeleteDocumentsExpired()));
+  then
+    $outcome.setSuccess(true);
+end

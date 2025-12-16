@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/event/document-not-linked-to-case.json",
+  "type": "object",
+  "properties": {
+    "document": {
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/document.json",
+      "description": "The core document in the context"
+    },
+    "reason": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "required": [
+    "document"
+  ]
+}

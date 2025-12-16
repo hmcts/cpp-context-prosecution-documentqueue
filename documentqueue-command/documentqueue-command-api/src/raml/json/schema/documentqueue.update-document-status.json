@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/command/api/update-document-status.json",
+  "type": "object",
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": [
+        "OUTSTANDING",
+        "IN_PROGRESS",
+        "COMPLETED"
+      ]
+    }
+  },
+  "required": [
+    "status"
+  ],
+  "additionalProperties": false
+}

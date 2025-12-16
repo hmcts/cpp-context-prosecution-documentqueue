@@ -1,0 +1,20 @@
+{
+  "documents": [
+    {
+      "documentId": "c78cb222-58d0-42ac-9cc8-d1b2710171bf",
+      "envelopeId": "285256e4-23df-475c-87ac-c0dc031349bf",
+      "caseUrn": "TVL6794003OMW",
+      "fileName": "financial_means_with_ocr_data.pdf",
+      "prosecutorAuthorityCode": "TVL",
+      "documentType": "FINANCIAL_MEANS",
+      "receivedDate": "2020-02-12T20:51:32.013Z",
+      "source": "BULKSCAN",
+      "hearingDate": "2020-02-20T20:51:32.013Z"
+    }
+  ],
+
+  "total" : 123,
+  "page": 1,
+  "pageSize": 50,
+  "sortBy": "vendorReceivedDate"
+}

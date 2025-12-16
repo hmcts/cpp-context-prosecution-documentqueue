@@ -1,0 +1,44 @@
+package uk.gov.moj.cpp.prosecution.documentqueue.query.api.accesscontrol;
+
+import uk.gov.moj.cpp.accesscontrol.drools.Outcome;
+import uk.gov.moj.cpp.accesscontrol.drools.Action;
+import uk.gov.moj.cpp.prosecution.documentqueue.query.api.accesscontrol.RuleConstants;
+import java.util.Arrays;
+
+global uk.gov.moj.cpp.accesscontrol.common.providers.UserAndGroupProvider userAndGroupProvider;
+
+rule "Query Documents"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.query.documents");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "Query Documents Count"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.query.documents-counts");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "Get Document Content"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.query.document-content");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end
+
+rule "Query Get Document"
+  when
+    $outcome: Outcome();
+    $action: Action(name == "documentqueue.query.get-document");
+    eval(userAndGroupProvider.isMemberOfAnyOfTheSuppliedGroups($action, RuleConstants.getReviewDocumentsAccessGroups()));
+  then
+    $outcome.setSuccess(true);
+end

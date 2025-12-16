@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/documentqueue/command/handler/remove-document-from-queue.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    }
+  },
+  "required": [
+    "documentId"
+  ],
+  "additionalProperties": false
+}

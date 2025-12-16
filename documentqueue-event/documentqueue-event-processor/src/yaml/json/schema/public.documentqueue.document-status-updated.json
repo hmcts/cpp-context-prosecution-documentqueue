@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://justice.gov.uk/json/schemas/documentqueue/public.documentqueue.document-status-updated.json",
+  "type": "object",
+  "properties": {
+    "documentId": {
+      "$ref": "http://justice.gov.uk/domain/core/common/definitions.json#/definitions/uuid"
+    },
+    "status": {
+      "type": "string",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/enums/status.json"
+    }
+  },
+  "additionalProperties": false
+}

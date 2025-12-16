@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "http://moj.gov.uk/cpp/prosecution/documentqueue/query/api/documentqueue.query.documents.json",
+  "type": "object",
+  "properties": {
+    "documents": {
+      "type": "array",
+      "$ref": "http://justice.gov.uk/prosecution/documentqueue/domain/model/scan-document.json"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "page": {
+      "type": "integer"
+    },
+    "pageSize": {
+      "type": "integer"
+    },
+    "sortBy" :{
+      "type": "string"
+    }
+  },
+  "additionalProperties": true
+}
