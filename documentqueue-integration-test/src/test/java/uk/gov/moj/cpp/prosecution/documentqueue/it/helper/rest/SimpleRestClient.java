@@ -112,14 +112,14 @@ public class SimpleRestClient {
         final int responseStatus = response.getStatus();
 
         assertThat(responseStatus, equalTo(expectedResponseCode.getStatusCode()));
-
-        return SimpleResponse.of(responseStatus, response.readEntity(String.class));
+        // the connection is closed by this time and readEntity throws and exceptions and there is no way check before the call.
+        return SimpleResponse.of(responseStatus, responseStatus == 404 ? null : response.readEntity(String.class));
     }
 
     public static void postRequest(final String uri, final String mediaType, final String payload, final String userId) {
         LOGGER.info("uri ={}, mediaType= {} , payload={}}, headers={}", getBaseUri() + uri, mediaType, payload, newHeadersMap(userId));
         final Response response = new RestClient().postCommand(getBaseUri() + uri, mediaType, payload, newHeadersMap(userId));
-        LOGGER.info("Response status {} and body={}", response.getStatus(), response.getEntity());
+        LOGGER.info("Response status {}", response.getStatus());
         assertThat(response.getStatus(), equalTo(Response.Status.ACCEPTED.getStatusCode()));
     }
 
