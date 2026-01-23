@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 CONTEXT_NAME=documentqueue
-FRAMEWORK_LIBRARIES_VERSION=17.0.1
-FRAMEWORK_VERSION=17.0.1
-EVENT_STORE_VERSION=17.0.1
+FRAMEWORK_LIBRARIES_VERSION=$(mvn help:evaluate -Dexpression=framework-libraries.version -q -DforceStdout)
+FRAMEWORK_VERSION=$(mvn help:evaluate -Dexpression=framework.version -q -DforceStdout)
+EVENT_STORE_VERSION=$(mvn help:evaluate -Dexpression=event-store.version -q -DforceStdout)
 
 
 LIQUIBASE_ACTION=update
