@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import javax.json.JsonValue;
@@ -53,7 +53,7 @@ public class DocumentQueueAuditInterceptor implements Interceptor {
     }
 
     private JsonObject removeProperty(final JsonObject origin, final String key) {
-        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        final JsonObjectBuilder builder = JsonObjects.createObjectBuilder();
         for (final Map.Entry<String, JsonValue> entry : origin.entrySet()) {
             if (entry.getKey().equals(key)) {
                 continue;

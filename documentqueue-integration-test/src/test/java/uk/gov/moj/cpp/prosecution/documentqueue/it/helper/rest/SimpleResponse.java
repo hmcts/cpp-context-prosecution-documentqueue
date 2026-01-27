@@ -2,7 +2,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest;
 
 import java.io.StringReader;
 
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 
 public class SimpleResponse {
@@ -28,7 +28,7 @@ public class SimpleResponse {
     }
 
     public JsonObject asJsonObject() {
-        return Json.createReader(new StringReader(body)).readObject();
+        return JsonObjects.createReader(new StringReader(body)).readObject();
     }
 
     public int getResponseStatus() {

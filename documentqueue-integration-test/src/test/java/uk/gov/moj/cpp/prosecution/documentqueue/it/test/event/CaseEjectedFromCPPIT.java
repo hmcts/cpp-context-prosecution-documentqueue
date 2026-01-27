@@ -21,7 +21,7 @@ import java.util.UUID;
 import static java.lang.String.format;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.IN_PROGRESS;

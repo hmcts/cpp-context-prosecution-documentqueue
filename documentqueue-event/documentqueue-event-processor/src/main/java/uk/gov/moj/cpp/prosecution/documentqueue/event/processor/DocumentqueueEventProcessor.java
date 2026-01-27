@@ -3,8 +3,8 @@ package uk.gov.moj.cpp.prosecution.documentqueue.event.processor;
 import static java.util.Optional.ofNullable;
 import static java.util.UUID.fromString;
 import static java.util.UUID.randomUUID;
-import static javax.json.Json.createArrayBuilder;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createArrayBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static uk.gov.justice.services.core.annotation.Component.EVENT_PROCESSOR;
 import static uk.gov.justice.services.core.enveloper.Enveloper.envelop;
 import static uk.gov.justice.services.messaging.Envelope.envelopeFrom;
@@ -51,7 +51,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import javax.inject.Inject;
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
@@ -350,7 +350,7 @@ public class DocumentqueueEventProcessor {
     }
 
     private JsonObject enrichMaterialId(final JsonObject source, String materialId) {
-        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        final JsonObjectBuilder builder = JsonObjects.createObjectBuilder();
         source.entrySet().forEach(e -> {
             if ("materials".equalsIgnoreCase(e.getKey())) {
                 final JsonArray materials = (JsonArray) e.getValue();
