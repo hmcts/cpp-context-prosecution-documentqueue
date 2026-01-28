@@ -2,7 +2,6 @@ package uk.gov.moj.cpp.prosecution.documentqueue.command.api;
 
 import static com.jayway.jsonpath.matchers.JsonPathMatchers.withJsonPath;
 import static java.util.UUID.randomUUID;
-import static uk.gov.justice.services.messaging.JsonObjects.createArrayBuilder;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -22,6 +21,7 @@ import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopePaylo
 import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
+import uk.gov.justice.services.messaging.JsonObjects;
 import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.justice.services.messaging.spi.DefaultEnvelope;
 import uk.gov.justice.services.messaging.spi.DefaultJsonEnvelopeProvider;
@@ -133,7 +133,7 @@ public class DocumentQueueApiTest {
     private JsonEnvelope buildCommandEnvelopeForDeleteDocs() {
         final JsonObject payload = createObjectBuilder()
                 .add("casePTIUrns",
-                        createArrayBuilder()
+                        JsonObjects.getProvider().createArrayBuilder()
                                 .add("URN1")
                                 .build())
                 .build();
@@ -156,7 +156,7 @@ public class DocumentQueueApiTest {
                         .add("documentCategory", createObjectBuilder().build())
                         .add("name", "Document Name")
                         .add("documentTypeId", randomUUID().toString())
-                        .add("materials", createArrayBuilder().build())
+                        .add("materials", uk.gov.justice.services.messaging.JsonObjects.getProvider().createArrayBuilder().build())
                         .add("containsFinancialMeans", true)
                         .build())
                 .build();

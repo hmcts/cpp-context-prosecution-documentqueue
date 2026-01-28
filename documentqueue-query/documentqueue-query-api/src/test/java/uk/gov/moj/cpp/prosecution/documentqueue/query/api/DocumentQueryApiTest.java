@@ -2,7 +2,6 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.api;
 
 
 import static java.util.UUID.randomUUID;
-import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -12,17 +11,12 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.services.messaging.JsonEnvelope.envelopeFrom;
 import static uk.gov.justice.services.messaging.JsonEnvelope.metadataBuilder;
-import static uk.gov.justice.services.test.utils.core.matchers.HandlerClassMatcher.isHandlerClass;
-import static uk.gov.justice.services.test.utils.core.matchers.HandlerMethodMatcher.method;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static uk.gov.justice.services.test.utils.core.matchers.JsonEnvelopeMetadataMatcher.withMetadataEnvelopedFrom;
 
-import uk.gov.justice.prosecution.documentqueue.domain.model.Completed;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentContentView;
 import uk.gov.justice.prosecution.documentqueue.domain.model.DocumentsCount;
 import uk.gov.justice.prosecution.documentqueue.domain.model.ScanDocument;
-import uk.gov.justice.prosecution.documentqueue.domain.model.Total;
-import uk.gov.justice.services.core.annotation.Component;
-import uk.gov.justice.services.core.requester.Requester;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentContent;
