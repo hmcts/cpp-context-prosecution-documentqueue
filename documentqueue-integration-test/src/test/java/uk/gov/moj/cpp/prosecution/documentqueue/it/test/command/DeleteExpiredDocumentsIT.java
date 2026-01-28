@@ -20,7 +20,7 @@ import java.util.UUID;
 import static java.lang.ClassLoader.getSystemResourceAsStream;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.DocumentQueueTableList.DOCUMENT;
