@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-event</artifactId>
-        <version>17.0.18-PEG-2848-SNAPSHOT</version>
+        <version>17.0.19-PEG-2848-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
             <artifactId>documentqueue-domain-event</artifactId>
-            <version>17.0.18-PEG-2848-SNAPSHOT</version>
+            <version>17.0.19-PEG-2848-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
