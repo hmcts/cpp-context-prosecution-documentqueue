@@ -9,20 +9,20 @@
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
     <artifactId>documentqueue-parent</artifactId>
-    <version>17.0.17-SNAPSHOT</version>
+    <version>17.0.18-PEG-2848-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Prosecution document queue Microservice - Parent</name>
     <description>documentqueue Microservice - Prosecution Context</description>
 
     <properties>
-        <coredomain.version>17.102.9</coredomain.version>
+        <coredomain.version>17.103.11</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.66</material.version>
         <progression.version>17.0.219</progression.version>
         <bulkscan.version>17.0.31</bulkscan.version>
-        <referencedata.version>17.103.122</referencedata.version>
+        <referencedata.version>17.103.124</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>17.0.15</system.id-mapper.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
