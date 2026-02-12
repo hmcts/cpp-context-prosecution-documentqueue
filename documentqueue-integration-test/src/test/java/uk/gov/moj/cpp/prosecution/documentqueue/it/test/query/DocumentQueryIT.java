@@ -1,5 +1,7 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.it.test.query;
 
+import uk.gov.justice.services.messaging.JsonObjects;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.services.test.utils.core.messaging.JsonObjects.getJsonArray;

@@ -15,7 +15,7 @@ import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
 
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
 import javax.json.JsonValue;
@@ -25,8 +25,8 @@ import java.util.UUID;
 
 import static java.util.Collections.singletonList;
 import static java.util.UUID.randomUUID;
-import static javax.json.Json.createArrayBuilder;
-import static javax.json.Json.createObjectBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createArrayBuilder;
+import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -60,7 +60,7 @@ public class DocumentQueryViewTest {
         final List<ScanDocument> scanDocuments = singletonList(ScanDocument.scanDocument().withDocumentId(documentId).build());
 
         final JsonObject jsonObject = createObjectBuilder().add("id", documentId.toString()).build();
-        final JsonArray jsonArray = Json.createArrayBuilder()
+        final JsonArray jsonArray = JsonObjects.createArrayBuilder()
                 .add(jsonObject)
                 .build();
         final JsonValue expectedResult = createObjectBuilder().add("documents", jsonArray)

@@ -13,7 +13,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.query.api.interceptors.DocumentQ
 
 import java.util.Optional;
 
-import javax.json.Json;
+import uk.gov.justice.services.messaging.JsonObjects;
 import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ public class DocumentQueueAuditInterceptorTest  {
 
   @Test
   public void shouldProcessTest(){
-      final JsonObject jsonObject = Json.createObjectBuilder()
+      final JsonObject jsonObject = JsonObjects.createObjectBuilder()
               .add("content", "test binary")
               .add(FILE_NAME, FILE_CONTENT).build();
       final Optional<JsonEnvelope>jsonEnvelope = Optional.of(JsonEnvelope.envelopeFrom(
