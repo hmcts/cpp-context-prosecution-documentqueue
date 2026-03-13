@@ -3,7 +3,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-command</artifactId>
-        <version>17.0.19-DD-41817-SNAPSHOT</version>
+        <version>17.0.20-DD-41817-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
