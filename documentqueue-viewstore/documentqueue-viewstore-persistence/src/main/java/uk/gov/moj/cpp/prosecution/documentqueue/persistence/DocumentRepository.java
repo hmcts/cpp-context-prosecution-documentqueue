@@ -42,7 +42,7 @@ public interface DocumentRepository extends EntityRepository<Document, UUID> {
 
     @Query(value =
             "SELECT d.* FROM document d " +
-                    "WHERE d.case_id not in (select cs.case_id from case_status cs) " +
+                    "WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) " +
                     "and d.status in ('IN_PROGRESS', 'OUTSTANDING') " +
                     "and d.source = 'CPS' " +
                     "and d.received_date_time < now() - (interval '1' day) * :documentExpiryDays", isNative = true)
@@ -50,7 +50,7 @@ public interface DocumentRepository extends EntityRepository<Document, UUID> {
 
     @Query(value =
             "SELECT d.* FROM document d " +
-                    "WHERE d.case_id not in (select cs.case_id from case_status cs) " +
+                    "WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) " +
                     "and d.status in ('COMPLETED', 'DELETED') " +
                     "and d.source = 'CPS' " +
                     "and d.received_date_time < now() - (interval '1' day) * :days " +
