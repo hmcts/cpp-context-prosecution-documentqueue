@@ -20,9 +20,9 @@
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.66</material.version>
-        <progression.version>17.0.219</progression.version>
+        <progression.version>17.0.253</progression.version>
         <bulkscan.version>17.0.31</bulkscan.version>
-        <referencedata.version>17.103.122</referencedata.version>
+        <referencedata.version>17.103.132</referencedata.version>
         <system.enterprise-id.version>0.0.3</system.enterprise-id.version>
         <system.id-mapper.version>17.0.15</system.id-mapper.version>
         <sonar.jacoco.itReportPath>${project.basedir}/../target/jacoco-it.exec</sonar.jacoco.itReportPath>
