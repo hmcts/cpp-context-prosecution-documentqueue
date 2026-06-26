@@ -13,13 +13,13 @@ import static java.util.UUID.randomUUID;
 @ApplicationScoped
 public class SystemIdMapperService {
 
-    private static final String SOURCE_TYPE = "OU_URN";
+    public static final String SOURCE_TYPE = "OU_URN";
 
-    private static final String TARGET_TYPE = "CASE_FILE_ID";
+    public static final String TARGET_TYPE = "CASE_FILE_ID";
 
-    private static final String SPI_SOURCE_TYPE = "SPI-URN";
+    public static final String SPI_SOURCE_TYPE = "SPI-URN";
 
-    private static final String SPI_TARGET_TYPE = "CASE-ID";
+    public static final String SPI_TARGET_TYPE = "CASE-ID";
 
     @Inject
     private SystemUserProvider systemUserProvider;
@@ -36,6 +36,13 @@ public class SystemIdMapperService {
         final Optional<SystemIdMapping> mappingForPtiUrn = getSystemIdMappingForSpiCase(prosecutorCaseReference);
         if (mappingForPtiUrn.isPresent()) {
             return mappingForPtiUrn.get().getTargetId();
+        }
+
+        if (prosecutorCaseReference.contains(":")) {
+            final Optional<SystemIdMapping> mappingForCaseReference = getSystemIdMappingFor(prosecutorCaseReference.substring(prosecutorCaseReference.lastIndexOf(':') + 1));
+            if (mappingForCaseReference.isPresent()) {
+                return mappingForCaseReference.get().getTargetId();
+            }
         }
 
         final UUID newCaseId = randomUUID();
