@@ -74,7 +74,7 @@ public class SystemIdMapperService {
         return Optional.empty();
     }
 
-    private AdditionResponse attemptAddMappingForURN(final UUID caseId, final String prosecutorCaseReference) {////??? Yes
+    private AdditionResponse attemptAddMappingForURN(final UUID caseId, final String prosecutorCaseReference) {
         final SystemIdMap systemIdMap = new SystemIdMap(prosecutorCaseReference, SOURCE_TYPE, caseId, TARGET_TYPE);
         final Optional<UUID> contextSystemUserId = systemUserProvider.getContextSystemUserId();
         if (contextSystemUserId.isPresent()) {
