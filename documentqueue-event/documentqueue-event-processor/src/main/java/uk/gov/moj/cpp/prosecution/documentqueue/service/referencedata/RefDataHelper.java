@@ -6,7 +6,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.json.schemas.DocumentTypeAccessR
 import java.io.IOException;
 import java.util.function.Function;
 
-import javax.json.JsonValue;
+import jakarta.json.JsonValue;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;

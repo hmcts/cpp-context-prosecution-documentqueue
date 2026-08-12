@@ -15,7 +15,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.query.api.util.Base64Encoder;
 import java.io.InputStream;
 import java.util.UUID;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

@@ -25,8 +25,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentQueueReposit
 import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.converter.DocumentConverter;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
+import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

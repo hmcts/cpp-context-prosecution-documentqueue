@@ -10,7 +10,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.JmsMessageSender;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;

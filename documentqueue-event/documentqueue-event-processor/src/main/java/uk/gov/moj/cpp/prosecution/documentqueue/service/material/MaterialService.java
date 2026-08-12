@@ -14,7 +14,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.service.material.pojo.MaterialMe
 
 import java.util.UUID;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class MaterialService {
 

@@ -7,7 +7,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.persistence.CaseStatusRepository
 import java.util.List;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class CaseStatusService {
 

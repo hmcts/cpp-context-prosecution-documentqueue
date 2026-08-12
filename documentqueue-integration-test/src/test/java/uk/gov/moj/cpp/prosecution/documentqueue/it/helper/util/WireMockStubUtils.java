@@ -4,8 +4,8 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
 import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.apache.http.HttpHeaders.CONTENT_TYPE;
 import static org.apache.http.HttpStatus.SC_OK;
 import static uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils.stubPingFor;
@@ -17,8 +17,8 @@ import static uk.gov.justice.services.test.utils.core.matchers.ResponseStatusMat
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.file.SimpleFileClient.getFileAsString;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.FileUtil.resourceToString;
 
-import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.HttpHeaders;
+import jakarta.ws.rs.core.Response;
 import uk.gov.justice.service.wiremock.testutil.InternalEndpointMockUtils;
 
 import java.text.MessageFormat;
@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.Response.Status;
 
 public class WireMockStubUtils {
 

@@ -3,7 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.api.interceptors;
 import uk.gov.justice.services.components.query.api.interceptors.DefaultQueryApiInterceptorProvider;
 import uk.gov.justice.services.core.interceptor.InterceptorChainEntry;
 
-import javax.enterprise.inject.Specializes;
+import jakarta.enterprise.inject.Specializes;
 
 
 @Specializes

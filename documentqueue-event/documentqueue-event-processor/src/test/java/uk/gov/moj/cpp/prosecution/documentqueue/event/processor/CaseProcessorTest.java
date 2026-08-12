@@ -23,8 +23,8 @@ import uk.gov.moj.prosecution.documentqueue.domain.enums.CaseStatus;
 
 import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.json.JsonObject;
+import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
