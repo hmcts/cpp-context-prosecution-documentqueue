@@ -6,6 +6,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -194,6 +195,44 @@ public class DocumentStatusUpdatedListenerTest {
 
         final Document document = documentCaptor.getValue();
         assertThat(document, matchesNonNullPropertiesOfDocument(expectedDocument));
+    }
+
+    @Test
+    public void handleDocumentMarkedAsDeleted_documentNotFoundInViewstore_should_skipSave() {
+        final Envelope<DocumentMarkedDeleted> documentMarkedDeletedEnvelope = mock(Envelope.class);
+        final DocumentMarkedDeleted documentMarkedDeleted = mock(DocumentMarkedDeleted.class);
+        final UUID exampleDocumentId = UUID.fromString("463315f1-3518-4b9b-99d3-41604cb939c4");
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
+        final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-deleted")
+                .createdAt(eventDateTime).build();
+
+        when(documentMarkedDeletedEnvelope.payload()).thenReturn(documentMarkedDeleted);
+        when(documentMarkedDeletedEnvelope.metadata()).thenReturn(metadata);
+        when(documentMarkedDeleted.getDocumentId()).thenReturn(exampleDocumentId);
+        when(documentService.getDocumentByDocumentId(exampleDocumentId)).thenReturn(null);
+
+        documentStatusUpdatedListener.handleDocumentMarkedAsDeleted(documentMarkedDeletedEnvelope);
+
+        verify(documentService, never()).saveDocument(any(Document.class));
+    }
+
+    @Test
+    public void handleDocumentMarkedCompleted_documentNotFoundInViewstore_should_skipSave() {
+        final Envelope<DocumentMarkedCompleted> documentMarkedCompletedEnvelope = mock(Envelope.class);
+        final DocumentMarkedCompleted documentMarkedCompleted = mock(DocumentMarkedCompleted.class);
+        final UUID exampleDocumentId = UUID.fromString("463315f1-3518-4b9b-99d3-41604cb939c4");
+        final ZonedDateTime eventDateTime = ZonedDateTime.now(UTC).truncatedTo(ChronoUnit.MILLIS);
+        final Metadata metadata = metadataWithRandomUUID("documentqueue.event.document-marked-completed")
+                .createdAt(eventDateTime).build();
+
+        when(documentMarkedCompletedEnvelope.payload()).thenReturn(documentMarkedCompleted);
+        when(documentMarkedCompletedEnvelope.metadata()).thenReturn(metadata);
+        when(documentMarkedCompleted.getDocumentId()).thenReturn(exampleDocumentId);
+        when(documentService.getDocumentByDocumentId(exampleDocumentId)).thenReturn(null);
+
+        documentStatusUpdatedListener.handleDocumentMarkedCompleted(documentMarkedCompletedEnvelope);
+
+        verify(documentService, never()).saveDocument(any(Document.class));
     }
 
     private Document getDummyDocument() {
