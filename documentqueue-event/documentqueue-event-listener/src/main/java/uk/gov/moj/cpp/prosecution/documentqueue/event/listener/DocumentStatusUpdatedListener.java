@@ -27,8 +27,13 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @ServiceComponent(EVENT_LISTENER)
 public class DocumentStatusUpdatedListener {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DocumentStatusUpdatedListener.class);
 
     @Inject
     private DocumentService documentService;
@@ -78,8 +83,15 @@ public class DocumentStatusUpdatedListener {
     }
 
     public void updateDocumentStatus(final Status status, final UUID documentId, final Optional<ZonedDateTime> eventDateTime) {
+        final Document existingDocument = documentService.getDocumentByDocumentId(documentId);
+        if (existingDocument == null) {
+            // Persisting without the existing row would create an entity with a null assigned id
+            // and fail with IdentifierGenerationException, deadlocking stream catch-up (SNI-7045)
+            LOGGER.warn("Skipping status update to {} - no document found in viewstore for documentId {}", status, documentId);
+            return;
+        }
         final Document.DocumentBuilder documentBuilder = new Document.DocumentBuilder()
-                .withDocument(documentService.getDocumentByDocumentId(documentId));
+                .withDocument(existingDocument);
         documentBuilder.withStatus(status);
         eventDateTime.ifPresent(now -> {
             documentBuilder.withStatusUpdatedDate(now);
