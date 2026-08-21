@@ -9,51 +9,89 @@ import uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping;
 import java.util.List;
 import java.util.UUID;
 
-import org.apache.deltaspike.data.api.EntityRepository;
-import org.apache.deltaspike.data.api.Query;
-import org.apache.deltaspike.data.api.QueryParam;
-import org.apache.deltaspike.data.api.Repository;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
-@Repository
-public interface DocumentRepository extends EntityRepository<Document, UUID> {
+@ApplicationScoped
+public class DocumentRepository {
 
-    List<Document> findBySourceAndStatusOrderByVendorReceivedDateAsc(final Source source, final Status status);
+    private static final String SOURCE = "source";
 
-    List<Document> findByStatusOrderByVendorReceivedDateAsc(final Status status);
+    private static final String STATUSES = "statuses";
 
-    @Query(value = "SELECT new uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping(COUNT(*) AS count, source, status, type) FROM Document GROUP BY type, status, source")
-    List<DocumentCountMapping> getDocumentCount();
+    @PersistenceContext(unitName = "documentqueue")
+    EntityManager entityManager;
 
-    // NotIn query support is there from 1.9.1 delta spike so for now adding explicit query
-    @Query(value = "SELECT d FROM Document d WHERE d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate asc")
-    List<Document> findByStatusNotInOrderByVendorReceivedDateAsc(@QueryParam("statuses")  final List<Status> statuses);
+    public Document save(final Document document) {
+        return entityManager.merge(document);
+    }
 
-    @Query(value = "SELECT d FROM Document d WHERE d.source = :source and d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate asc")
-    List<Document> findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(@QueryParam("source") final Source source,@QueryParam("statuses") final List<Status> statuses);
+    public Document findBy(final UUID id) {
+        return entityManager.find(Document.class, id);
+    }
 
-    @Query(value = "SELECT d FROM Document d WHERE d.type = :type and d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate asc")
-    List<Document> findByTypeAndStatusNotInOrderByVendorReceivedDateAsc(@QueryParam("type") final Type type, @QueryParam("statuses") final List<Status> statuses);
+    public List<Document> findAll() {
+        return entityManager.createQuery("SELECT d FROM Document d", Document.class).getResultList();
+    }
 
-    @Query(value = "SELECT d FROM Document d WHERE d.source = :source and d.type = :type and d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate asc")
-    List<Document> findBySourceAndTypeAndStatusNotInOrderByVendorReceivedDateAsc(@QueryParam("source") final Source source, @QueryParam("type") final Type type, @QueryParam("statuses") final List<Status> statuses);
+    public void remove(final Document document) {
+        entityManager.remove(entityManager.contains(document) ? document : entityManager.merge(document));
+    }
 
-    @Query(value = "SELECT d FROM Document d WHERE d.caseUrn IN (:urns) OR d.casePTIUrn IN (:urns) ORDER BY d.casePTIUrn, d.caseUrn")
-    List<Document> findByCaseUrnInOrCasePTIUrnInOrderByCaseUrnAsc(@QueryParam("urns") final List<String> urns);
+    public List<Document> findBySourceAndStatusOrderByVendorReceivedDateAsc(final Source source, final Status status) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.source = :source AND d.status = :status ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter(SOURCE, source).setParameter("status", status).getResultList();
+    }
 
-    @Query(value =
-            "SELECT d.* FROM document d " +
-                    "WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) " +
-                    "and d.status in ('IN_PROGRESS', 'OUTSTANDING') " +
-                    "and d.source = 'CPS' " +
-                    "and d.received_date_time < now() - (interval '1' day) * :documentExpiryDays", isNative = true)
-    List<Document> getExpiredDocuments(@QueryParam("documentExpiryDays") final int documentExpiryDays);
+    public List<Document> findByStatusOrderByVendorReceivedDateAsc(final Status status) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.status = :status ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter("status", status).getResultList();
+    }
 
-    @Query(value =
-            "SELECT d.* FROM document d " +
-                    "WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) " +
-                    "and d.status in ('COMPLETED', 'DELETED') " +
-                    "and d.source = 'CPS' " +
-                    "and d.received_date_time < now() - (interval '1' day) * :days " +
-                    "order by d.received_date_time asc limit :maxResults", isNative = true)
-    List<Document> getDocumentsEligibleForDeletionFromFileStore(@QueryParam("days") final int days, @QueryParam("maxResults") final int maxResults);
+    public List<DocumentCountMapping> getDocumentCount() {
+        return entityManager.createQuery("SELECT new uk.gov.moj.cpp.prosecution.documentqueue.mapping.DocumentCountMapping(COUNT(d), d.source, d.status, d.type) FROM Document d GROUP BY d.source, d.status, d.type", DocumentCountMapping.class)
+                .getResultList();
+    }
+
+    public List<Document> findByStatusNotInOrderByVendorReceivedDateAsc(final List<Status> statuses) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter(STATUSES, statuses).getResultList();
+    }
+
+    public List<Document> findBySourceAndStatusNotInOrderByVendorReceivedDateAsc(final Source source, final List<Status> statuses) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.source = :source AND d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter(SOURCE, source).setParameter(STATUSES, statuses).getResultList();
+    }
+
+    public List<Document> findByTypeAndStatusNotInOrderByVendorReceivedDateAsc(final Type type, final List<Status> statuses) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.type = :type AND d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter("type", type).setParameter(STATUSES, statuses).getResultList();
+    }
+
+    public List<Document> findBySourceAndTypeAndStatusNotInOrderByVendorReceivedDateAsc(final Source source, final Type type, final List<Status> statuses) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.source = :source AND d.type = :type AND d.status NOT IN (:statuses) ORDER BY d.vendorReceivedDate ASC", Document.class)
+                .setParameter(SOURCE, source).setParameter("type", type).setParameter(STATUSES, statuses).getResultList();
+    }
+
+    public List<Document> findByCaseUrnInOrCasePTIUrnInOrderByCaseUrnAsc(final List<String> urns) {
+        return entityManager.createQuery("SELECT d FROM Document d WHERE d.caseUrn IN (:urns) OR d.casePTIUrn IN (:urns) ORDER BY d.casePTIUrn, d.caseUrn", Document.class)
+                .setParameter("urns", urns).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Document> getExpiredDocuments(final int documentExpiryDays) {
+        return entityManager.createNativeQuery(
+                        "SELECT d.* FROM document d WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) and d.status in ('IN_PROGRESS', 'OUTSTANDING') and d.source = 'CPS' and d.received_date_time < now() - (interval '1' day) * :documentExpiryDays",
+                        Document.class)
+                .setParameter("documentExpiryDays", documentExpiryDays).getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<Document> getDocumentsEligibleForDeletionFromFileStore(final int days, final int maxResults) {
+        return entityManager.createNativeQuery(
+                        "SELECT d.* FROM document d WHERE not exists (select cs.case_id from case_status cs where cs.case_id = d.case_id) and d.status in ('COMPLETED', 'DELETED') and d.source = 'CPS' and d.received_date_time < now() - (interval '1' day) * :days order by d.received_date_time asc limit :maxResults",
+                        Document.class)
+                .setParameter("days", days).setParameter("maxResults", maxResults).getResultList();
+    }
 }

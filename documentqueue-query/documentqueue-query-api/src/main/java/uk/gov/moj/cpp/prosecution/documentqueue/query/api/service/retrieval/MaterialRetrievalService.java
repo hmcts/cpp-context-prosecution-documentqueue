@@ -3,13 +3,13 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.retrieval;
 import static java.lang.String.format;
 
 import uk.gov.justice.services.core.dispatcher.SystemUserProvider;
-import uk.gov.moj.cpp.material.client.MaterialClient;
+import uk.gov.moj.cpp.prosecution.documentqueue.material.client.MaterialClient;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.util.Base64Encoder;
 
 import java.io.InputStream;
 import java.util.UUID;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class MaterialRetrievalService implements RetrievalService {
 

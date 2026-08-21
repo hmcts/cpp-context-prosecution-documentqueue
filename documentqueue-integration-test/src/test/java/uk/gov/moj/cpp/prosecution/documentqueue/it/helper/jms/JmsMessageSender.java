@@ -5,7 +5,7 @@ import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageProducerClien
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.justice.services.messaging.Metadata;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Map;
