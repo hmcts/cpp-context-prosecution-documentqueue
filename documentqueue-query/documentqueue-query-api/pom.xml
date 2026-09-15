@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
         <artifactId>documentqueue-query</artifactId>
-        <version>17.104.23-SNAPSHOT</version>
+        <version>17.104.24-CHD-2845-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -42,10 +42,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>documentqueue-domain-value-schema</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>uk.gov.moj.cpp.material</groupId>
-            <artifactId>material-client</artifactId>
         </dependency>
         <dependency>
             <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
