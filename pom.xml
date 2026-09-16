@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.common</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>25.104.0-M10</version>
+        <version>25.104.2</version>
     </parent>
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
@@ -16,7 +16,7 @@
     <description>documentqueue Microservice - Prosecution Context</description>
 
     <properties>
-        <coredomain.version>25.104.0-M11</coredomain.version>
+        <coredomain.version>25.104.2</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.66</material.version>
