@@ -44,10 +44,6 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>uk.gov.moj.cpp.material</groupId>
-            <artifactId>material-client</artifactId>
-        </dependency>
-        <dependency>
             <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
             <artifactId>documentqueue-domain-core</artifactId>
             <version>${project.version}</version>
