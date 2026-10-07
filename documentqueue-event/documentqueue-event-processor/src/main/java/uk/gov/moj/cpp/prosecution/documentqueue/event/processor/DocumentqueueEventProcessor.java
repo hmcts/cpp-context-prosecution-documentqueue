@@ -51,7 +51,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
-import jakarta.json.Json;
 import jakarta.json.JsonArray;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
@@ -350,7 +349,7 @@ public class DocumentqueueEventProcessor {
     }
 
     private JsonObject enrichMaterialId(final JsonObject source, String materialId) {
-        final JsonObjectBuilder builder = Json.createObjectBuilder();
+        final JsonObjectBuilder builder = createObjectBuilder();
         source.entrySet().forEach(e -> {
             if ("materials".equalsIgnoreCase(e.getKey())) {
                 final JsonArray materials = (JsonArray) e.getValue();

@@ -4,7 +4,7 @@
     <parent>
         <groupId>uk.gov.moj.cpp.common</groupId>
         <artifactId>service-parent-pom</artifactId>
-        <version>25.104.2</version>
+        <version>25.104.3</version>
     </parent>
 
     <groupId>uk.gov.moj.cpp.prosecution.documentqueue</groupId>
@@ -16,7 +16,7 @@
     <description>documentqueue Microservice - Prosecution Context</description>
 
     <properties>
-        <coredomain.version>25.104.2</coredomain.version>
+        <coredomain.version>25.104.3</coredomain.version>
         <cpp.framework.action.mapping.enabled>true</cpp.framework.action.mapping.enabled>
         <cpp.structure.version>2.0.335</cpp.structure.version>
         <material.version>17.0.66</material.version>
@@ -29,18 +29,11 @@
         <sonar.report.export.path>sonar-report.json</sonar.report.export.path>
         <sonar.scm.provider>git</sonar.scm.provider>
         <mvn.site.url>file://${project.build.directory}/site</mvn.site.url>
-        <maven.cucumber.reporting.plugin.version>2.0.0</maven.cucumber.reporting.plugin.version>
         <jgitflow.maven.developBranchName>main</jgitflow.maven.developBranchName>
-        <junit4.version>4.13.1</junit4.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>${junit4.version}</version>
-            </dependency>
             <dependency>
                 <groupId>uk.gov.moj.cpp.material</groupId>
                 <artifactId>material-client</artifactId>
@@ -87,7 +80,6 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>sonar-maven-plugin</artifactId>
-                <version>3.11.0.3922</version>
             </plugin>
         </plugins>
     </build>
