@@ -15,10 +15,10 @@ import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
 
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonValue;
+import jakarta.json.Json;
+import jakarta.json.JsonArray;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonValue;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

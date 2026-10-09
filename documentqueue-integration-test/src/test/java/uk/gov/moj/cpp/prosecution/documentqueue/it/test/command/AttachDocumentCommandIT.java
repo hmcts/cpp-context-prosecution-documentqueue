@@ -9,7 +9,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPayloadUtil;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

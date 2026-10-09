@@ -5,6 +5,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -32,6 +33,7 @@ public class Base64EncoderTest {
 
         final InputStream inputStream = mock(InputStream.class);
         when(inputStream.read(any())).thenThrow(ioException);
+        when(inputStream.read(any(), anyInt(), anyInt())).thenThrow(ioException);
 
         try {
             base64Encoder.encode(inputStream);
