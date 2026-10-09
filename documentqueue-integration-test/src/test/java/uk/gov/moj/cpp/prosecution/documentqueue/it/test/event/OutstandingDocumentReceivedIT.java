@@ -11,7 +11,7 @@ import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventPaylo
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubForIdMapperSuccess;
 import static uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.WireMockStubUtils.stubIdMapperReturningExistingAssociation;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
 import java.util.Map;

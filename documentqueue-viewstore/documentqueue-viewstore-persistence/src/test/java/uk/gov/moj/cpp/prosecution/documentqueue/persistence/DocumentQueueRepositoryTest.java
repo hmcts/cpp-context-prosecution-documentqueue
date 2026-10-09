@@ -1,130 +1,98 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.persistence;
 
-import org.apache.deltaspike.testcontrol.api.junit.CdiTestRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import static java.util.UUID.randomUUID;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.MatcherAssert.assertThat;
+
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Source;
 import uk.gov.justice.prosecution.documentqueue.domain.enums.Status;
-import uk.gov.justice.services.test.utils.persistence.BaseTransactionalJunit4Test;
+import uk.gov.justice.services.test.utils.persistence.HibernateTestEntityManagerProvider;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 
-import javax.inject.Inject;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static java.util.UUID.randomUUID;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.RegisterExtension;
 
-@RunWith(CdiTestRunner.class)
-public class DocumentQueueRepositoryTest extends BaseTransactionalJunit4Test {
+public class DocumentQueueRepositoryTest {
 
-    @Inject
+    private static final String PERSISTENCE_UNIT = "documentqueue-test-persistence-unit";
+
+    @RegisterExtension
+    static HibernateTestEntityManagerProvider hibernateTestEntityManagerProvider =
+            new HibernateTestEntityManagerProvider(PERSISTENCE_UNIT);
+
     private DocumentQueueRepository documentQueueRepository;
+
+    @BeforeEach
+    void openEntityManagerAndCreateRepository() {
+        documentQueueRepository = new DocumentQueueRepository();
+        hibernateTestEntityManagerProvider.injectEntityManagerInto(documentQueueRepository);
+    }
 
     @Test
     public void shouldGetDocumentsByStatusAndSource() {
 
-        final UUID document1Id = randomUUID();
-        final UUID document2Id = randomUUID();
-
-        final Document document1 = createDocument(document1Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1));
+        final Document document1 = createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1));
         documentQueueRepository.save(document1);
-        final Document document2 = createDocument(document2Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
+        final Document document2 = createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
         documentQueueRepository.save(document2);
 
-        List<Document> result = documentQueueRepository.getDocumentList(Optional.of(Source.BULKSCAN), Optional.of(Status.COMPLETED),"statusUpdatedDate", "desc", 0, 50).getRight();
+        final List<Document> result = documentQueueRepository.getDocumentList(Optional.of(Source.BULKSCAN), Optional.of(Status.COMPLETED), "statusUpdatedDate", "desc", 0, 50).getRight();
 
         assertThat(result.size(), is(2));
-
-
     }
 
     @Test
     public void shouldGetDocumentsBySource() {
 
-        final UUID document1Id = randomUUID();
-        final UUID document2Id = randomUUID();
-        final UUID document3Id = randomUUID();
-        final UUID document4Id = randomUUID();
-        final UUID document5Id = randomUUID();
+        documentQueueRepository.save(createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.FILE_DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.FILE_DELETED, Source.CPS, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
 
-        final Document document1 = createDocument(document1Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1));
-        documentQueueRepository.save(document1);
-        final Document document2 = createDocument(document2Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document2);
-        final Document document3 = createDocument(document3Id, Status.DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document3);
-        final Document document4 = createDocument(document4Id, Status.FILE_DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document4);
-        final Document document5= createDocument(document5Id, Status.FILE_DELETED, Source.CPS, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document5);
-
-        List<Document> result = documentQueueRepository.getDocumentList(Optional.of(Source.BULKSCAN), Optional.empty(),"statusUpdatedDate", "desc", 0, 50).getRight();
+        final List<Document> result = documentQueueRepository.getDocumentList(Optional.of(Source.BULKSCAN), Optional.empty(), "statusUpdatedDate", "desc", 0, 50).getRight();
 
         assertThat(result.size(), is(2));
-
-
     }
 
     @Test
     public void shouldGetDocumentsWithOutSourceAndStatus() {
 
-        final UUID document1Id = randomUUID();
-        final UUID document2Id = randomUUID();
-        final UUID document3Id = randomUUID();
-        final UUID document4Id = randomUUID();
+        documentQueueRepository.save(createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.IN_PROGRESS, Source.CPS, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.FILE_DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
 
-        final Document document1 = createDocument(document1Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1));
-        documentQueueRepository.save(document1);
-        final Document document2 = createDocument(document2Id, Status.IN_PROGRESS, Source.CPS, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document2);
-        final Document document3 = createDocument(document3Id, Status.DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document3);
-        final Document document4 = createDocument(document4Id, Status.FILE_DELETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document4);
-
-        List<Document> result = documentQueueRepository.getDocumentList(Optional.empty(), Optional.empty(),"statusUpdatedDate", "desc", 0, 50).getRight();
+        final List<Document> result = documentQueueRepository.getDocumentList(Optional.empty(), Optional.empty(), "statusUpdatedDate", "desc", 0, 50).getRight();
 
         assertThat(result.size(), is(2));
-
-
     }
 
     @Test
     public void shouldGetDocumentsByStatus() {
 
-        final UUID document1Id = randomUUID();
-        final UUID document2Id = randomUUID();
+        documentQueueRepository.save(createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1)));
+        documentQueueRepository.save(createDocument(randomUUID(), Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2)));
 
-        final Document document1 = createDocument(document1Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().minusDays(1));
-        documentQueueRepository.save(document1);
-        final Document document2 = createDocument(document2Id, Status.COMPLETED, Source.BULKSCAN, ZonedDateTime.now(), ZonedDateTime.now().plusDays(2));
-        documentQueueRepository.save(document2);
-
-        List<Document> result = documentQueueRepository.getDocumentList(Optional.empty(), Optional.of(Status.COMPLETED),"vendorReceivedDate", "desc", 0, 50).getRight();
+        final List<Document> result = documentQueueRepository.getDocumentList(Optional.empty(), Optional.of(Status.COMPLETED), "vendorReceivedDate", "desc", 0, 50).getRight();
 
         assertThat(result.size(), is(2));
-
-
     }
 
-
-
     private Document createDocument(final UUID documentId, final Status status, final Source source, final ZonedDateTime receivedDate, final ZonedDateTime statusUpdatedDate) {
-         return Document.DocumentBuilder.document()
+        return Document.DocumentBuilder.document()
                 .withId(documentId)
                 .withCaseId(randomUUID())
                 .withStatus(status)
-                 .withSource(source)
-                 .withReceivedDateTime(receivedDate)
-                 .withStatusUpdatedDate(statusUpdatedDate)
+                .withSource(source)
+                .withReceivedDateTime(receivedDate)
+                .withStatusUpdatedDate(statusUpdatedDate)
                 .build();
-
-
     }
-
-
 }
