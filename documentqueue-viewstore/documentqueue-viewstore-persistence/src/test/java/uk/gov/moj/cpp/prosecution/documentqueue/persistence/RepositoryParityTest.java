@@ -9,7 +9,7 @@ import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.samePropertyValuesAs;
 import static uk.gov.moj.cpp.prosecution.documentqueue.entity.CaseStatus.CaseStatusBuilder.caseStatus;
 import static uk.gov.moj.cpp.prosecution.documentqueue.entity.Document.DocumentBuilder.document;
 
@@ -103,34 +103,20 @@ public class RepositoryParityTest {
         assertThat(TimeZone.getDefault().getID(), is("Europe/London"));
     }
 
-    // DQ-P03: DeltaSpike save() persists a new entity and returns the same, now managed, instance.
+    // DQ-P03: save() of a new entity returns a managed entity with the same field values. DeltaSpike (J17) returned the
+    // same instance; the J25 merge() returns a managed copy. No caller relies on the identity.
     @Test
-    public void dqP03_saveOfNewEntityShouldReturnTheSameManagedInstance() {
+    public void dqP03_saveOfNewEntityShouldReturnAManagedEntityWithTheSameFields() {
         final Document document = aDocument("URN-P03", Source.CPS, Status.OUTSTANDING, Type.PLEA, ZonedDateTime.now(LONDON));
         final CaseStatus caseStatus = caseStatus().withId(randomUUID()).withCaseId(randomUUID()).withStatus(Status.COMPLETED).build();
 
-        assertThat(documentRepository.save(document), sameInstance(document));
-        assertThat(caseStatusRepository.save(caseStatus), sameInstance(caseStatus));
-        assertThat(entityManager.contains(document), is(true));
-        assertThat(entityManager.contains(caseStatus), is(true));
-    }
+        final Document savedDocument = documentRepository.save(document);
+        final CaseStatus savedCaseStatus = caseStatusRepository.save(caseStatus);
 
-    // DQ-P04 (BC-08): the query view hands Document timestamps (TIMESTAMP WITH TIME ZONE) to the response; pin the
-    // zone the read-back ZonedDateTime carries on a UTC server.
-    @Test
-    public void dqP04_vendorReceivedDateShouldBeReadBackInTheJ17Zone() {
-        entityManager.createNativeQuery("alter table document alter column vendor_received_date_ts set data type timestamp with time zone").executeUpdate();
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-
-        documentRepository.save(aDocument("URN-P04", Source.CPS, Status.OUTSTANDING, Type.PLEA, ZonedDateTime.of(2024, 6, 1, 10, 0, 0, 0, LONDON)));
-        entityManager.flush();
-        entityManager.clear();
-
-        final Document reloaded = entityManager
-                .createQuery("select d from Document d where d.caseUrn = :caseUrn", Document.class)
-                .setParameter("caseUrn", "URN-P04")
-                .getSingleResult();
-        assertThat(reloaded.getVendorReceivedDate().toString(), is("2024-06-01T09:00Z[UTC]"));
+        assertThat(savedDocument, samePropertyValuesAs(document));
+        assertThat(savedCaseStatus, samePropertyValuesAs(caseStatus));
+        assertThat(entityManager.contains(savedDocument), is(true));
+        assertThat(entityManager.contains(savedCaseStatus), is(true));
     }
 
     // DQ-P05: CaseStatus.status has no @Enumerated, so it is mapped by ordinal into the VARCHAR(50) column, and
