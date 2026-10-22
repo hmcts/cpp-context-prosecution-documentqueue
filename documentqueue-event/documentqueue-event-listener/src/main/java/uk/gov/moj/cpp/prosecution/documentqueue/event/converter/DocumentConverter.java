@@ -11,7 +11,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 public class DocumentConverter {
 

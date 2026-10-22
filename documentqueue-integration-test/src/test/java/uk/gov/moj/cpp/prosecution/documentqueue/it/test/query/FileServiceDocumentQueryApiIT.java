@@ -2,8 +2,8 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.test.query;
 
 import static java.lang.String.format;
 import static java.util.UUID.randomUUID;
-import static javax.ws.rs.core.Response.Status.NOT_FOUND;
-import static javax.ws.rs.core.Response.Status.OK;
+import static jakarta.ws.rs.core.Response.Status.NOT_FOUND;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static uk.gov.justice.prosecution.documentqueue.domain.enums.Status.OUTSTANDING;
@@ -22,10 +22,9 @@ import java.io.InputStream;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.json.JsonObject;
+import jakarta.json.JsonObject;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 
 

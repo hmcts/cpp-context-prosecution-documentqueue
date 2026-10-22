@@ -9,7 +9,7 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
