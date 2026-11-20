@@ -10,7 +10,7 @@ import uk.gov.justice.stagingbulkscan.domain.ScanDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.command.handler.LinkDocumentToCase;
 import uk.gov.moj.cps.prosecutioncasefile.domain.event.DocumentReviewRequired;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 
 public class LinkDocumentToCaseEnveloper {
 

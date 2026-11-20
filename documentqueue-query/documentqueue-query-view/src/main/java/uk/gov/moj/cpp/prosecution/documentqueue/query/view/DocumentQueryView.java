@@ -14,9 +14,9 @@ import uk.gov.justice.services.messaging.JsonEnvelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.service.DocumentService;
 
-import javax.inject.Inject;
-import javax.json.JsonObject;
-import javax.json.JsonString;
+import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonString;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

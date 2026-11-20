@@ -3,8 +3,8 @@ package uk.gov.moj.cpp.prosecution.documentqueue.service;
 import uk.gov.justice.services.core.dispatcher.SystemUserProvider;
 import uk.gov.moj.cpp.systemidmapper.client.*;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
 import java.util.Optional;
 import java.util.UUID;
 
