@@ -11,8 +11,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.jms.JmsMessageSender;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.inject.Inject;
-import javax.ws.rs.core.Response;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.Response;
 import java.time.ZonedDateTime;
 import java.util.HashMap;
 import java.util.Map;

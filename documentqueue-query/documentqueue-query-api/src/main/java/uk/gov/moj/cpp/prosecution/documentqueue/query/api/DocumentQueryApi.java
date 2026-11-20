@@ -15,8 +15,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.DocumentConten
 import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.GetDocument;
 import uk.gov.moj.cpp.prosecution.documentqueue.query.view.DocumentQueryView;
 
-import javax.inject.Inject;
-import javax.json.JsonObject;
+import jakarta.inject.Inject;
+import jakarta.json.JsonObject;
 
 @ServiceComponent(QUERY_API)
 public class DocumentQueryApi {

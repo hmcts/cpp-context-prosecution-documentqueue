@@ -11,8 +11,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.inject.Inject;
-import javax.json.JsonString;
+import jakarta.inject.Inject;
+import jakarta.json.JsonString;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;

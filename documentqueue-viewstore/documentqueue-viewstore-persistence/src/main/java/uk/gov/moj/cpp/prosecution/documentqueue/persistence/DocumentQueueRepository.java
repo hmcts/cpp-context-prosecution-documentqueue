@@ -8,31 +8,31 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
-import javax.inject.Inject;
-import javax.persistence.EntityManager;
-import javax.persistence.TypedQuery;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.apache.deltaspike.data.api.EntityRepository;
-import org.apache.deltaspike.data.api.Repository;
-import org.apache.deltaspike.data.api.criteria.CriteriaSupport;
 
-@Repository
-public abstract class DocumentQueueRepository implements EntityRepository<Document, UUID>, CriteriaSupport<Document> {
+@ApplicationScoped
+public class DocumentQueueRepository {
 
     private static final String SOURCE = "source";
 
     private static final String STATUS = "status";
 
-    @Inject
-    private EntityManager entityManager;
+    @PersistenceContext(unitName = "documentqueue")
+    EntityManager entityManager;
 
+    public Document save(final Document document) {
+        return entityManager.merge(document);
+    }
 
     public Pair<Integer, List<Document>> getDocumentList(final Optional<Source> source, final Optional<Status> status, final String sort, final String sortOrder, final int offset, final int limit) {
 
