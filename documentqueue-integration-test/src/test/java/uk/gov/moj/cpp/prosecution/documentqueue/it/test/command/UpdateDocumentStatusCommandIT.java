@@ -10,7 +10,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.it.helper.util.EventNames;
 import uk.gov.justice.services.integrationtest.utils.jms.JmsMessageConsumerClient;
 import uk.gov.moj.cpp.prosecution.documentqueue.it.test.BaseIT;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import java.util.Map;
 import java.util.UUID;
 
