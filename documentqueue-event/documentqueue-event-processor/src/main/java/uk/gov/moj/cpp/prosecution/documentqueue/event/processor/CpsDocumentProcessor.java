@@ -15,8 +15,8 @@ import uk.gov.moj.cps.prosecutioncasefile.domain.event.DocumentReviewRequired;
 
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.json.JsonObject;
+import javax.inject.Inject;
+import javax.json.JsonObject;
 
 @ServiceComponent(EVENT_PROCESSOR)
 public class CpsDocumentProcessor {

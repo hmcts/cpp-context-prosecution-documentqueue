@@ -2,8 +2,8 @@ package uk.gov.moj.cpp.prosecution.documentqueue.it.helper.rest;
 
 import java.io.StringReader;
 
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
+import javax.json.Json;
+import javax.json.JsonObject;
 
 public class SimpleResponse {
 

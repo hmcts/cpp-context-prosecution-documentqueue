@@ -21,8 +21,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.json.JsonArray;
-import jakarta.json.JsonObject;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

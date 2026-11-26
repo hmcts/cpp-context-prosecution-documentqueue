@@ -13,7 +13,7 @@ import uk.gov.justice.services.core.sender.Sender;
 import uk.gov.justice.services.messaging.Envelope;
 import uk.gov.moj.cpp.prosecution.documentqueue.event.converter.LinkDocumentToCaseEnveloper;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 @ServiceComponent(EVENT_PROCESSOR)
 public class BulkScanProcessor {

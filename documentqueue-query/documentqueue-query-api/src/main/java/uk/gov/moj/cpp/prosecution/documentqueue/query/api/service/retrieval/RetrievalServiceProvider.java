@@ -3,7 +3,7 @@ package uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.retrieval;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 public class RetrievalServiceProvider {
 
