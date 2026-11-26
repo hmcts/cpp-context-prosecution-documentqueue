@@ -47,4 +47,3 @@ buildDeployAndTest() {
 }
 
 buildDeployAndTest
-# CIMD-4110: dummy change to re-trigger pipeline after DevOps issue
