@@ -5,7 +5,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.persistence.DocumentRepository;
 
 import java.util.UUID;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 public class DocumentService {
 

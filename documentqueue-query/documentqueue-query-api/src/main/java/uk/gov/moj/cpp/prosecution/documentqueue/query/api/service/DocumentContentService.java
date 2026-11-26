@@ -6,7 +6,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.query.api.service.retrieval.Retr
 
 import java.util.UUID;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 import org.apache.tika.Tika;
 

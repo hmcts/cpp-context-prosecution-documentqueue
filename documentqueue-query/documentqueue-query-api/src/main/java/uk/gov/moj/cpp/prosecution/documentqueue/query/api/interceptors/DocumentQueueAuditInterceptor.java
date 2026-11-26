@@ -1,7 +1,6 @@
 package uk.gov.moj.cpp.prosecution.documentqueue.query.api.interceptors;
 
 import static java.util.Objects.nonNull;
-import static uk.gov.justice.services.messaging.JsonObjects.createObjectBuilder;
 
 import uk.gov.justice.services.core.audit.AuditService;
 import uk.gov.justice.services.core.interceptor.Interceptor;
@@ -15,10 +14,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
-import jakarta.json.JsonValue;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.JsonValue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,7 @@ public class DocumentQueueAuditInterceptor implements Interceptor {
     }
 
     private JsonObject removeProperty(final JsonObject origin, final String key) {
-        final JsonObjectBuilder builder = createObjectBuilder();
+        final JsonObjectBuilder builder = Json.createObjectBuilder();
         for (final Map.Entry<String, JsonValue> entry : origin.entrySet()) {
             if (entry.getKey().equals(key)) {
                 continue;

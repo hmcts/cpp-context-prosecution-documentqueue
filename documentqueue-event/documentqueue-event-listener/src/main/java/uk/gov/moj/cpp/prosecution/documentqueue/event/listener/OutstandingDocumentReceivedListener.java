@@ -12,8 +12,8 @@ import uk.gov.moj.cpp.prosecution.documentqueue.event.service.DocumentService;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 
-import jakarta.inject.Inject;
-import jakarta.json.JsonObject;
+import javax.inject.Inject;
+import javax.json.JsonObject;
 
 @ServiceComponent(EVENT_LISTENER)
 public class OutstandingDocumentReceivedListener {

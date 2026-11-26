@@ -14,7 +14,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.domain.aggregate.DocumentsExpira
 
 import java.util.stream.Stream;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 @ServiceComponent(COMMAND_HANDLER)
 public class DocumentsExpiryHandler {

@@ -17,8 +17,8 @@ import uk.gov.justice.services.messaging.Metadata;
 import uk.gov.moj.cpp.prosecution.documentqueue.json.schemas.DocumentTypeAccessReferenceData;
 import uk.gov.moj.cpp.prosecution.documentqueue.service.referencedata.pojo.Prosecutor;
 
-import jakarta.inject.Inject;
-import jakarta.json.JsonValue;
+import javax.inject.Inject;
+import javax.json.JsonValue;
 
 public class ReferenceDataService implements ReferenceDataServiceInterface {
 

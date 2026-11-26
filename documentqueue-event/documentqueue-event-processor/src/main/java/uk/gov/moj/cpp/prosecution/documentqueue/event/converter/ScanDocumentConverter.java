@@ -17,7 +17,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.service.SystemIdMapperService;
 
 import java.util.UUID;
 
-import jakarta.inject.Inject;
+import javax.inject.Inject;
 
 
 public class ScanDocumentConverter {

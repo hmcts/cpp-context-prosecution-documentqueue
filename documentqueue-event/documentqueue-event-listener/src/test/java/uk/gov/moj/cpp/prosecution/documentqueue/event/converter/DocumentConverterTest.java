@@ -20,7 +20,7 @@ import uk.gov.moj.cpp.prosecution.documentqueue.entity.Document;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 
-import jakarta.json.JsonObject;
+import javax.json.JsonObject;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

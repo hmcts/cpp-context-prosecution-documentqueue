@@ -50,11 +50,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.inject.Inject;
-import jakarta.json.JsonArray;
-import jakarta.json.JsonArrayBuilder;
-import jakarta.json.JsonObject;
-import jakarta.json.JsonObjectBuilder;
+import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -349,7 +350,7 @@ public class DocumentqueueEventProcessor {
     }
 
     private JsonObject enrichMaterialId(final JsonObject source, String materialId) {
-        final JsonObjectBuilder builder = createObjectBuilder();
+        final JsonObjectBuilder builder = Json.createObjectBuilder();
         source.entrySet().forEach(e -> {
             if ("materials".equalsIgnoreCase(e.getKey())) {
                 final JsonArray materials = (JsonArray) e.getValue();
